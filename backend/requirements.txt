@@ -9,3 +9,4 @@ openai
 pgvector
 python-docx
 jinja2
+beautifulsoup4
