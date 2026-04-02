@@ -18,6 +18,7 @@ from app.models.application_full_resume_draft import ApplicationFullResumeDraft
 from app.api.routes.full_resume_draft import router as full_resume_draft_router
 
 import os
+
 origins = os.getenv("ALLOWED_ORIGINS", "")
 origin_list = [origin.strip() for origin in origins.split(",") if origin.strip()]
 
@@ -25,7 +26,6 @@ default_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://10.192.100.197:3000",
-    "https://rolepilot-nu.vercel.app",
 ]
 
 allow_origins = list(dict.fromkeys(origin_list + default_origins))
