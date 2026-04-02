@@ -1,5 +1,6 @@
 # RolePilot
-(originally named ApplyIQ)
+
+link to website: https://rolepilot-nu.vercel.app/?jr_id=69a677a1d706a731db3865db
 
 RolePilot is an AI powered career copilot that helps users track job and internship applications, analyze resumes, compare resumes against job postings, generate tailored resume content, and export polished resume drafts.
 
