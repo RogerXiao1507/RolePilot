@@ -17,14 +17,16 @@ from app.api.routes.export import router as export_router
 from app.models.application_full_resume_draft import ApplicationFullResumeDraft
 from app.api.routes.full_resume_draft import router as full_resume_draft_router
 
+import os
+
+origins = os.getenv("ALLOWED_ORIGINS", "")
+origin_list = [origin.strip() for origin in origins.split(",") if origin.strip()]
+
 app = FastAPI(title="RolePilot API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
