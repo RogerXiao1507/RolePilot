@@ -1,0 +1,334 @@
+{
+  "corpus": [
+    {
+      "id": "rolepilot-summary",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nDescription: Built a full-stack AI career platform with REST API workflows and a PostgreSQL backend that stores application records, resume drafts, and chunked embeddings for retrieval-augmented resume tailoring.\nSkills: React, Next.js, FastAPI, PostgreSQL, pgvector, OpenAI API, TypeScript, Python, Cloudflare Workers\nKeywords: RAG, semantic retrieval, resume tailoring, AI agent, application tracking"
+    },
+    {
+      "id": "rolepilot-fullstack",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Built a full-stack AI career platform with 5 REST API workflows and a PostgreSQL backend storing application records, resume drafts, and chunked embeddings for retrieval."
+    },
+    {
+      "id": "rolepilot-rag",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Achieved 80% top-3 retrieval accuracy across 30 job descriptions using a pgvector-based semantic search pipeline over chunked project evidence."
+    },
+    {
+      "id": "rolepilot-grounding",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Reduced unsupported LLM-generated claims by grounding resume tailoring outputs in retrieved evidence, improving factual consistency."
+    },
+    {
+      "id": "rolepilot-agent",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Enabled stateful multi-turn career guidance across extended conversations by implementing a Cloudflare Workers-based agent with persistent memory."
+    },
+    {
+      "id": "heatrisk-summary",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nDescription: Developed a county-level heat risk platform that scores 72-hour public health danger from weather, AQI, and vulnerability inputs and serves real-time results across thousands of U.S. counties.\nSkills: Python, FastAPI, Next.js, pandas, scikit-learn, TypeScript\nKeywords: supervised learning, forecasting, public health, deployment, county risk scoring"
+    },
+    {
+      "id": "heatrisk-ml",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Built a supervised learning pipeline over 29,376 county-day samples and 468 historical heat events, engineering forecast, AQI, vulnerability, and interaction features for emergency pattern detection."
+    },
+    {
+      "id": "heatrisk-deploy",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Deployed a FastAPI and Next.js application serving real-time heat risk scores for more than 3,000 U.S. counties with severity tiers, driver breakdowns, and county-specific guidance."
+    },
+    {
+      "id": "divergence-tts",
+      "source": "resume_seed",
+      "text": "Title: Divergence 2 Percent Research Lab\nCategory: Applied Machine Learning Research\nBullet: Improved TTS training coherence by building contextual input formatting scripts for Dia model fine-tuning with Hugging Face Trainer."
+    },
+    {
+      "id": "divergence-dataset",
+      "source": "resume_seed",
+      "text": "Title: Divergence 2 Percent Research Lab\nCategory: Applied Machine Learning Research\nBullet: Increased model coverage by building a 33-hour voice dataset via web scraping with BeautifulSoup and audio processing with librosa."
+    },
+    {
+      "id": "divergence-eval",
+      "source": "resume_seed",
+      "text": "Title: Divergence 2 Percent Research Lab\nCategory: Applied Machine Learning Research\nBullet: Benchmarked production TTS models on more than 100 test samples and automated multi-metric evaluation across MOS, WER, and speaker similarity."
+    },
+    {
+      "id": "pacman-fpga",
+      "source": "resume_seed",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nDescription: Built a Pac-Man style game in SystemVerilog on FPGA with HDMI output, keyboard input, sprite logic, and module debugging in Vivado.\nSkills: SystemVerilog, FPGA, Vivado, HDMI, debugging\nKeywords: embedded systems, hardware validation, digital logic, low-level debugging"
+    },
+    {
+      "id": "pacman-debug",
+      "source": "resume_seed",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nBullet: Debugged and integrated game modules including movement, sprites, collisions, and display logic in Vivado, strengthening low-level hardware design and validation experience."
+    }
+  ],
+  "queries": [
+    {
+      "id": "application-coherent-firmware",
+      "source": "postgres_application",
+      "application_id": 2,
+      "application": {
+        "company": "Coherent",
+        "role_title": "Intern- Firmware Engineer",
+        "ai_summary": "Firmware internship working on optical transceivers, device drivers, and embedded systems development.",
+        "required_skills": [
+          "Firmware development",
+          "Developing device drivers",
+          "MCU IDE usage",
+          "Circuit Analysis",
+          "embedded systems"
+        ],
+        "preferred_skills": [],
+        "keywords": [
+          "device drivers",
+          "MCU",
+          "embedded systems",
+          "optical transceivers",
+          "debugging"
+        ],
+        "job_description": "Develop firmware and peripheral drivers, work with MCU evaluation boards, troubleshoot embedded behavior, and communicate results clearly with the team."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2
+      }
+    },
+    {
+      "id": "application-rivian-low-voltage",
+      "source": "postgres_application",
+      "application_id": 3,
+      "application": {
+        "company": "Rivian",
+        "role_title": "UIUC Research Park Intern - Low Voltage Electronics",
+        "ai_summary": "Hands-on electronics internship focused on testing, automation, data collection, and lab-based evaluation of sensing systems.",
+        "required_skills": [
+          "Python",
+          "MATLAB",
+          "microcontrollers",
+          "lab equipment",
+          "reading circuit schematics",
+          "data collection and analysis"
+        ],
+        "preferred_skills": [],
+        "keywords": [
+          "equipment testing",
+          "automation",
+          "data collection",
+          "firmware development",
+          "hardware"
+        ],
+        "job_description": "Support hardware evaluation with instrumentation, scripting, debugging, and iterative testing for low-voltage electronics and sensing systems."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2,
+        "heatrisk-ml": 1
+      }
+    },
+    {
+      "id": "application-skydio-electrical",
+      "source": "postgres_application",
+      "application_id": 4,
+      "application": {
+        "company": "Skydio",
+        "role_title": "Electrical Engineer Intern",
+        "ai_summary": "Electrical engineering internship focused on prototyping, bring-up, debugging, validation, and scripting for low-voltage electronics.",
+        "required_skills": [
+          "electrical engineering fundamentals",
+          "oscilloscope",
+          "signal generators",
+          "Python or C",
+          "power electronics",
+          "digital electronics",
+          "analog electronics"
+        ],
+        "preferred_skills": [],
+        "keywords": [
+          "PCB design",
+          "prototyping",
+          "bring-up",
+          "debugging",
+          "validation",
+          "failure analysis"
+        ],
+        "job_description": "Prototype and validate electronic systems, work with lab tools, and debug low-level hardware issues across sensing and power subsystems."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2
+      }
+    },
+    {
+      "id": "application-millennium-cdh",
+      "source": "postgres_application",
+      "application_id": 1,
+      "application": {
+        "company": "Millennium Space Systems",
+        "role_title": "Summer 2026 Internship Program - Command and Data Handling (CDH)",
+        "ai_summary": "Spacecraft electrical systems internship focused on hardware design, testing, troubleshooting, and avionics-style command and data handling.",
+        "required_skills": [
+          "electrical hardware systems",
+          "design and testing",
+          "troubleshooting"
+        ],
+        "preferred_skills": [],
+        "keywords": [
+          "CDH",
+          "avionics",
+          "data handling",
+          "signal integrity",
+          "fault management",
+          "watchdogs",
+          "error detection"
+        ],
+        "job_description": "Contribute to command and data handling work across electrical systems, testing, troubleshooting, and reliability-oriented hardware decisions."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 1
+      }
+    },
+    {
+      "id": "public-zoox-perception-data",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/zoox/15aa4a31-81e0-4f7a-b9d9-5bc64eb2afb8",
+      "application": {
+        "company": "Zoox",
+        "role_title": "Software Engineer Intern, Perception Data",
+        "ai_summary": "Internship focused on tooling and pipelines for autonomous vehicle perception data, large-scale data mining, ML-driven curation, and developer experience.",
+        "required_skills": [
+          "Python",
+          "pandas",
+          "NumPy",
+          "FastAPI or Flask or Django",
+          "React or Angular or Vue",
+          "TypeScript"
+        ],
+        "preferred_skills": [
+          "computer vision",
+          "distributed compute",
+          "embedding-based search"
+        ],
+        "keywords": [
+          "training data",
+          "data mining",
+          "pipeline scaling",
+          "developer experience",
+          "observability"
+        ],
+        "job_description": "Build and scale data mining strategies, integrate ML-driven curation techniques like embedding-based search, and improve tooling around perception data pipelines."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "rolepilot-rag": 1,
+        "divergence-dataset": 1
+      }
+    },
+    {
+      "id": "public-genesis-software",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/genesistherapeutics/d13c7dea-6c8c-4741-9220-a6dd6300a175",
+      "application": {
+        "company": "Genesis Therapeutics",
+        "role_title": "Software Engineer Intern",
+        "ai_summary": "Software internship supporting ML tooling, scientific workflows, and large-scale data infrastructure for drug discovery.",
+        "required_skills": [
+          "software engineering",
+          "data infrastructure",
+          "machine learning tooling"
+        ],
+        "preferred_skills": [
+          "production ML methods",
+          "workflow systems"
+        ],
+        "keywords": [
+          "visualization tools",
+          "molecular workflows",
+          "productionize methods",
+          "billions of datapoints",
+          "parallel jobs"
+        ],
+        "job_description": "Build software tools around ML workflows, collaborate with ML engineers, and help scale data systems that support computational research."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "heatrisk-summary": 1,
+        "heatrisk-deploy": 2
+      }
+    },
+    {
+      "id": "public-matchgroup-ml",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/matchgroup/ce55175b-fdd1-40ca-9407-7cc5e1533982",
+      "application": {
+        "company": "Match Group",
+        "role_title": "Machine Learning Engineer Intern",
+        "ai_summary": "Machine learning internship focused on end-to-end ML workflows, production problem formulation, Python, and deploying ML solutions at consumer scale.",
+        "required_skills": [
+          "Python",
+          "end-to-end ML workflows",
+          "machine learning models",
+          "data structures and algorithms"
+        ],
+        "preferred_skills": [
+          "PyTorch or TensorFlow or Keras",
+          "production ML deployment",
+          "Spark or Airflow"
+        ],
+        "keywords": [
+          "recommendations",
+          "trust and safety",
+          "chat",
+          "growth",
+          "revenue",
+          "large scale"
+        ],
+        "job_description": "Design and implement ML algorithms, collaborate with senior engineers, and build deployable ML solutions that improve product experience at large scale."
+      },
+      "relevance": {
+        "divergence-tts": 2,
+        "divergence-eval": 2,
+        "heatrisk-ml": 1
+      }
+    },
+    {
+      "id": "public-cognitiv-ml",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/cognitiv/e5efa188-f16b-4715-b90c-77049ba2603d",
+      "application": {
+        "company": "Cognitiv",
+        "role_title": "Machine Learning Engineer Intern",
+        "ai_summary": "ML engineering internship focused on robust training, deployment, and monitoring pipelines for deep learning systems.",
+        "required_skills": [
+          "Python",
+          "deep learning",
+          "PyTorch",
+          "algorithms and data structures"
+        ],
+        "preferred_skills": [
+          "distributed computing",
+          "cloud platforms",
+          "React or Vue with TypeScript",
+          "C++"
+        ],
+        "keywords": [
+          "training pipelines",
+          "deployment pipelines",
+          "monitoring",
+          "scalability",
+          "transformers"
+        ],
+        "job_description": "Develop, test, and deploy machine learning systems with strong engineering discipline, and focus on training, deployment, and monitoring at scale."
+      },
+      "relevance": {
+        "divergence-tts": 2,
+        "divergence-eval": 1,
+        "heatrisk-ml": 2
+      }
+    }
+  ]
+}

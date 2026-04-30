@@ -1,0 +1,133 @@
+[
+  {
+    "title": "RolePilot",
+    "category": "Full-Stack AI Product",
+    "description": "Built a full-stack AI career platform that helps users track job applications, analyze resumes, compare resumes against job postings, retrieve relevant project evidence, generate grounded tailored resume content, and export polished drafts.",
+    "skills": [
+      "React",
+      "Next.js",
+      "FastAPI",
+      "PostgreSQL",
+      "pgvector",
+      "OpenAI API",
+      "TypeScript",
+      "Python",
+      "Cloudflare Workers"
+    ],
+    "keywords": [
+      "RAG",
+      "semantic retrieval",
+      "resume tailoring",
+      "REST APIs",
+      "AI agent",
+      "application tracking"
+    ],
+    "bullet_bank": [
+      "Built a full-stack AI career platform with 5 REST API workflows and a PostgreSQL backend storing application records, resume drafts, and chunked embeddings for RAG retrieval.",
+      "Achieved 80% top-3 retrieval accuracy across 30 job descriptions using a pgvector-based semantic search pipeline over chunked project evidence.",
+      "Reduced unsupported LLM-generated claims by 30% across resume tailoring tests by grounding model outputs in retrieved evidence, improving factual consistency.",
+      "Enabled stateful multi-turn career guidance across 10+ conversation turns by implementing a Cloudflare Workers-based agent with persistent memory."
+    ]
+  },
+  {
+    "title": "HeatRisk AI",
+    "category": "Machine Learning + Full Stack",
+    "description": "Developed a county heat risk platform that scores 72-hour public health danger from live weather, AQI, and vulnerability inputs and serves real-time risk outputs across U.S. counties.",
+    "skills": [
+      "Python",
+      "FastAPI",
+      "Next.js",
+      "pandas",
+      "scikit-learn",
+      "TypeScript"
+    ],
+    "keywords": [
+      "supervised learning",
+      "forecasting",
+      "public health",
+      "real-time scoring",
+      "deployment",
+      "county analytics"
+    ],
+    "bullet_bank": [
+      "Developed a full-stack county heat risk platform using Python, FastAPI, Next.js, and TypeScript to score 72-hour public health danger from live weather, AQI, and vulnerability inputs.",
+      "Built a supervised learning pipeline over 29,376 county-day samples and 468 historical heat events, engineering forecast, AQI, SVI, and interaction features for emergency pattern detection.",
+      "Improved event detection F1 8.8x over a rule-based baseline, achieving 0.685 F1 and 0.985 ROC AUC with a Random Forest model.",
+      "Deployed a FastAPI and Next.js application serving real-time heat risk scores for 3,000+ U.S. counties with severity tiers, driver breakdowns, and county-specific guidance."
+    ]
+  },
+  {
+    "title": "Divergence 2% Research Lab",
+    "category": "Applied Machine Learning Research",
+    "description": "Worked on TTS model training, dataset creation, comparative model evaluation, and automated scoring workflows for production-oriented speech synthesis research.",
+    "skills": [
+      "Python",
+      "Hugging Face",
+      "BeautifulSoup",
+      "librosa",
+      "PyTorch",
+      "ML evaluation"
+    ],
+    "keywords": [
+      "text-to-speech",
+      "dataset creation",
+      "web scraping",
+      "audio processing",
+      "model evaluation",
+      "automation"
+    ],
+    "bullet_bank": [
+      "Improved TTS training coherence 10% by building contextual input formatting scripts for Dia model fine-tuning with Hugging Face Trainer.",
+      "Increased model coverage by 15% by building a 33-hour voice dataset via web scraping with BeautifulSoup and audio processing with librosa.",
+      "Benchmarked GPT-SOVITS vs XTTS across speaker similarity and WER on 100+ test samples to select production TTS models.",
+      "Cut manual evaluation time 30% by automating test sample generation and multi-metric scoring across MOS, WER, and speaker similarity."
+    ]
+  },
+  {
+    "title": "Pac-Man FPGA Project",
+    "category": "FPGA / Embedded Systems",
+    "description": "Built a Pac-Man style game in SystemVerilog on FPGA with HDMI output, keyboard input, sprite logic, game state handling, and module debugging in Vivado.",
+    "skills": [
+      "SystemVerilog",
+      "FPGA",
+      "Vivado",
+      "HDMI",
+      "debugging"
+    ],
+    "keywords": [
+      "embedded systems",
+      "hardware validation",
+      "digital logic",
+      "game state",
+      "low-level debugging"
+    ],
+    "bullet_bank": [
+      "Built a SystemVerilog-based Pac-Man game on FPGA with HDMI video output and keyboard input integration.",
+      "Debugged and integrated game modules including movement, sprites, collisions, and display logic in Vivado.",
+      "Strengthened low-level hardware design and validation experience through iterative FPGA development and testing."
+    ]
+  },
+  {
+    "title": "CS124 Tutor",
+    "category": "Teaching / Software Fundamentals",
+    "description": "Guided students through object-oriented programming, debugging, and core software engineering reasoning in a large introductory computer science course.",
+    "skills": [
+      "Java",
+      "Debugging",
+      "Object-Oriented Programming",
+      "Teaching",
+      "Communication"
+    ],
+    "keywords": [
+      "software fundamentals",
+      "debugging",
+      "OOP",
+      "mentoring",
+      "technical communication"
+    ],
+    "bullet_bank": [
+      "Guided 50+ students weekly on object-oriented design and debugging across a 600-student introductory CS Java course.",
+      "Explained software fundamentals, problem decomposition, and debugging strategies in one-on-one and small-group settings."
+    ]
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "corpus": [
+    {
+      "id": "rolepilot-summary",
+      "text": "Title: RolePilot\nCategory: AI Career Copilot\nDescription: Built a full-stack application that helps users track job applications, analyze resumes, retrieve relevant project evidence, and generate grounded tailored resume drafts.\nSkills: Next.js, TypeScript, FastAPI, PostgreSQL, pgvector, OpenAI API\nKeywords: resume tailoring, semantic retrieval, RAG, career tools"
+    },
+    {
+      "id": "rolepilot-rag-bullet",
+      "text": "Title: RolePilot\nCategory: AI Career Copilot\nBullet: Implemented a retrieval-augmented generation pipeline that chunks project evidence, generates embeddings, stores them with pgvector in PostgreSQL, and retrieves semantically relevant evidence for role-specific resume tailoring."
+    },
+    {
+      "id": "rolepilot-job-parser-bullet",
+      "text": "Title: RolePilot\nCategory: AI Career Copilot\nBullet: Built a job parsing workflow that extracts text from job posting URLs, structures required skills and keywords with an LLM, and saves normalized application records for downstream matching."
+    },
+    {
+      "id": "rolepilot-export-bullet",
+      "text": "Title: RolePilot\nCategory: AI Career Copilot\nBullet: Generated polished DOCX and PDF resume exports from structured JSON resume drafts using python-docx and headless LibreOffice conversion."
+    },
+    {
+      "id": "rolepilot-frontend-bullet",
+      "text": "Title: RolePilot\nCategory: AI Career Copilot\nBullet: Built a Next.js frontend that communicates with a FastAPI backend over REST, supports resume upload with multipart FormData, and renders tailored bullets, skills, and export actions per application."
+    },
+    {
+      "id": "power-monitor-bullet",
+      "text": "Title: Solar Power Monitor\nCategory: Embedded Systems\nBullet: Designed a hardware monitoring prototype with microcontroller firmware, sensor calibration, and circuit debugging for real-time power measurement."
+    }
+  ],
+  "queries": [
+    {
+      "id": "ai-platform-query",
+      "query_text": "Looking for experience building LLM products with grounded generation, vector search, and meaning-based retrieval over user evidence.",
+      "relevance": {
+        "rolepilot-rag-bullet": 2,
+        "rolepilot-summary": 1
+      }
+    },
+    {
+      "id": "job-ingestion-query",
+      "query_text": "Need someone who can scrape hiring pages, normalize job requirements, and store structured application metadata for later workflows.",
+      "relevance": {
+        "rolepilot-job-parser-bullet": 2,
+        "rolepilot-summary": 1
+      }
+    },
+    {
+      "id": "document-export-query",
+      "query_text": "Experience producing office documents and printable PDFs from application data or generated report content.",
+      "relevance": {
+        "rolepilot-export-bullet": 2,
+        "rolepilot-summary": 1
+      }
+    },
+    {
+      "id": "full-stack-query",
+      "application": {
+        "company": "Acme",
+        "role_title": "Full Stack Software Engineer Intern",
+        "ai_summary": "Build product features across frontend and backend systems.",
+        "required_skills": [
+          "React",
+          "TypeScript",
+          "REST APIs",
+          "Python"
+        ],
+        "preferred_skills": [
+          "PostgreSQL",
+          "AI features"
+        ],
+        "keywords": [
+          "resume upload",
+          "application workflow"
+        ],
+        "job_description": "Build user-facing flows, connect frontend forms to backend services, and work across product and platform layers."
+      },
+      "relevance": {
+        "rolepilot-frontend-bullet": 2,
+        "rolepilot-summary": 1
+      }
+    }
+  ]
+}

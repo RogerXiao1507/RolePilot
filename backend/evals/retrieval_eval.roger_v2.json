@@ -1,0 +1,522 @@
+{
+  "corpus": [
+    {
+      "id": "rolepilot-summary",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nDescription: Built a full-stack AI career platform that helps users track job applications, analyze resumes, compare resumes against job postings, retrieve relevant project evidence, generate grounded tailored resume content, and export polished drafts.\nSkills: React, Next.js, FastAPI, PostgreSQL, pgvector, OpenAI API, TypeScript, Python, Cloudflare Workers\nKeywords: RAG, semantic retrieval, resume tailoring, REST APIs, AI agent, application tracking"
+    },
+    {
+      "id": "rolepilot-fullstack",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Built a full-stack AI career platform with 5 REST API workflows and a PostgreSQL backend storing application records, resume drafts, and chunked embeddings for RAG retrieval."
+    },
+    {
+      "id": "rolepilot-rag",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Achieved 80% top-3 retrieval accuracy across 30 job descriptions using a pgvector-based semantic search pipeline over chunked project evidence."
+    },
+    {
+      "id": "rolepilot-grounding",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Reduced unsupported LLM-generated claims by grounding resume tailoring outputs in retrieved evidence, improving factual consistency."
+    },
+    {
+      "id": "rolepilot-agent",
+      "source": "resume_seed",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Enabled stateful multi-turn career guidance across extended conversations by implementing a Cloudflare Workers-based agent with persistent memory."
+    },
+    {
+      "id": "heatrisk-summary",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nDescription: Developed a county heat risk platform that scores 72-hour public health danger from live weather, AQI, and vulnerability inputs and serves real-time risk outputs across U.S. counties.\nSkills: Python, FastAPI, Next.js, pandas, scikit-learn, TypeScript\nKeywords: supervised learning, forecasting, public health, real-time scoring, deployment, county analytics"
+    },
+    {
+      "id": "heatrisk-ml",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Built a supervised learning pipeline over 29,376 county-day samples and 468 historical heat events, engineering forecast, AQI, SVI, and interaction features for emergency pattern detection."
+    },
+    {
+      "id": "heatrisk-f1",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Improved event detection F1 8.8x over a rule-based baseline, achieving 0.685 F1 and 0.985 ROC AUC with a Random Forest model."
+    },
+    {
+      "id": "heatrisk-deploy",
+      "source": "resume_seed",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Deployed a FastAPI and Next.js application serving real-time heat risk scores for more than 3,000 U.S. counties with severity tiers, driver breakdowns, and county-specific guidance."
+    },
+    {
+      "id": "divergence-tts",
+      "source": "resume_seed",
+      "text": "Title: Divergence 2 Percent Research Lab\nCategory: Applied Machine Learning Research\nBullet: Improved TTS training coherence by building contextual input formatting scripts for Dia model fine-tuning with Hugging Face Trainer."
+    },
+    {
+      "id": "divergence-dataset",
+      "source": "resume_seed",
+      "text": "Title: Divergence 2 Percent Research Lab\nCategory: Applied Machine Learning Research\nBullet: Increased model coverage by building a 33-hour voice dataset via web scraping with BeautifulSoup and audio processing with librosa."
+    },
+    {
+      "id": "divergence-eval",
+      "source": "resume_seed",
+      "text": "Title: Divergence 2 Percent Research Lab\nCategory: Applied Machine Learning Research\nBullet: Benchmarked production TTS models on more than 100 test samples and automated multi-metric evaluation across MOS, WER, and speaker similarity."
+    },
+    {
+      "id": "pacman-fpga",
+      "source": "resume_seed",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nDescription: Built a Pac-Man style game in SystemVerilog on FPGA with HDMI output, keyboard input, sprite logic, game state handling, and module debugging in Vivado.\nSkills: SystemVerilog, FPGA, Vivado, HDMI, debugging\nKeywords: embedded systems, hardware validation, digital logic, low-level debugging"
+    },
+    {
+      "id": "pacman-debug",
+      "source": "resume_seed",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nBullet: Debugged and integrated game modules including movement, sprites, collisions, and display logic in Vivado, strengthening low-level hardware design and validation experience."
+    },
+    {
+      "id": "cs124-summary",
+      "source": "resume_seed",
+      "text": "Title: CS124 Tutor\nCategory: Teaching / Software Fundamentals\nDescription: Guided students through object-oriented programming, debugging, and core software engineering reasoning in a large introductory Java course.\nSkills: Java, Debugging, OOP, Communication, Teaching\nKeywords: software fundamentals, debugging, mentoring, technical communication"
+    },
+    {
+      "id": "cs124-tutor",
+      "source": "resume_seed",
+      "text": "Title: CS124 Tutor\nCategory: Teaching / Software Fundamentals\nBullet: Guided 50+ students weekly on object-oriented design and debugging across a 600-student introductory CS Java course."
+    }
+  ],
+  "queries": [
+    {
+      "id": "application-millennium-cdh",
+      "source": "postgres_application",
+      "application_id": 1,
+      "source_url": null,
+      "application": {
+        "company": "Millennium Space Systems",
+        "role_title": "Summer 2026 Internship Program - Command and Data Handling (CDH)",
+        "ai_summary": "Spacecraft electrical systems internship focused on hardware design, troubleshooting, avionics-style command and data handling, and reliability-minded engineering.",
+        "required_skills": ["electrical hardware systems", "design and testing", "troubleshooting"],
+        "preferred_skills": [],
+        "keywords": ["CDH", "avionics", "data handling", "signal integrity", "fault management", "watchdogs", "error detection"],
+        "job_description": "Contribute to command and data handling work across spacecraft electrical systems, testing, troubleshooting, and reliability-oriented hardware decisions."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 1
+      }
+    },
+    {
+      "id": "application-coherent-firmware",
+      "source": "postgres_application",
+      "application_id": 2,
+      "source_url": null,
+      "application": {
+        "company": "Coherent",
+        "role_title": "Intern- Firmware Engineer",
+        "ai_summary": "Firmware internship working on optical transceivers, peripheral drivers, evaluation boards, circuit analysis, and embedded troubleshooting.",
+        "required_skills": ["Firmware development", "Developing device drivers", "MCU IDE usage", "Circuit Analysis", "embedded systems"],
+        "preferred_skills": [],
+        "keywords": ["device drivers", "MCU", "embedded systems", "optical transceivers", "debugging"],
+        "job_description": "Develop firmware and peripheral drivers, work with MCU evaluation boards, troubleshoot embedded behavior, and communicate results clearly with the team."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2
+      }
+    },
+    {
+      "id": "application-rivian-low-voltage",
+      "source": "postgres_application",
+      "application_id": 3,
+      "source_url": null,
+      "application": {
+        "company": "Rivian",
+        "role_title": "UIUC Research Park Intern - Low Voltage Electronics",
+        "ai_summary": "Hands-on electronics internship focused on testing, automation, scripting, firmware-adjacent debugging, and evaluation of sensing systems.",
+        "required_skills": ["Python", "MATLAB", "microcontrollers", "lab equipment", "reading circuit schematics", "data collection and analysis"],
+        "preferred_skills": [],
+        "keywords": ["equipment testing", "automation", "data collection", "firmware development", "hardware", "sensing systems"],
+        "job_description": "Support hardware evaluation with instrumentation, scripting, debugging, and iterative testing for low-voltage electronics and sensing systems."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2,
+        "heatrisk-ml": 1
+      }
+    },
+    {
+      "id": "application-skydio-electrical",
+      "source": "postgres_application",
+      "application_id": 4,
+      "source_url": null,
+      "application": {
+        "company": "Skydio",
+        "role_title": "Electrical Engineer Intern",
+        "ai_summary": "Electrical engineering internship focused on prototyping, bring-up, debugging, validation, and scripting for low-voltage electronics.",
+        "required_skills": ["electrical engineering fundamentals", "oscilloscope", "signal generators", "Python or C", "power electronics", "digital electronics", "analog electronics"],
+        "preferred_skills": [],
+        "keywords": ["PCB design", "prototyping", "bring-up", "debugging", "validation", "failure analysis"],
+        "job_description": "Prototype and validate electronic systems, work with lab tools, and debug low-level hardware issues across sensing and power subsystems."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2
+      }
+    },
+    {
+      "id": "public-zoox-perception-data",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/zoox/15aa4a31-81e0-4f7a-b9d9-5bc64eb2afb8",
+      "application": {
+        "company": "Zoox",
+        "role_title": "Software Engineer Intern, Perception Data",
+        "ai_summary": "Internship focused on tooling and pipelines for autonomous vehicle perception data, data mining strategies, ML-driven curation, and developer experience.",
+        "required_skills": ["Python", "pandas", "NumPy", "FastAPI or Flask or Django", "React or Angular or Vue", "TypeScript"],
+        "preferred_skills": ["computer vision", "distributed compute", "embedding-based search"],
+        "keywords": ["training data", "data mining", "pipeline scaling", "developer experience", "observability"],
+        "job_description": "Build and scale data mining strategies, integrate ML-driven curation techniques like embedding-based search, and improve tooling around perception data pipelines."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "rolepilot-rag": 2,
+        "divergence-dataset": 1
+      }
+    },
+    {
+      "id": "public-genesis-software",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/genesistherapeutics/d13c7dea-6c8c-4741-9220-a6dd6300a175",
+      "application": {
+        "company": "Genesis Therapeutics",
+        "role_title": "Software Engineer Intern",
+        "ai_summary": "Software internship supporting ML tooling, scientific workflows, and large-scale data infrastructure for drug discovery.",
+        "required_skills": ["software engineering", "data infrastructure", "machine learning tooling"],
+        "preferred_skills": ["production ML methods", "workflow systems"],
+        "keywords": ["visualization tools", "molecular workflows", "productionize methods", "billions of datapoints", "parallel jobs"],
+        "job_description": "Build software tools around ML workflows, collaborate with ML engineers, and help scale data systems that support computational research."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "heatrisk-summary": 1,
+        "heatrisk-deploy": 2
+      }
+    },
+    {
+      "id": "public-matchgroup-ml",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/matchgroup/ce55175b-fdd1-40ca-9407-7cc5e1533982",
+      "application": {
+        "company": "Match Group",
+        "role_title": "Machine Learning Engineer Intern",
+        "ai_summary": "Machine learning internship focused on end-to-end ML workflows, production problem formulation, Python, and deploying ML solutions at consumer scale.",
+        "required_skills": ["Python", "end-to-end ML workflows", "machine learning models", "data structures and algorithms"],
+        "preferred_skills": ["PyTorch or TensorFlow or Keras", "production ML deployment", "Spark or Airflow"],
+        "keywords": ["recommendations", "trust and safety", "chat", "growth", "revenue", "large scale"],
+        "job_description": "Design and implement ML algorithms, collaborate with senior engineers, and build deployable ML solutions that improve product experience at large scale."
+      },
+      "relevance": {
+        "divergence-tts": 2,
+        "divergence-eval": 2,
+        "heatrisk-ml": 1
+      }
+    },
+    {
+      "id": "public-cognitiv-ml",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/cognitiv/e5efa188-f16b-4715-b90c-77049ba2603d",
+      "application": {
+        "company": "Cognitiv",
+        "role_title": "Machine Learning Engineer Intern",
+        "ai_summary": "ML engineering internship focused on robust training, deployment, and monitoring pipelines for deep learning systems.",
+        "required_skills": ["Python", "deep learning", "PyTorch", "algorithms and data structures"],
+        "preferred_skills": ["distributed computing", "cloud platforms", "React or Vue with TypeScript", "C++"],
+        "keywords": ["training pipelines", "deployment pipelines", "monitoring", "scalability", "transformers"],
+        "job_description": "Develop, test, and deploy machine learning systems with strong engineering discipline, and focus on training, deployment, and monitoring at scale."
+      },
+      "relevance": {
+        "divergence-tts": 2,
+        "divergence-eval": 1,
+        "heatrisk-ml": 2
+      }
+    },
+    {
+      "id": "public-zoox-firmware",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/zoox/e2bf2fd0-11f6-4c04-9cb7-b1f098d3348a",
+      "application": {
+        "company": "Zoox",
+        "role_title": "Firmware Engineer Intern",
+        "ai_summary": "Firmware internship for advanced hardware systems requiring embedded software, custom PCB interaction, and instrumentation-based debugging.",
+        "required_skills": ["C or C++", "embedded software", "development kits or custom PCB hardware", "oscilloscope or logic analyzer"],
+        "preferred_skills": ["assembly language"],
+        "keywords": ["embedded debugging", "safety critical systems", "hardware engineering", "sensors"],
+        "job_description": "Write and debug embedded software for new modules and sensors, work with embedded development kits or custom PCB hardware, and use tools like oscilloscopes and logic analyzers."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2
+      }
+    },
+    {
+      "id": "public-teleo-firmware",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/teleo/63fe96ee-74dc-41eb-80bc-6f80133c9ffa",
+      "application": {
+        "company": "Teleo",
+        "role_title": "Firmware Engineering Internship/Co-op",
+        "ai_summary": "Firmware internship at the intersection of robotics, hardware, software, and AI for autonomous construction equipment.",
+        "required_skills": ["firmware engineering", "robotics systems", "cross-domain hardware/software work"],
+        "preferred_skills": ["autonomy", "embedded systems", "systems engineering"],
+        "keywords": ["autonomous robots", "heavy equipment", "hardware-software integration", "AI"],
+        "job_description": "Work on firmware and complex systems at the intersection of hardware, software, and AI for autonomous robotics products."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 1,
+        "rolepilot-agent": 1
+      }
+    },
+    {
+      "id": "public-cesiumastro-ee",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/CesiumAstro/5a22eb7e-a3eb-462f-a6ba-a526bfd2593d",
+      "application": {
+        "company": "CesiumAstro",
+        "role_title": "Electrical Engineering Internship, Hardware",
+        "ai_summary": "Hardware internship for electronics design, schematic capture, PCB layout, bring-up, debugging, and lab instrumentation.",
+        "required_skills": ["electronics hardware design", "schematic capture", "PCB layout", "bring-up", "debugging", "oscilloscopes", "signal generators"],
+        "preferred_skills": ["aerospace", "digital or power or analog circuit design", "C/C++", "Python", "MATLAB"],
+        "keywords": ["lab instruments", "hardware bring-up", "schematic review", "debugging", "research project"],
+        "job_description": "Design and build electronics hardware, support bring-up and debugging, and use lab instruments for validation in a hardware-focused internship."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2
+      }
+    },
+    {
+      "id": "public-matchgroup-backend",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/matchgroup/724734f1-b60b-49ae-8905-8663de76ad7a",
+      "application": {
+        "company": "Match Group",
+        "role_title": "Backend Engineer Intern",
+        "ai_summary": "Backend internship to build product infrastructure and large-scale systems for a consumer application.",
+        "required_skills": ["backend engineering", "large-scale systems", "software engineering fundamentals"],
+        "preferred_skills": ["distributed systems", "consumer product infrastructure"],
+        "keywords": ["product backend", "scale", "infrastructure", "engineering quality"],
+        "job_description": "Build backend systems that support large-scale product experiences and collaborate on infrastructure and product engineering at scale."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "rolepilot-summary": 2,
+        "heatrisk-deploy": 1
+      }
+    },
+    {
+      "id": "public-matchgroup-cloud",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/matchgroup/55e5b98a-3281-4da1-995c-dbf6e1381575",
+      "application": {
+        "company": "Match Group",
+        "role_title": "Cloud Infrastructure Engineer Intern",
+        "ai_summary": "Cloud infrastructure internship for systems that support large-scale consumer applications.",
+        "required_skills": ["cloud infrastructure", "engineering fundamentals", "software systems"],
+        "preferred_skills": ["platform engineering", "reliability", "distributed systems"],
+        "keywords": ["infrastructure", "platform", "scale", "operations"],
+        "job_description": "Work on infrastructure and platform systems that support high-scale consumer applications and engineering velocity."
+      },
+      "relevance": {
+        "rolepilot-summary": 1,
+        "rolepilot-agent": 1,
+        "heatrisk-deploy": 1
+      }
+    },
+    {
+      "id": "public-arcade-frontend",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/Arcade/7fa8337b-07e3-4f34-824d-1e4dbed3e5fe",
+      "application": {
+        "company": "Arcade",
+        "role_title": "Software Engineer Intern, Frontend",
+        "ai_summary": "Frontend internship building user-facing experiences in Next.js and TypeScript in a generative AI product environment.",
+        "required_skills": ["Next.js", "TypeScript", "frontend architecture", "data fetching", "rendering"],
+        "preferred_skills": ["design systems", "accessibility", "performance", "AI product collaboration"],
+        "keywords": ["user-facing experiences", "React", "web UI architecture", "design quality", "speed"],
+        "job_description": "Build product-facing web experiences in Next.js and TypeScript, own UI architecture, and partner with AI, product, and design teams."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "rolepilot-summary": 2,
+        "heatrisk-deploy": 1
+      }
+    },
+    {
+      "id": "public-shopback-data",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/shopback-2/577eaeb2-017f-4f88-8967-a3e7a3d969f7",
+      "application": {
+        "company": "ShopBack",
+        "role_title": "Data Engineering Intern",
+        "ai_summary": "Data platform internship for scalable pipelines, data models, Spark, and Airflow-based orchestration.",
+        "required_skills": ["data pipelines", "Spark", "Airflow", "data modeling"],
+        "preferred_skills": ["AWS S3", "Iceberg", "Trino", "dbt-on-Spark"],
+        "keywords": ["scalable data systems", "analytics foundation", "decision-making", "clean data"],
+        "job_description": "Build and maintain scalable data models and pipelines that support analytics and decision-making on a modern data platform."
+      },
+      "relevance": {
+        "heatrisk-ml": 1,
+        "heatrisk-deploy": 1,
+        "rolepilot-summary": 1
+      }
+    },
+    {
+      "id": "public-super-data-platform",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/super-com/0bdc3d64-15db-42b5-900b-25c6dc916cc3",
+      "application": {
+        "company": "Super.com",
+        "role_title": "Software Engineer Intern, Data Platform",
+        "ai_summary": "Data platform internship focused on backend feature ownership, SQL, ETL/ELT, Python, and schema design.",
+        "required_skills": ["backend development", "SQL", "ETL/ELT", "Python", "schema design", "data modeling"],
+        "preferred_skills": ["FastAPI", "Postgres", "AWS", "Kubernetes"],
+        "keywords": ["microservices", "backend ownership", "data pipelines", "relational databases"],
+        "job_description": "Design schemas, build Python backend features, and work on ETL/ELT and data platform systems using microservices and relational databases."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "heatrisk-deploy": 1,
+        "rolepilot-summary": 2
+      }
+    },
+    {
+      "id": "public-saviynt-rnd",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/saviynt/17118748-6a11-44e2-9bf9-58badadb6ac0",
+      "application": {
+        "company": "Saviynt",
+        "role_title": "Software Engineering R&D - Internship",
+        "ai_summary": "R&D software internship at the intersection of AI, security, cloud infrastructure, and data.",
+        "required_skills": ["software engineering", "AI", "cloud infrastructure", "data"],
+        "preferred_skills": ["security systems", "research and development"],
+        "keywords": ["AI-powered platform", "innovation", "real-world problems", "cloud"],
+        "job_description": "Work with engineers and data scientists on software problems involving AI, security, cloud infrastructure, and data systems."
+      },
+      "relevance": {
+        "rolepilot-summary": 2,
+        "rolepilot-agent": 1,
+        "heatrisk-summary": 1
+      }
+    },
+    {
+      "id": "public-hypebeast-fullstack",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/hypebeast/ffd04b63-9a42-4940-beb1-cd672f286ba7",
+      "application": {
+        "company": "Hypebeast",
+        "role_title": "Full Stack Software Engineer - Python, React",
+        "ai_summary": "Full-stack role using Python/FastAPI and TypeScript/React to ship user features, AI agents, and personalization systems.",
+        "required_skills": ["Python", "FastAPI", "TypeScript", "React", "full stack delivery"],
+        "preferred_skills": ["Next.js", "AI agents", "automation workflows", "search and ranking logic"],
+        "keywords": ["API contracts", "modern UI", "personalization", "discovery", "experimentation", "production quality"],
+        "job_description": "Ship full-stack features, build Python/FastAPI services, build modern React UI, and develop AI agents and automation workflows."
+      },
+      "relevance": {
+        "rolepilot-summary": 2,
+        "rolepilot-fullstack": 2,
+        "rolepilot-agent": 2
+      }
+    },
+    {
+      "id": "public-palantir-software",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/palantir/7d69cf8a-06fd-4f05-bd84-27149db29c4d",
+      "application": {
+        "company": "Palantir",
+        "role_title": "Software Engineer, Internship",
+        "ai_summary": "Software engineering internship building product features for data-intensive platforms used by technical operators at scale.",
+        "required_skills": ["software engineering", "product development", "data-intensive systems"],
+        "preferred_skills": ["infrastructure", "platforms", "engineering quality"],
+        "keywords": ["high-quality code", "small teams", "scale", "data-driven decisions"],
+        "job_description": "Contribute directly to software products that transform how organizations use data, with a focus on product engineering and high-quality code."
+      },
+      "relevance": {
+        "rolepilot-summary": 1,
+        "heatrisk-summary": 1,
+        "cs124-summary": 1
+      }
+    },
+    {
+      "id": "public-zoox-ml-perception",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/zoox/9b3ab3ee-b130-49b6-8413-7d8fd9c33ed3",
+      "application": {
+        "company": "Zoox",
+        "role_title": "Machine Learning Engineer Intern (Ph.D), Perception",
+        "ai_summary": "Perception ML internship focused on dataset creation, training pipelines, metrics, vision-language models, and large-scale multimodal systems.",
+        "required_skills": ["Python or C++", "production ML pipelines", "dataset creation", "training", "metrics"],
+        "preferred_skills": ["vision-language models", "MLLM fine-tuning", "large-scale datasets", "GPU/CUDA"],
+        "keywords": ["perception", "hazard detection", "scenario understanding", "sensor data", "computer vision"],
+        "job_description": "Develop advanced ML models, work with large-scale multimodal data, and improve perception systems through training, evaluation, and dataset work."
+      },
+      "relevance": {
+        "divergence-tts": 1,
+        "divergence-dataset": 2,
+        "divergence-eval": 2
+      }
+    },
+    {
+      "id": "public-fieldai-embedded",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/field-ai/7a0d12c7-957b-42f6-a9c9-9605fab6d2a4",
+      "application": {
+        "company": "Field AI",
+        "role_title": "Embedded Systems Engineer – Robotics Hardware",
+        "ai_summary": "Embedded systems role across Linux, firmware, device drivers, communication interfaces, and hardware/software debugging for robotics hardware.",
+        "required_skills": ["Linux", "firmware development", "microcontrollers", "C++", "Python", "device drivers"],
+        "preferred_skills": ["ROS", "CAN", "SPI", "I2C", "Ethernet", "oscilloscopes"],
+        "keywords": ["robotics hardware", "debugging", "systems thinking", "prototype to production"],
+        "job_description": "Develop embedded systems across firmware and application layers, work with communication protocols and debugging tools, and diagnose issues across hardware and software."
+      },
+      "relevance": {
+        "pacman-fpga": 2,
+        "pacman-debug": 2,
+        "rolepilot-agent": 1
+      }
+    },
+    {
+      "id": "public-ahead-frontend",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/thinkahead/e9b8e600-1806-4fc8-87f5-50211ef9ff6d",
+      "application": {
+        "company": "AHEAD",
+        "role_title": "FrontEnd Engineer - SNAP",
+        "ai_summary": "Frontend role using Next.js, React, TypeScript, FastAPI integration, testing, and intelligent UI experiences.",
+        "required_skills": ["Next.js", "React", "TypeScript", "FastAPI or REST backend integration", "state management", "routing", "async data fetching"],
+        "preferred_skills": ["GitHub Actions", "SSR/ISR", "performance optimization", "AI team collaboration"],
+        "keywords": ["responsive design", "accessibility", "error handling", "intelligent UI", "tests"],
+        "job_description": "Build Next.js frontends, integrate with FastAPI services, implement data fetching and error handling, and collaborate with backend and AI teams."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "rolepilot-summary": 2,
+        "heatrisk-deploy": 1
+      }
+    },
+    {
+      "id": "public-zaimler-frontend-intern",
+      "source": "public_job_posting",
+      "source_url": "https://jobs.lever.co/zaimler/00afe31b-e420-44a9-91db-17f87643fad8",
+      "application": {
+        "company": "zaimler",
+        "role_title": "Frontend Engineering Intern",
+        "ai_summary": "Frontend internship for complex data-dense interfaces, backend API integration, and component/design system work.",
+        "required_skills": ["JavaScript or TypeScript", "React", "HTML", "CSS", "responsive design", "Git"],
+        "preferred_skills": ["Next.js", "data visualization", "Storybook", "developer tooling"],
+        "keywords": ["dashboard interfaces", "backend APIs", "component libraries", "design systems", "developer tools"],
+        "job_description": "Integrate frontend components with backend APIs and real-time data sources while contributing to tooling, component libraries, and design system foundations."
+      },
+      "relevance": {
+        "rolepilot-fullstack": 2,
+        "rolepilot-summary": 1,
+        "heatrisk-deploy": 1
+      }
+    }
+  ]
+}

@@ -8,7 +8,7 @@ from app.models.application import Application
 from app.models.project_evidence import ProjectEvidence
 from app.models.resume import Resume
 from sqlalchemy.orm import Session
-from app.services.retrieval_service import retrieve_relevant_chunks_for_application
+from app.services.retrieval_service import retrieve_relevant_chunks_for_application_hybrid
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
 from app.models.application_tailored_resume import ApplicationTailoredResume
 
@@ -244,7 +244,7 @@ def tailor_resume_for_application(
     application: Application,
     resume: Resume,
 ):
-    relevant_chunks = retrieve_relevant_chunks_for_application(
+    relevant_chunks = retrieve_relevant_chunks_for_application_hybrid(
         db=db,
         application=application,
         top_k=5,

@@ -1,0 +1,400 @@
+{
+  "corpus": [
+    {
+      "id": "chunk-3",
+      "db_chunk_id": 3,
+      "project_evidence_id": 3,
+      "chunk_type": "summary",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nDescription: Built a full-stack AI career platform that helps users track job applications, analyze resumes, compare resumes against job postings, retrieve relevant project evidence, generate grounded tailored resume content, and export polished drafts.\nSkills: React, Next.js, FastAPI, PostgreSQL, pgvector, OpenAI API, TypeScript, Python, Cloudflare Workers\nKeywords: RAG, semantic retrieval, resume tailoring, REST APIs, AI agent, application tracking"
+    },
+    {
+      "id": "chunk-4",
+      "db_chunk_id": 4,
+      "project_evidence_id": 3,
+      "chunk_type": "bullet",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Built a full-stack AI career platform with 5 REST API workflows and a PostgreSQL backend storing application records, resume drafts, and chunked embeddings for RAG retrieval."
+    },
+    {
+      "id": "chunk-5",
+      "db_chunk_id": 5,
+      "project_evidence_id": 3,
+      "chunk_type": "bullet",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Achieved 80% top-3 retrieval accuracy across 30 job descriptions using a pgvector-based semantic search pipeline over chunked project evidence."
+    },
+    {
+      "id": "chunk-6",
+      "db_chunk_id": 6,
+      "project_evidence_id": 3,
+      "chunk_type": "bullet",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Reduced unsupported LLM-generated claims by 30% across resume tailoring tests by grounding model outputs in retrieved evidence, improving factual consistency."
+    },
+    {
+      "id": "chunk-7",
+      "db_chunk_id": 7,
+      "project_evidence_id": 3,
+      "chunk_type": "bullet",
+      "text": "Title: RolePilot\nCategory: Full-Stack AI Product\nBullet: Enabled stateful multi-turn career guidance across 10+ conversation turns by implementing a Cloudflare Workers-based agent with persistent memory."
+    },
+    {
+      "id": "chunk-8",
+      "db_chunk_id": 8,
+      "project_evidence_id": 4,
+      "chunk_type": "summary",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nDescription: Developed a county heat risk platform that scores 72-hour public health danger from live weather, AQI, and vulnerability inputs and serves real-time risk outputs across U.S. counties.\nSkills: Python, FastAPI, Next.js, pandas, scikit-learn, TypeScript\nKeywords: supervised learning, forecasting, public health, real-time scoring, deployment, county analytics"
+    },
+    {
+      "id": "chunk-9",
+      "db_chunk_id": 9,
+      "project_evidence_id": 4,
+      "chunk_type": "bullet",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Developed a full-stack county heat risk platform using Python, FastAPI, Next.js, and TypeScript to score 72-hour public health danger from live weather, AQI, and vulnerability inputs."
+    },
+    {
+      "id": "chunk-10",
+      "db_chunk_id": 10,
+      "project_evidence_id": 4,
+      "chunk_type": "bullet",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Built a supervised learning pipeline over 29,376 county-day samples and 468 historical heat events, engineering forecast, AQI, SVI, and interaction features for emergency pattern detection."
+    },
+    {
+      "id": "chunk-11",
+      "db_chunk_id": 11,
+      "project_evidence_id": 4,
+      "chunk_type": "bullet",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Improved event detection F1 8.8x over a rule-based baseline, achieving 0.685 F1 and 0.985 ROC AUC with a Random Forest model."
+    },
+    {
+      "id": "chunk-12",
+      "db_chunk_id": 12,
+      "project_evidence_id": 4,
+      "chunk_type": "bullet",
+      "text": "Title: HeatRisk AI\nCategory: Machine Learning + Full Stack\nBullet: Deployed a FastAPI and Next.js application serving real-time heat risk scores for 3,000+ U.S. counties with severity tiers, driver breakdowns, and county-specific guidance."
+    },
+    {
+      "id": "chunk-13",
+      "db_chunk_id": 13,
+      "project_evidence_id": 5,
+      "chunk_type": "summary",
+      "text": "Title: Divergence 2% Research Lab\nCategory: Applied Machine Learning Research\nDescription: Worked on TTS model training, dataset creation, comparative model evaluation, and automated scoring workflows for production-oriented speech synthesis research.\nSkills: Python, Hugging Face, BeautifulSoup, librosa, PyTorch, ML evaluation\nKeywords: text-to-speech, dataset creation, web scraping, audio processing, model evaluation, automation"
+    },
+    {
+      "id": "chunk-14",
+      "db_chunk_id": 14,
+      "project_evidence_id": 5,
+      "chunk_type": "bullet",
+      "text": "Title: Divergence 2% Research Lab\nCategory: Applied Machine Learning Research\nBullet: Improved TTS training coherence 10% by building contextual input formatting scripts for Dia model fine-tuning with Hugging Face Trainer."
+    },
+    {
+      "id": "chunk-15",
+      "db_chunk_id": 15,
+      "project_evidence_id": 5,
+      "chunk_type": "bullet",
+      "text": "Title: Divergence 2% Research Lab\nCategory: Applied Machine Learning Research\nBullet: Increased model coverage by 15% by building a 33-hour voice dataset via web scraping with BeautifulSoup and audio processing with librosa."
+    },
+    {
+      "id": "chunk-16",
+      "db_chunk_id": 16,
+      "project_evidence_id": 5,
+      "chunk_type": "bullet",
+      "text": "Title: Divergence 2% Research Lab\nCategory: Applied Machine Learning Research\nBullet: Benchmarked GPT-SOVITS vs XTTS across speaker similarity and WER on 100+ test samples to select production TTS models."
+    },
+    {
+      "id": "chunk-17",
+      "db_chunk_id": 17,
+      "project_evidence_id": 5,
+      "chunk_type": "bullet",
+      "text": "Title: Divergence 2% Research Lab\nCategory: Applied Machine Learning Research\nBullet: Cut manual evaluation time 30% by automating test sample generation and multi-metric scoring across MOS, WER, and speaker similarity."
+    },
+    {
+      "id": "chunk-18",
+      "db_chunk_id": 18,
+      "project_evidence_id": 1,
+      "chunk_type": "summary",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nDescription: Built a Pac-Man style game in SystemVerilog on FPGA with HDMI output, keyboard input, sprite logic, game state handling, and module debugging in Vivado.\nSkills: SystemVerilog, FPGA, Vivado, HDMI, debugging\nKeywords: embedded systems, hardware validation, digital logic, game state, low-level debugging"
+    },
+    {
+      "id": "chunk-19",
+      "db_chunk_id": 19,
+      "project_evidence_id": 1,
+      "chunk_type": "bullet",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nBullet: Built a SystemVerilog-based Pac-Man game on FPGA with HDMI video output and keyboard input integration."
+    },
+    {
+      "id": "chunk-20",
+      "db_chunk_id": 20,
+      "project_evidence_id": 1,
+      "chunk_type": "bullet",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nBullet: Debugged and integrated game modules including movement, sprites, collisions, and display logic in Vivado."
+    },
+    {
+      "id": "chunk-21",
+      "db_chunk_id": 21,
+      "project_evidence_id": 1,
+      "chunk_type": "bullet",
+      "text": "Title: Pac-Man FPGA Project\nCategory: FPGA / Embedded Systems\nBullet: Strengthened low-level hardware design and validation experience through iterative FPGA development and testing."
+    },
+    {
+      "id": "chunk-22",
+      "db_chunk_id": 22,
+      "project_evidence_id": 6,
+      "chunk_type": "summary",
+      "text": "Title: CS124 Tutor\nCategory: Teaching / Software Fundamentals\nDescription: Guided students through object-oriented programming, debugging, and core software engineering reasoning in a large introductory computer science course.\nSkills: Java, Debugging, Object-Oriented Programming, Teaching, Communication\nKeywords: software fundamentals, debugging, OOP, mentoring, technical communication"
+    },
+    {
+      "id": "chunk-23",
+      "db_chunk_id": 23,
+      "project_evidence_id": 6,
+      "chunk_type": "bullet",
+      "text": "Title: CS124 Tutor\nCategory: Teaching / Software Fundamentals\nBullet: Guided 50+ students weekly on object-oriented design and debugging across a 600-student introductory CS Java course."
+    },
+    {
+      "id": "chunk-24",
+      "db_chunk_id": 24,
+      "project_evidence_id": 6,
+      "chunk_type": "bullet",
+      "text": "Title: CS124 Tutor\nCategory: Teaching / Software Fundamentals\nBullet: Explained software fundamentals, problem decomposition, and debugging strategies in one-on-one and small-group settings."
+    }
+  ],
+  "queries": [
+    {
+      "id": "application-1",
+      "source": "postgres",
+      "application_id": 1,
+      "company": "Millennium Space Systems, a Boeing Company",
+      "role_title": "Summer 2026 Internship Program - Command and Data Handling (CDH)",
+      "query_text": "Role Title: Summer 2026 Internship Program - Command and Data Handling (CDH)\nCompany: Millennium Space Systems, a Boeing Company\nAI Summary: Summer 2026 onsite internship in Command and Data Handling for Millennium Space Systems at Boeing in El Segundo, California. The intern will support spacecraft electrical systems work including avionics architecture, netlist management, data budget and signal integrity analyses, and C&DH subsystem design for next-generation avionics systems.\nRequired Skills: Degree in Electrical, Computer, Aerospace or other relevant engineering, Knowledge of electrical hardware systems, Methodical design, testing, and troubleshooting capabilities, U.S. Person status as defined by 22 C.F.R. \u00a7120.62, Ability to obtain and maintain a security clearance, Willingness to work onsite 100%\nPreferred Skills: Strong academic performance (preferred GPA of 3.0 or above), Exceptional organizational and collaboration skills, Strong technical experiences through technical projects, research or engineering internships, Exceptional communication skills, Interest and enthusiasm related to engineering, aerospace and a career with Boeing, Junior or Senior class standing\nKeywords: Command and Data Handling, CDH, Spacecraft Electrical Systems Engineering Intern, avionics, flight software, data handling, netlist management, vehicle architecture design, data budget analysis, signal integrity, vehicle I/O allocation, fault management, redundancy, watchdogs, error detection, onsite, security clearance, export control, ITAR\nJob Description: ",
+      "application": {
+        "company": "Millennium Space Systems, a Boeing Company",
+        "role_title": "Summer 2026 Internship Program - Command and Data Handling (CDH)",
+        "ai_summary": "Summer 2026 onsite internship in Command and Data Handling for Millennium Space Systems at Boeing in El Segundo, California. The intern will support spacecraft electrical systems work including avionics architecture, netlist management, data budget and signal integrity analyses, and C&DH subsystem design for next-generation avionics systems.",
+        "required_skills": [
+          "Degree in Electrical, Computer, Aerospace or other relevant engineering",
+          "Knowledge of electrical hardware systems",
+          "Methodical design, testing, and troubleshooting capabilities",
+          "U.S. Person status as defined by 22 C.F.R. \u00a7120.62",
+          "Ability to obtain and maintain a security clearance",
+          "Willingness to work onsite 100%"
+        ],
+        "preferred_skills": [
+          "Strong academic performance (preferred GPA of 3.0 or above)",
+          "Exceptional organizational and collaboration skills",
+          "Strong technical experiences through technical projects, research or engineering internships",
+          "Exceptional communication skills",
+          "Interest and enthusiasm related to engineering, aerospace and a career with Boeing",
+          "Junior or Senior class standing"
+        ],
+        "keywords": [
+          "Command and Data Handling",
+          "CDH",
+          "Spacecraft Electrical Systems Engineering Intern",
+          "avionics",
+          "flight software",
+          "data handling",
+          "netlist management",
+          "vehicle architecture design",
+          "data budget analysis",
+          "signal integrity",
+          "vehicle I/O allocation",
+          "fault management",
+          "redundancy",
+          "watchdogs",
+          "error detection",
+          "onsite",
+          "security clearance",
+          "export control",
+          "ITAR"
+        ],
+        "job_description": ""
+      },
+      "relevance": {},
+      "labeling_notes": "Fill relevance with {chunk-id: 0|1|2} after manual review."
+    },
+    {
+      "id": "application-2",
+      "source": "postgres",
+      "application_id": 2,
+      "company": "Coherent",
+      "role_title": "Intern- Firmware Engineer",
+      "query_text": "Role Title: Intern- Firmware Engineer\nCompany: Coherent\nAI Summary: Coherent is seeking a Summer 2026 Firmware Engineer Intern in Fremont, CA to support firmware development for optical transceivers. The intern will develop device and peripheral drivers using an MCU IDE and evaluation board, collaborate with the firmware team and MCU vendors, and contribute to hands-on projects over a 10\u201314 week internship.\nRequired Skills: Firmware development, Developing device drivers, MCU IDE usage, Eval board usage, Working with MCU vendors, Excellent written communication, Excellent verbal communication, Teamwork, Independent work, Adaptability, Willingness to learn, Attention to detail, Time management, Circuit Analysis\nPreferred Skills: Programming in C, Programming in Python\nKeywords: Firmware Engineer Intern, optical transceivers, device drivers, MCU, peripheral drivers, embedded systems, Summer 2026, on-site, Fremont, Coherent\nJob Description: Intern- Firmware Engineer\nFremont, CA, United States (On-site)\nTrending\nJob Description\nJob Summary\n\nWe are seeking a motivated and detail-oriented Firmware Engineer Intern to join our Firmware team for Summer 2026. In this role, you will gain hands-on experience in firmware development on optical transceivers, work alongside industry professionals, and contribute to meaningful projects that support our team and company objectives.\n\nPrimary Duties & Responsibilities\n\nDevelop device drivers for optical transceivers.\nMCU IDE and Eval board will be used.\nWork closely with firmware team and MCU vendors\nA set of peripheral drivers are expected to be developed for the MCU.\n \n\nEducation & Experience\n\nEducation Level Required: Bachelor: \n     - Rising Senior (completed 3 years by start)\nMajors: Electrical and Computer Engineering\nRelevant coursework or extracurricular experience in: Circuit Analysis, Programming in C/Python is a plus.\nOpen to currently enrolled students or those who have graduated within one year of the internship start date.\nSkills & Other Requirements\n\nExcellent written and verbal communication.\nTeam-oriented but able to work independently when needed.\nAdaptable and eager to learn in a fast-paced environment.\nAttention to detail and time management.\nAdditional Information\nInternship Duration: 10 \u2013 14 weeks.\nAt Coherent, interns are valued members of our team and have the opportunity to make meaningful contributions from day one. In addition to hands-on project experience, our internship program includes opportunities to connect with fellow interns and colleagues across the organization through virtual and in-person networking events, team-building activities and more. Interns are expected to actively participate in these events as part of their professional development and to fully immerse themselves in our collaborative and innovative culture.\nWorking Conditions\n\nThis role will be based on-site in Fremont, CA.\nRegular use of a computer and other office equipment is necessary.\nPhysical Requirements\n\nSitting for extended periods while working on a computer or in meetings.\nUse of hands and fingers for typing, writing, and handling documents.\nOccasional lifting of objects or materials up to 20 pounds for administrative tasks.\n Ability to communicate verbally and in writing.\nSafety Requirements\n\nAll employees are required to follow the site EHS procedures and Coherent Corp. EHS standards.\n\nQuality & Environmental Responsibilities\n\nDepending on location, this position may be responsible for the execution and maintenance of the ISO 9000, 9001, 14001 and/or other applicable standards that may apply to the relevant roles and responsibilities within the Quality Management System and Environmental Management System.\n\nCulture Commitment\n\nEnsure adherence to company\u2019s values (ICARE) in all aspects of your position at Coherent Corp.:\n\nIntegrity \u2013 Create an Environment of Trust\n\nCollaboration \u2013 Innovate Through the Sharing of Ideas\n\nAccountability \u2013 Own the Process and the Outcome \n\nRespect \u2013 Recognize the Value in Everyone\n\nEnthusiasm \u2013 Find a Sense of Purpose in Work\n\nCoherent Corp. is an equal opportunity/affirmative action employer. All qualified applicants will receive consideration for employment without regard to sex, gender identity, sexual orientation, race, color, religion, national origin, disability, protected Veteran status, age, or any other characteristic protected by law.\n\nIf you need assistance or an accommodation due to a disability, you may contact us at talentacquisition@coherent.com.\n\nABOUT US\n\nCoherent is a global leader in lasers, engineered materials and networking components. We are a vertically integrated manufacturing company that develops innovative products for diversified applications in the industrial, optical communications, military, life sciences, semiconductor equipment, and consumer markets. Coherent provides a comprehensive career development platform within an environment that challenges employees to perform at their best, while rewarding excellence and hard-work through a competitive compensation program. It's an exciting opportunity to work for a company that offers stability, longevity and growth. Come Join Us!\n\nNote to recruiters and employment agencies: We will not pay for unsolicited resumes from recruiters and employment agencies unless we have a signed agreement and have required assistance, in writing, for a specific opening.\n\n \n\nAbout Us\nCoherent is a global leader in lasers, engineered materials and networking components. We are a vertically integrated manufacturing company that develops innovative products for diversified applications in the industrial, optical communications, military, life sciences, semiconductor equipment, and consumer markets. Coherent provides a comprehensive career development platform within an environment that challenges employees to perform at their best, while rewarding excellence and hard-work through a competitive compensation program. It's an exciting opportunity to work for a company that offers stability, longevity and growth. Come Join Us!\n\nNote to recruiters and employment agencies: We will not pay for unsolicited resumes from recruiters and employment agencies unless we have a signed agreement and have required assistance, in writing, for a specific opening.\n",
+      "application": {
+        "company": "Coherent",
+        "role_title": "Intern- Firmware Engineer",
+        "ai_summary": "Coherent is seeking a Summer 2026 Firmware Engineer Intern in Fremont, CA to support firmware development for optical transceivers. The intern will develop device and peripheral drivers using an MCU IDE and evaluation board, collaborate with the firmware team and MCU vendors, and contribute to hands-on projects over a 10\u201314 week internship.",
+        "required_skills": [
+          "Firmware development",
+          "Developing device drivers",
+          "MCU IDE usage",
+          "Eval board usage",
+          "Working with MCU vendors",
+          "Excellent written communication",
+          "Excellent verbal communication",
+          "Teamwork",
+          "Independent work",
+          "Adaptability",
+          "Willingness to learn",
+          "Attention to detail",
+          "Time management",
+          "Circuit Analysis"
+        ],
+        "preferred_skills": [
+          "Programming in C",
+          "Programming in Python"
+        ],
+        "keywords": [
+          "Firmware Engineer Intern",
+          "optical transceivers",
+          "device drivers",
+          "MCU",
+          "peripheral drivers",
+          "embedded systems",
+          "Summer 2026",
+          "on-site",
+          "Fremont",
+          "Coherent"
+        ],
+        "job_description": "Intern- Firmware Engineer\nFremont, CA, United States (On-site)\nTrending\nJob Description\nJob Summary\n\nWe are seeking a motivated and detail-oriented Firmware Engineer Intern to join our Firmware team for Summer 2026. In this role, you will gain hands-on experience in firmware development on optical transceivers, work alongside industry professionals, and contribute to meaningful projects that support our team and company objectives.\n\nPrimary Duties & Responsibilities\n\nDevelop device drivers for optical transceivers.\nMCU IDE and Eval board will be used.\nWork closely with firmware team and MCU vendors\nA set of peripheral drivers are expected to be developed for the MCU.\n \n\nEducation & Experience\n\nEducation Level Required: Bachelor: \n     - Rising Senior (completed 3 years by start)\nMajors: Electrical and Computer Engineering\nRelevant coursework or extracurricular experience in: Circuit Analysis, Programming in C/Python is a plus.\nOpen to currently enrolled students or those who have graduated within one year of the internship start date.\nSkills & Other Requirements\n\nExcellent written and verbal communication.\nTeam-oriented but able to work independently when needed.\nAdaptable and eager to learn in a fast-paced environment.\nAttention to detail and time management.\nAdditional Information\nInternship Duration: 10 \u2013 14 weeks.\nAt Coherent, interns are valued members of our team and have the opportunity to make meaningful contributions from day one. In addition to hands-on project experience, our internship program includes opportunities to connect with fellow interns and colleagues across the organization through virtual and in-person networking events, team-building activities and more. Interns are expected to actively participate in these events as part of their professional development and to fully immerse themselves in our collaborative and innovative culture.\nWorking Conditions\n\nThis role will be based on-site in Fremont, CA.\nRegular use of a computer and other office equipment is necessary.\nPhysical Requirements\n\nSitting for extended periods while working on a computer or in meetings.\nUse of hands and fingers for typing, writing, and handling documents.\nOccasional lifting of objects or materials up to 20 pounds for administrative tasks.\n Ability to communicate verbally and in writing.\nSafety Requirements\n\nAll employees are required to follow the site EHS procedures and Coherent Corp. EHS standards.\n\nQuality & Environmental Responsibilities\n\nDepending on location, this position may be responsible for the execution and maintenance of the ISO 9000, 9001, 14001 and/or other applicable standards that may apply to the relevant roles and responsibilities within the Quality Management System and Environmental Management System.\n\nCulture Commitment\n\nEnsure adherence to company\u2019s values (ICARE) in all aspects of your position at Coherent Corp.:\n\nIntegrity \u2013 Create an Environment of Trust\n\nCollaboration \u2013 Innovate Through the Sharing of Ideas\n\nAccountability \u2013 Own the Process and the Outcome \n\nRespect \u2013 Recognize the Value in Everyone\n\nEnthusiasm \u2013 Find a Sense of Purpose in Work\n\nCoherent Corp. is an equal opportunity/affirmative action employer. All qualified applicants will receive consideration for employment without regard to sex, gender identity, sexual orientation, race, color, religion, national origin, disability, protected Veteran status, age, or any other characteristic protected by law.\n\nIf you need assistance or an accommodation due to a disability, you may contact us at talentacquisition@coherent.com.\n\nABOUT US\n\nCoherent is a global leader in lasers, engineered materials and networking components. We are a vertically integrated manufacturing company that develops innovative products for diversified applications in the industrial, optical communications, military, life sciences, semiconductor equipment, and consumer markets. Coherent provides a comprehensive career development platform within an environment that challenges employees to perform at their best, while rewarding excellence and hard-work through a competitive compensation program. It's an exciting opportunity to work for a company that offers stability, longevity and growth. Come Join Us!\n\nNote to recruiters and employment agencies: We will not pay for unsolicited resumes from recruiters and employment agencies unless we have a signed agreement and have required assistance, in writing, for a specific opening.\n\n \n\nAbout Us\nCoherent is a global leader in lasers, engineered materials and networking components. We are a vertically integrated manufacturing company that develops innovative products for diversified applications in the industrial, optical communications, military, life sciences, semiconductor equipment, and consumer markets. Coherent provides a comprehensive career development platform within an environment that challenges employees to perform at their best, while rewarding excellence and hard-work through a competitive compensation program. It's an exciting opportunity to work for a company that offers stability, longevity and growth. Come Join Us!\n\nNote to recruiters and employment agencies: We will not pay for unsolicited resumes from recruiters and employment agencies unless we have a signed agreement and have required assistance, in writing, for a specific opening.\n"
+      },
+      "relevance": {},
+      "labeling_notes": "Fill relevance with {chunk-id: 0|1|2} after manual review."
+    },
+    {
+      "id": "application-3",
+      "source": "postgres",
+      "application_id": 3,
+      "company": "Rivian",
+      "role_title": "UIUC Research Park Intern - Low Voltage Electronics",
+      "query_text": "Role Title: UIUC Research Park Intern - Low Voltage Electronics\nCompany: Rivian\nAI Summary: Rivian is hiring a Summer 2026 intern at UIUC Research Park in Champaign, Illinois to support low voltage electronics work, including equipment testing, automation, data collection and analysis, firmware development, and simple mechanical design. The role is intended for current UIUC students in electrical engineering, computer engineering, mechatronics, or a closely related field.\nRequired Skills: Python, MATLAB, C on microcontrollers (STM32, ESP32, Nordic, etc.), CAN bus tools (PCAN, etc.), lab equipment (power supplies, function generators, oscilloscopes, multimeters), understanding sensor datasheets, reading circuit schematics/layouts, modifying/developing data collection and analysis scripts in Python, designing simple mechanical structures/enclosures for 3D printing, currently pursuing a bachelors, masters, or PhD degree at the University of Illinois Urbana Champaign, degree in Electrical Engineering, Computer Engineering, or Mechatronics, availability for 20 hours per week in Fall and Spring, availability for 40 hours per week in summer\nPreferred Skills: designing custom circuit schematics, supervising PCB layout, prior research experience related to hardware data collection systems, prior research experience related to sensing systems\nKeywords: equipment testing, automation, data collection, data analysis, evaluation kits, custom PCBAs, firmware development, simple mechanical design, hardware, sensing systems\nJob Description: UIUC Research Park Intern - Low Voltage Electronics\nChampaign, Illinois\nInternships\nAbout Rivian\n\nRivian is on a mission to keep the world adventurous forever. This goes for the emissions-free Electric Adventure Vehicles we build, and the curious, courageous souls we seek to attract. \n\n \n\nAs a company, we constantly challenge what\u2019s possible, never simply accepting what has always been done. We reframe old problems, seek new solutions and operate comfortably in areas that are unknown. Our backgrounds are diverse, but our team shares a love of the outdoors and a desire to protect it for future generations. \n\n\nRole Summary\n\nInternship Term: Summer 2026\n\n \n\nRivian internships are experiences optimized for student candidates.\u202fTo be eligible, you must be an undergraduate or graduate student in an accredited program during the internship term with an expected graduation date between December 2026 through May 2028. Rivian's Internship Program requires active student enrollment. Information regarding your expected degree completion date is collected solely to verify eligibility and determine your availability for future full-time opportunities. Rivian is an equal opportunity employer and does not use graduation dates to determine the age of applicants or as a basis for discriminatory hiring decisions. \n\n \n\nIf you are not pursuing a degree, please see our full time positions on our Rivian careers site. \n\n \n\nNote that if your university has specific requirements for internship programs, it is your responsibility to fulfill those requirements. \n\n\nResponsibilities\n\n You will be responsible for individually designing equipment testing, automation, data\ncollection, and data analysis scripts using:\nPython / MATLAB\nC on Microcontrollers (STM32, ESP32, Nordic, etc.)\nCAN Bus tools (PCAN, etc.)\n Additionally, you will be responsible for completing deliverables for testing/data collection/\nproof-of-concept using:\nCombinations of interconnected evaluation kits\nCustom PCBAs\nFW development\nSimple mechanical design\n\nQualifications\n\nMust be currently pursuing a bachelors, masters, or PhD degree at the University of Illinois Urbana Champaign\nActively pursuing a degree or one closely related in Electrical Engineering, Computer Engineering, or Mechatronics.\nFamiliarity with lab equipment - power supplies, function generators, oscilloscopes, multimeters.\nAbility to understand sensor datasheets (gain, offset, preload, etc.)\nAbility to read a circuit schematic/layout.\nAbility to modify/develop data collection/analysis scripts in Python.\nAbility to design simple mechanical structures/enclosures for 3D print.\nAbility to design custom circuit schematics/supervise PCB layout, preferred.\nPrior research experience related with hardware data collection systems and/or sensing systems, preferred.\nMust be available for 20 hours per week in the Fall and Spring and 40 hours in the summer.\n \n\n#LI-HH2\n\n",
+      "application": {
+        "company": "Rivian",
+        "role_title": "UIUC Research Park Intern - Low Voltage Electronics",
+        "ai_summary": "Rivian is hiring a Summer 2026 intern at UIUC Research Park in Champaign, Illinois to support low voltage electronics work, including equipment testing, automation, data collection and analysis, firmware development, and simple mechanical design. The role is intended for current UIUC students in electrical engineering, computer engineering, mechatronics, or a closely related field.",
+        "required_skills": [
+          "Python",
+          "MATLAB",
+          "C on microcontrollers (STM32, ESP32, Nordic, etc.)",
+          "CAN bus tools (PCAN, etc.)",
+          "lab equipment (power supplies, function generators, oscilloscopes, multimeters)",
+          "understanding sensor datasheets",
+          "reading circuit schematics/layouts",
+          "modifying/developing data collection and analysis scripts in Python",
+          "designing simple mechanical structures/enclosures for 3D printing",
+          "currently pursuing a bachelors, masters, or PhD degree at the University of Illinois Urbana Champaign",
+          "degree in Electrical Engineering, Computer Engineering, or Mechatronics",
+          "availability for 20 hours per week in Fall and Spring",
+          "availability for 40 hours per week in summer"
+        ],
+        "preferred_skills": [
+          "designing custom circuit schematics",
+          "supervising PCB layout",
+          "prior research experience related to hardware data collection systems",
+          "prior research experience related to sensing systems"
+        ],
+        "keywords": [
+          "equipment testing",
+          "automation",
+          "data collection",
+          "data analysis",
+          "evaluation kits",
+          "custom PCBAs",
+          "firmware development",
+          "simple mechanical design",
+          "hardware",
+          "sensing systems"
+        ],
+        "job_description": "UIUC Research Park Intern - Low Voltage Electronics\nChampaign, Illinois\nInternships\nAbout Rivian\n\nRivian is on a mission to keep the world adventurous forever. This goes for the emissions-free Electric Adventure Vehicles we build, and the curious, courageous souls we seek to attract. \n\n \n\nAs a company, we constantly challenge what\u2019s possible, never simply accepting what has always been done. We reframe old problems, seek new solutions and operate comfortably in areas that are unknown. Our backgrounds are diverse, but our team shares a love of the outdoors and a desire to protect it for future generations. \n\n\nRole Summary\n\nInternship Term: Summer 2026\n\n \n\nRivian internships are experiences optimized for student candidates.\u202fTo be eligible, you must be an undergraduate or graduate student in an accredited program during the internship term with an expected graduation date between December 2026 through May 2028. Rivian's Internship Program requires active student enrollment. Information regarding your expected degree completion date is collected solely to verify eligibility and determine your availability for future full-time opportunities. Rivian is an equal opportunity employer and does not use graduation dates to determine the age of applicants or as a basis for discriminatory hiring decisions. \n\n \n\nIf you are not pursuing a degree, please see our full time positions on our Rivian careers site. \n\n \n\nNote that if your university has specific requirements for internship programs, it is your responsibility to fulfill those requirements. \n\n\nResponsibilities\n\n You will be responsible for individually designing equipment testing, automation, data\ncollection, and data analysis scripts using:\nPython / MATLAB\nC on Microcontrollers (STM32, ESP32, Nordic, etc.)\nCAN Bus tools (PCAN, etc.)\n Additionally, you will be responsible for completing deliverables for testing/data collection/\nproof-of-concept using:\nCombinations of interconnected evaluation kits\nCustom PCBAs\nFW development\nSimple mechanical design\n\nQualifications\n\nMust be currently pursuing a bachelors, masters, or PhD degree at the University of Illinois Urbana Champaign\nActively pursuing a degree or one closely related in Electrical Engineering, Computer Engineering, or Mechatronics.\nFamiliarity with lab equipment - power supplies, function generators, oscilloscopes, multimeters.\nAbility to understand sensor datasheets (gain, offset, preload, etc.)\nAbility to read a circuit schematic/layout.\nAbility to modify/develop data collection/analysis scripts in Python.\nAbility to design simple mechanical structures/enclosures for 3D print.\nAbility to design custom circuit schematics/supervise PCB layout, preferred.\nPrior research experience related with hardware data collection systems and/or sensing systems, preferred.\nMust be available for 20 hours per week in the Fall and Spring and 40 hours in the summer.\n \n\n#LI-HH2\n\n"
+      },
+      "relevance": {},
+      "labeling_notes": "Fill relevance with {chunk-id: 0|1|2} after manual review."
+    },
+    {
+      "id": "application-4",
+      "source": "postgres",
+      "application_id": 4,
+      "company": "Skydio",
+      "role_title": "Electrical Engineer Intern",
+      "query_text": "Role Title: Electrical Engineer Intern\nCompany: Skydio\nAI Summary: Skydio is seeking Electrical Engineering interns to help prototype, validate, develop, and refine electrical systems for autonomous flying sensors. The role involves low-voltage hardware development, PCB design and bring-up, collaboration across engineering teams, and support for system integration and test activities.\nRequired Skills: Currently pursuing a degree in Electrical Engineering or a related field, Solid grasp of electrical engineering fundamentals, Familiarity with basic EE lab tools such as oscilloscope and signal generators, Familiarity with scripting/programming in Python or C, Some experience with power electronics, digital electronics, and/or analog electronics, Ability to quickly prototype solutions and circuit demonstrations, Ability to work autonomously\nPreferred Skills: Previous internship work on electronic products, Familiarity with an EDA software suite, preferably Cadence Allegro\nKeywords: Electrical Engineering, low-voltage electronic hardware, PCB design, PCB layout, prototyping, bring-up, debugging, validation, power distribution, battery management, sensing, motor control, computing, schematic review, BOM review, system integration, test execution, failure analysis, Python, C, Cadence Allegro\nJob Description: ",
+      "application": {
+        "company": "Skydio",
+        "role_title": "Electrical Engineer Intern",
+        "ai_summary": "Skydio is seeking Electrical Engineering interns to help prototype, validate, develop, and refine electrical systems for autonomous flying sensors. The role involves low-voltage hardware development, PCB design and bring-up, collaboration across engineering teams, and support for system integration and test activities.",
+        "required_skills": [
+          "Currently pursuing a degree in Electrical Engineering or a related field",
+          "Solid grasp of electrical engineering fundamentals",
+          "Familiarity with basic EE lab tools such as oscilloscope and signal generators",
+          "Familiarity with scripting/programming in Python or C",
+          "Some experience with power electronics, digital electronics, and/or analog electronics",
+          "Ability to quickly prototype solutions and circuit demonstrations",
+          "Ability to work autonomously"
+        ],
+        "preferred_skills": [
+          "Previous internship work on electronic products",
+          "Familiarity with an EDA software suite, preferably Cadence Allegro"
+        ],
+        "keywords": [
+          "Electrical Engineering",
+          "low-voltage electronic hardware",
+          "PCB design",
+          "PCB layout",
+          "prototyping",
+          "bring-up",
+          "debugging",
+          "validation",
+          "power distribution",
+          "battery management",
+          "sensing",
+          "motor control",
+          "computing",
+          "schematic review",
+          "BOM review",
+          "system integration",
+          "test execution",
+          "failure analysis",
+          "Python",
+          "C",
+          "Cadence Allegro"
+        ],
+        "job_description": ""
+      },
+      "relevance": {},
+      "labeling_notes": "Fill relevance with {chunk-id: 0|1|2} after manual review."
+    },
+    {
+      "id": "application-5",
+      "source": "postgres",
+      "application_id": 5,
+      "company": "a",
+      "role_title": "a",
+      "query_text": "Role Title: a\nCompany: a\nAI Summary: a\nRequired Skills: \nPreferred Skills: \nKeywords: \nJob Description: a",
+      "application": {
+        "company": "a",
+        "role_title": "a",
+        "ai_summary": "a",
+        "required_skills": [],
+        "preferred_skills": [],
+        "keywords": [],
+        "job_description": "a"
+      },
+      "relevance": {},
+      "labeling_notes": "Fill relevance with {chunk-id: 0|1|2} after manual review."
+    },
+    {
+      "id": "application-6",
+      "source": "postgres",
+      "application_id": 6,
+      "company": "b",
+      "role_title": "b",
+      "query_text": "Role Title: b\nCompany: b\nAI Summary: b\nRequired Skills: \nPreferred Skills: \nKeywords: \nJob Description: bb",
+      "application": {
+        "company": "b",
+        "role_title": "b",
+        "ai_summary": "b",
+        "required_skills": [],
+        "preferred_skills": [],
+        "keywords": [],
+        "job_description": "bb"
+      },
+      "relevance": {},
+      "labeling_notes": "Fill relevance with {chunk-id: 0|1|2} after manual review."
+    }
+  ]
+}
