@@ -65,7 +65,8 @@ jobs:
           python -m pip install pytest pytest-cov
 
       - name: Report automated check count
-        run: echo "Automated checks in this workflow: 4 (frontend lint, frontend type check, frontend build, backend pytest with coverage)"
+        run: |
+          echo "Automated checks in this workflow: 4 (frontend lint, frontend type check, frontend build, backend pytest with coverage)"
 
       - name: Run backend tests with coverage
         run: pytest --cov=app --cov-report=term-missing
