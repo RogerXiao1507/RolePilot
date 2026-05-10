@@ -57,7 +57,7 @@ export default function ApplicationForm() {
 
   async function handleAnalyzeJob() {
     if (!jobText.trim()) {
-      setError("Paste a job description first.");
+      setError("Paste a job description first so RolePilot can extract signal.");
       return;
     }
 
@@ -69,7 +69,7 @@ export default function ApplicationForm() {
       applyParsedJob(parsed, jobText);
     } catch (err) {
       console.error(err);
-      setError("Failed to analyze job description.");
+      setError("Job description analysis failed. Keep your pasted text and try again.");
     } finally {
       setAnalyzing(false);
     }
@@ -77,7 +77,7 @@ export default function ApplicationForm() {
 
   async function handleAnalyzeUrl() {
     if (!jobUrlInput.trim()) {
-      setError("Paste a job posting URL first.");
+      setError("Paste a job posting URL before running URL analysis.");
       return;
     }
 
@@ -89,7 +89,7 @@ export default function ApplicationForm() {
       applyParsedJob(parsed, "", jobUrlInput);
     } catch (err) {
       console.error(err);
-      setError("Failed to analyze job URL. Try pasting the description manually.");
+      setError("URL analysis failed. Paste the job description manually to keep moving.");
     } finally {
       setAnalyzing(false);
     }
@@ -106,236 +106,241 @@ export default function ApplicationForm() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      setError("Failed to create application. Check browser console.");
+      setError("Application could not be saved. Check the fields and try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  const inputClassName =
-    "w-full rounded-2xl border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20";
-
-  const labelClassName = "mb-2 block text-sm font-medium text-zinc-300";
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="job_url_input" className={labelClassName}>
-          Job Posting URL
-        </label>
-        <input
-          id="job_url_input"
-          value={jobUrlInput}
-          onChange={(e) => setJobUrlInput(e.target.value)}
-          placeholder="Paste a job posting link here"
-          className={inputClassName}
-        />
-        <div className="mt-3">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="rp-panel rp-section shadow-none">
+          <p className="rp-eyebrow">URL parser</p>
+          <label htmlFor="job_url_input" className="rp-field-label mt-4">
+            Job posting URL
+          </label>
+          <input
+            id="job_url_input"
+            value={jobUrlInput}
+            onChange={(e) => setJobUrlInput(e.target.value)}
+            placeholder="https://company.com/careers/internship"
+            className="rp-input"
+          />
           <button
             type="button"
             onClick={handleAnalyzeUrl}
             disabled={analyzing}
-            className="rounded-xl border border-blue-700 bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:border-blue-600 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rp-button-secondary mt-3 w-full"
           >
-            {analyzing ? "Analyzing..." : "Analyze From URL"}
+            {analyzing ? "Analyzing URL..." : "Analyze From URL"}
           </button>
         </div>
-      </div>
 
-      <div>
-        <label htmlFor="job_text" className={labelClassName}>
-          Paste Job Description
-        </label>
-        <textarea
-          id="job_text"
-          value={jobText}
-          onChange={(e) => setJobText(e.target.value)}
-          placeholder="Paste the full job description here, then click Analyze Job."
-          className={`${inputClassName} min-h-48 resize-none`}
-        />
-        <div className="mt-3">
+        <div className="rp-panel rp-section shadow-none">
+          <p className="rp-eyebrow">Description parser</p>
+          <label htmlFor="job_text" className="rp-field-label mt-4">
+            Full job description
+          </label>
+          <textarea
+            id="job_text"
+            value={jobText}
+            onChange={(e) => setJobText(e.target.value)}
+            placeholder="Paste the posting here to extract skills, summary, and next steps."
+            className="rp-input min-h-40 resize-y"
+          />
           <button
             type="button"
             onClick={handleAnalyzeJob}
             disabled={analyzing}
-            className="rounded-xl border border-blue-700 bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:border-blue-600 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rp-button-secondary mt-3 w-full"
           >
-            {analyzing ? "Analyzing..." : "Analyze Job"}
+            {analyzing ? "Analyzing Text..." : "Analyze Job Description"}
           </button>
         </div>
-      </div>
+      </section>
 
       {parsedJob && (
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5">
-          <h3 className="text-lg font-semibold text-white">AI Job Insights</h3>
-
-          <div className="mt-4 space-y-4 text-sm">
+        <section className="rp-panel rp-section">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-2 font-medium text-zinc-300">Required Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {parsedJob.required_skills.length > 0 ? (
-                  parsedJob.required_skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-full border border-blue-800 bg-blue-950/50 px-3 py-1 text-blue-300"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-zinc-500">None found</p>
-                )}
-              </div>
+              <p className="rp-eyebrow">AI job insights</p>
+              <h2 className="rp-section-title mt-2">Extracted posting signal</h2>
             </div>
-
-            <div>
-              <p className="mb-2 font-medium text-zinc-300">Preferred Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {parsedJob.preferred_skills.length > 0 ? (
-                  parsedJob.preferred_skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-full border border-purple-800 bg-purple-950/50 px-3 py-1 text-purple-300"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-zinc-500">None found</p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <p className="mb-2 font-medium text-zinc-300">Next Steps</p>
-              {parsedJob.next_steps.length > 0 ? (
-                <ul className="list-disc space-y-1 pl-5 text-zinc-300">
-                  {parsedJob.next_steps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-zinc-500">No next steps generated</p>
-              )}
-            </div>
+            <span className="rp-badge border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+              Ready to save
+            </span>
           </div>
-        </div>
+
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <InsightList title="Required skills" items={parsedJob.required_skills} tone="info" />
+            <InsightList title="Preferred skills" items={parsedJob.preferred_skills} tone="accent" />
+            <InsightList title="Next steps" items={parsedJob.next_steps} tone="warning" />
+          </div>
+        </section>
       )}
 
-      <div>
-        <label htmlFor="company" className={labelClassName}>
-          Company
-        </label>
-        <input
-          id="company"
-          name="company"
-          placeholder="Company"
-          value={form.company}
-          onChange={handleChange}
-          className={inputClassName}
-          required
-        />
-      </div>
+      <section className="rp-panel rp-section">
+        <div className="mb-5">
+          <p className="rp-eyebrow">Application record</p>
+          <h2 className="rp-section-title mt-2">Save tracker details</h2>
+        </div>
 
-      <div>
-        <label htmlFor="role_title" className={labelClassName}>
-          Role Title
-        </label>
-        <input
-          id="role_title"
-          name="role_title"
-          placeholder="Role Title"
-          value={form.role_title}
-          onChange={handleChange}
-          className={inputClassName}
-          required
-        />
-      </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Company" htmlFor="company">
+            <input
+              id="company"
+              name="company"
+              placeholder="Company"
+              value={form.company}
+              onChange={handleChange}
+              className="rp-input"
+              required
+            />
+          </Field>
 
-      <div>
-        <label htmlFor="status" className={labelClassName}>
-          Status
-        </label>
-        <select
-          id="status"
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          className={inputClassName}
-        >
-          <option value="saved">saved</option>
-          <option value="applied">applied</option>
-          <option value="interview">interview</option>
-          <option value="offer">offer</option>
-          <option value="rejected">rejected</option>
-        </select>
-      </div>
+          <Field label="Role title" htmlFor="role_title">
+            <input
+              id="role_title"
+              name="role_title"
+              placeholder="Software Engineering Intern"
+              value={form.role_title}
+              onChange={handleChange}
+              className="rp-input"
+              required
+            />
+          </Field>
 
-      <div>
-        <label htmlFor="location" className={labelClassName}>
-          Location
-        </label>
-        <input
-          id="location"
-          name="location"
-          placeholder="Location"
-          value={form.location}
-          onChange={handleChange}
-          className={inputClassName}
-        />
-      </div>
+          <Field label="Status" htmlFor="status">
+            <select
+              id="status"
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="rp-input"
+            >
+              <option value="saved">saved</option>
+              <option value="applied">applied</option>
+              <option value="interview">interview</option>
+              <option value="offer">offer</option>
+              <option value="rejected">rejected</option>
+            </select>
+          </Field>
 
-      <div>
-        <label htmlFor="job_url" className={labelClassName}>
-          Job URL
-        </label>
-        <input
-          id="job_url"
-          name="job_url"
-          placeholder="Job URL"
-          value={form.job_url}
-          onChange={handleChange}
-          className={inputClassName}
-        />
-      </div>
+          <Field label="Location" htmlFor="location">
+            <input
+              id="location"
+              name="location"
+              placeholder="New York, Remote, Hybrid"
+              value={form.location}
+              onChange={handleChange}
+              className="rp-input"
+            />
+          </Field>
 
-      <div>
-        <label htmlFor="job_description" className={labelClassName}>
-          Job Description
-        </label>
-        <textarea
-          id="job_description"
-          name="job_description"
-          placeholder="Job Description"
-          value={form.job_description}
-          onChange={handleChange}
-          className={`${inputClassName} min-h-40 resize-none`}
-        />
-      </div>
+          <div className="md:col-span-2">
+            <Field label="Job URL" htmlFor="job_url">
+              <input
+                id="job_url"
+                name="job_url"
+                placeholder="Saved posting URL"
+                value={form.job_url}
+                onChange={handleChange}
+                className="rp-input"
+              />
+            </Field>
+          </div>
 
-      <div>
-        <label htmlFor="ai_summary" className={labelClassName}>
-          AI Summary
-        </label>
-        <textarea
-          id="ai_summary"
-          name="ai_summary"
-          placeholder="AI Summary"
-          value={form.ai_summary}
-          onChange={handleChange}
-          className={`${inputClassName} min-h-32 resize-none`}
-        />
-      </div>
+          <div className="md:col-span-2">
+            <Field label="Job description" htmlFor="job_description">
+              <textarea
+                id="job_description"
+                name="job_description"
+                placeholder="Job description"
+                value={form.job_description}
+                onChange={handleChange}
+                className="rp-input min-h-44 resize-y"
+              />
+            </Field>
+          </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+          <div className="md:col-span-2">
+            <Field label="AI summary" htmlFor="ai_summary">
+              <textarea
+                id="ai_summary"
+                name="ai_summary"
+                placeholder="AI summary"
+                value={form.ai_summary}
+                onChange={handleChange}
+                className="rp-input min-h-32 resize-y"
+              />
+            </Field>
+          </div>
+        </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded-xl border border-emerald-700 bg-emerald-600 px-5 py-3 text-sm font-medium text-white transition hover:border-emerald-600 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {loading ? "Saving..." : "Create Application"}
-      </button>
+        {error && <div className="rp-error mt-5">{error}</div>}
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-[var(--muted)]">
+            Required fields are company and role title. Parsed skills are saved with the record.
+          </p>
+          <button type="submit" disabled={loading} className="rp-button-primary">
+            {loading ? "Saving Application..." : "Create Application"}
+          </button>
+        </div>
+      </section>
     </form>
+  );
+}
+
+function Field({
+  label,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label htmlFor={htmlFor} className="rp-field-label">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function InsightList({
+  title,
+  items,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  tone: "accent" | "info" | "warning";
+}) {
+  const toneClasses = {
+    accent: "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]",
+    info: "border-blue-200 bg-blue-50 text-blue-700",
+    warning: "border-amber-200 bg-amber-50 text-amber-800",
+  };
+
+  return (
+    <div>
+      <p className="text-sm font-bold">{title}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {items.length > 0 ? (
+          items.map((item) => (
+            <span key={item} className={`rp-badge ${toneClasses[tone]}`}>
+              {item}
+            </span>
+          ))
+        ) : (
+          <p className="text-sm text-[var(--muted)]">None found</p>
+        )}
+      </div>
+    </div>
   );
 }

@@ -27,7 +27,7 @@ export default function DeleteButton({ id }: Props) {
   return (
     <button
       onClick={handleDelete}
-      className="w-full rounded-xl border border-red-900 bg-red-950/40 px-4 py-2.5 text-sm font-medium text-red-300 transition hover:bg-red-950/70"
+      className="rp-button-danger w-full"
     >
       Delete
     </button>

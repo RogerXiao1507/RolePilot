@@ -74,12 +74,12 @@ export default function ResumeJobMatchCard({
     setError("")
 
     if (!savedResume) {
-      setError("No saved resume found. Please upload and analyze a resume first.")
+      setError("No saved resume found. Upload and analyze a resume before matching.")
       return
     }
 
     if (!savedResume.extracted_text?.trim()) {
-      setError("Saved resume text is missing. Please re-upload your resume.")
+      setError("Saved resume text is missing. Re-upload your resume to rebuild the match input.")
       return
     }
 
@@ -111,7 +111,7 @@ export default function ResumeJobMatchCard({
       setResult(data)
     } catch (err) {
       console.error(err)
-      setError("Failed to match resume to job.")
+      setError("Resume matching failed. Check that the backend and saved resume are available.")
     } finally {
       setLoading(false)
     }
@@ -127,7 +127,10 @@ export default function ResumeJobMatchCard({
       summary.includes("excellent fit") ||
       summary.includes("good fit")
     ) {
-      return { label: "Strong Fit", classes: "border-emerald-800 bg-emerald-950/60 text-emerald-300" }
+      return {
+        label: "Strong Fit",
+        classes: "border-emerald-200 bg-emerald-50 text-emerald-800",
+      }
     }
 
     if (
@@ -135,91 +138,84 @@ export default function ResumeJobMatchCard({
       summary.includes("some gaps") ||
       summary.includes("mixed fit")
     ) {
-      return { label: "Moderate Fit", classes: "border-amber-800 bg-amber-950/60 text-amber-300" }
+      return {
+        label: "Moderate Fit",
+        classes: "border-amber-200 bg-amber-50 text-amber-800",
+      }
     }
 
-    return { label: "Needs Work", classes: "border-red-800 bg-red-950/60 text-red-300" }
+    return { label: "Needs Work", classes: "border-red-200 bg-red-50 text-red-700" }
   }, [result])
 
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
+    <section className="rp-panel rp-section">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold text-white">Resume Match</h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Compare your latest saved resume against this job.
+          <p className="rp-eyebrow">Resume fit</p>
+          <h2 className="rp-section-title mt-2">Match scorecard</h2>
+          <p className="rp-section-copy">
+            Compare your latest saved resume against this role.
           </p>
         </div>
 
-        {fitLabel && (
-          <span
-            className={`rounded-full border px-3 py-1 text-xs font-medium ${fitLabel.classes}`}
-          >
-            {fitLabel.label}
-          </span>
-        )}
+        {fitLabel && <span className={`rp-badge ${fitLabel.classes}`}>{fitLabel.label}</span>}
       </div>
 
-      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
-          Current Saved Resume
-        </p>
-        <p className="mt-2 text-sm text-zinc-200">
+      <div className="mt-5 rounded-lg border border-[var(--border)] bg-white p-4">
+        <p className="rp-eyebrow">Current resume</p>
+        <p className="mt-2 text-sm font-semibold">
           {savedResume ? savedResume.file_name : "No saved resume found"}
         </p>
 
         {savedMatchMeta && (
-          <p className="mt-2 text-xs text-zinc-500">
+          <p className="mt-2 text-xs text-[var(--muted)]">
             Last matched: {new Date(savedMatchMeta.updated_at).toLocaleString()}
           </p>
         )}
       </div>
 
-      {error && (
-        <div className="mt-4 rounded-xl border border-red-800 bg-red-950/50 p-4 text-sm text-red-300">
-          {error}
-        </div>
-      )}
+      {error && <div className="rp-error mt-4">{error}</div>}
 
-      <div className="mt-4">
-        <button
-          onClick={handleMatchResume}
-          disabled={loading || !savedResume}
-          className="w-full rounded-xl border border-emerald-700 bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:border-emerald-600 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading ? "Matching..." : result ? "Refresh Match" : "Match Resume to Job"}
-        </button>
-      </div>
+      <button
+        onClick={handleMatchResume}
+        disabled={loading || !savedResume}
+        className="rp-button-primary mt-4 w-full"
+      >
+        {loading ? "Matching Resume..." : result ? "Refresh Match" : "Match Resume to Job"}
+      </button>
 
       {loadingSavedMatch && !result && (
-        <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-          <p className="text-sm text-zinc-400">Loading saved match...</p>
+        <div className="mt-4 space-y-3">
+          <div className="rp-skeleton h-5 w-3/4" />
+          <div className="rp-skeleton h-16 w-full" />
         </div>
       )}
 
       {!loadingSavedMatch && !result && !loading && !error && (
-        <div className="mt-4 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 p-4">
-          <p className="text-sm text-zinc-400">
-            No saved match yet for this application.
+        <div className="rp-empty mt-4">
+          <p className="text-sm font-bold">No match yet</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+            Run a match to see strengths, gaps, and suggested resume edits.
           </p>
         </div>
       )}
 
       {result && !loading && (
         <div className="mt-5 space-y-4">
-          <SectionCard title="Overall Match Summary">
-            <p className="text-sm leading-7 text-zinc-200">
+          <SectionCard title="Overall Summary">
+            <p className="text-sm leading-7 text-[var(--foreground)]">
               {result.overall_match_summary}
             </p>
           </SectionCard>
 
-          <AnalysisCard title="Matched Skills" items={result.matched_skills} />
-          <AnalysisCard title="Missing Skills" items={result.missing_skills} />
-          <AnalysisCard title="Strengths for Role" items={result.strengths_for_role} />
-          <AnalysisCard title="Improvement Areas" items={result.improvement_areas} />
+          <AnalysisCard title="Matched Skills" items={result.matched_skills} tone="accent" />
+          <AnalysisCard title="Missing Skills" items={result.missing_skills} tone="danger" />
+          <AnalysisCard title="Strengths for Role" items={result.strengths_for_role} tone="info" />
+          <AnalysisCard title="Improvement Areas" items={result.improvement_areas} tone="warning" />
           <AnalysisCard
             title="Suggested Resume Changes"
             items={result.suggested_resume_changes}
+            tone="neutral"
           />
         </div>
       )}
@@ -235,8 +231,8 @@ function SectionCard({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-sm">
-      <h3 className="mb-3 text-lg font-semibold text-white">{title}</h3>
+    <section className="rounded-lg border border-[var(--border)] bg-white p-4">
+      <h3 className="mb-3 text-sm font-bold">{title}</h3>
       {children}
     </section>
   )
@@ -245,23 +241,30 @@ function SectionCard({
 function AnalysisCard({
   title,
   items,
+  tone,
 }: {
   title: string
   items: string[]
+  tone: "accent" | "danger" | "info" | "neutral" | "warning"
 }) {
+  const toneClasses = {
+    accent: "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]",
+    danger: "border-red-200 bg-red-50 text-red-700",
+    info: "border-blue-200 bg-blue-50 text-blue-700",
+    neutral: "border-zinc-300 bg-zinc-100 text-zinc-700",
+    warning: "border-amber-200 bg-amber-50 text-amber-800",
+  }
+
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-sm">
-      <h3 className="mb-3 text-lg font-semibold text-white">{title}</h3>
+    <section className="rounded-lg border border-[var(--border)] bg-white p-4">
+      <h3 className="mb-3 text-sm font-bold">{title}</h3>
 
       {items.length === 0 ? (
-        <p className="text-sm text-zinc-500">No items found.</p>
+        <p className="text-sm text-[var(--muted)]">No items found.</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-2">
           {items.map((item, index) => (
-            <li
-              key={index}
-              className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm leading-6 text-zinc-200"
-            >
+            <li key={`${item}-${index}`} className={`rp-badge block rounded-lg ${toneClasses[tone]}`}>
               {item}
             </li>
           ))}

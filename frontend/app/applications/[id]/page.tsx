@@ -15,82 +15,83 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
   const { id } = await params;
   const application = await getApplication(Number(id));
 
+  const requiredSkills = application.required_skills ?? [];
+  const preferredSkills = application.preferred_skills ?? [];
+  const keywords = application.keywords ?? [];
+  const nextSteps = application.next_steps ?? [];
+
   return (
-    <main className="min-h-screen bg-[#0a0a0b] px-6 py-10 text-zinc-100">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8">
-          <Link
-            href="/applications"
-            className="text-sm text-zinc-400 underline underline-offset-4 transition hover:text-zinc-200"
-          >
-            Back to applications
+    <main className="rp-page">
+      <div className="rp-shell-wide">
+        <nav className="rp-topbar" aria-label="Primary navigation">
+          <Link href="/applications" className="rp-brand">
+            <span className="rp-brand-mark">RP</span>
+            <span>RolePilot</span>
           </Link>
-        </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-8 shadow-sm lg:col-span-2">
-            <div>
-              <h1 className="text-5xl font-bold tracking-tight text-white">
-                {application.company}
-              </h1>
-              <p className="mt-3 text-2xl text-zinc-300">{application.role_title}</p>
-            </div>
-
-            <div className="mt-8 space-y-4 text-lg text-zinc-200">
-              <p>
-                <span className="font-medium text-zinc-500">Location:</span>{" "}
-                {application.location || "N/A"}
-              </p>
-
-              <p>
-                <span className="font-medium text-zinc-500">Job URL:</span>{" "}
-                {application.job_url ? (
-                  <a
-                    href={application.job_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="break-all text-blue-400 underline underline-offset-2"
-                  >
-                    {application.job_url}
-                  </a>
-                ) : (
-                  "N/A"
-                )}
-              </p>
-
-              <p>
-                <span className="font-medium text-zinc-500">Created At:</span>{" "}
-                {new Date(application.created_at).toLocaleString()}
-              </p>
-            </div>
+          <div className="rp-nav">
+            <Link href="/applications" className="rp-nav-link">
+              Dashboard
+            </Link>
+            <Link href="/resume" className="rp-nav-link">
+              Resume Analyzer
+            </Link>
+            <Link href={`/applications/${application.id}/edit`} className="rp-button-secondary">
+              Edit Application
+            </Link>
           </div>
+        </nav>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
-            <div className="flex flex-col gap-3">
-              <span
-                className={`inline-flex w-fit rounded-full border px-4 py-2 text-sm font-medium capitalize ${getStatusClasses(
-                  application.status
-                )}`}
-              >
+        <section className="rp-header rp-header-grid">
+          <div>
+            <p className="rp-eyebrow">Application dossier</p>
+            <h1 className="rp-title">{application.company}</h1>
+            <p className="rp-subtitle">
+              {application.role_title}
+              {application.location ? ` in ${application.location}` : ""}
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span className={`rp-badge capitalize ${getStatusClasses(application.status)}`}>
                 {application.status}
               </span>
-
-              <Link
-                href={`/applications/${application.id}/edit`}
-                className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-center text-sm font-medium text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800"
-              >
-                Edit
-              </Link>
-
-              <DeleteButton id={application.id} />
+              <span className="rp-badge">
+                Created {new Date(application.created_at).toLocaleDateString()}
+              </span>
+              {application.job_url && (
+                <a
+                  href={application.job_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rp-badge border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                >
+                  View Posting
+                </a>
+              )}
             </div>
           </div>
-        </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-8 shadow-sm">
-              <div className="space-y-6">
+          <aside className="rp-panel-strong rp-section">
+            <p className="rp-eyebrow text-zinc-300">Signal snapshot</p>
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              <Snapshot label="Required" value={requiredSkills.length} />
+              <Snapshot label="Preferred" value={preferredSkills.length} />
+              <Snapshot label="Keywords" value={keywords.length} />
+            </div>
+            <div className="mt-6 border-t border-white/10 pt-5">
+              <p className="text-sm text-zinc-300">Next action</p>
+              <p className="mt-2 text-base font-semibold">
+                {nextSteps[0] || "Run resume match and generate tailored bullets."}
+              </p>
+            </div>
+          </aside>
+        </section>
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-4">
+            <section className="rp-panel rp-section">
+              <p className="rp-eyebrow">Posting context</p>
+              <div className="mt-5 space-y-6">
                 <ExpandableTextCard
                   title="Job Description"
                   text={application.job_description || "No job description provided."}
@@ -102,100 +103,117 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                   text={application.ai_summary || "No AI summary provided."}
                   collapsedHeight={220}
                 />
-
-                <div>
-                  <h2 className="mb-3 text-2xl font-semibold text-white">Required Skills</h2>
-                  <div className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    {application.required_skills && application.required_skills.length > 0 ? (
-                      application.required_skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="rounded-full border border-blue-800 bg-blue-950/60 px-3 py-1 text-sm text-blue-300"
-                        >
-                          {skill}
-                        </span>
-                      ))
-                    ) : (
-                      <p className="text-zinc-500">No required skills saved.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="mb-3 text-2xl font-semibold text-white">Preferred Skills</h2>
-                  <div className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    {application.preferred_skills && application.preferred_skills.length > 0 ? (
-                      application.preferred_skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="rounded-full border border-purple-800 bg-purple-950/60 px-3 py-1 text-sm text-purple-300"
-                        >
-                          {skill}
-                        </span>
-                      ))
-                    ) : (
-                      <p className="text-zinc-500">No preferred skills saved.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="mb-3 text-2xl font-semibold text-white">Keywords</h2>
-                  <div className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    {application.keywords && application.keywords.length > 0 ? (
-                      application.keywords.map((keyword) => (
-                        <span
-                          key={keyword}
-                          className="rounded-full border border-emerald-800 bg-emerald-950/60 px-3 py-1 text-sm text-emerald-300"
-                        >
-                          {keyword}
-                        </span>
-                      ))
-                    ) : (
-                      <p className="text-zinc-500">No keywords saved.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="mb-3 text-2xl font-semibold text-white">Next Steps</h2>
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    {application.next_steps && application.next_steps.length > 0 ? (
-                      <ul className="list-disc space-y-2 pl-5 text-zinc-200">
-                        {application.next_steps.map((step) => (
-                          <li key={step}>{step}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-zinc-500">No next steps saved.</p>
-                    )}
-                  </div>
-                </div>
               </div>
-            </div>
+            </section>
+
+            <section className="rp-panel rp-section">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="rp-eyebrow">Role signal</p>
+                  <h2 className="rp-section-title mt-2">Skills, keywords, and next steps</h2>
+                </div>
+                <p className="text-sm text-[var(--muted)]">
+                  Extracted from the saved posting.
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                <TagPanel title="Required Skills" items={requiredSkills} tone="info" />
+                <TagPanel title="Preferred Skills" items={preferredSkills} tone="accent" />
+                <TagPanel title="Keywords" items={keywords} tone="neutral" />
+              </div>
+
+              <div className="mt-5 rounded-lg border border-[var(--border)] bg-white p-5">
+                <h3 className="text-sm font-bold">Next Steps</h3>
+                {nextSteps.length > 0 ? (
+                  <ol className="mt-3 space-y-3">
+                    {nextSteps.map((step, index) => (
+                      <li key={step} className="grid grid-cols-[36px_1fr] gap-3 text-sm">
+                        <span className="font-mono text-xs font-bold text-[var(--accent)]">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="leading-6 text-[var(--foreground)]">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="mt-2 text-sm text-[var(--muted)]">No next steps saved.</p>
+                )}
+              </div>
+            </section>
+
+            <TailoredResumeCard applicationId={application.id} />
+            <FullTailoredResumeDraftCard applicationId={application.id} />
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-6">
-              <ResumeJobMatchCard
-                applicationId={application.id}
-                company={application.company}
-                roleTitle={application.role_title}
-                jobSummary={application.ai_summary}
-                requiredSkills={application.required_skills ?? []}
-                preferredSkills={application.preferred_skills ?? []}
-                keywords={application.keywords ?? []}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="mt-6">
-          <TailoredResumeCard applicationId={application.id} />
-        </div>
-        <div className="mt-6">
-          <FullTailoredResumeDraftCard applicationId={application.id} />
+          <aside className="space-y-4 lg:sticky lg:top-5 lg:self-start">
+            <section className="rp-panel rp-section">
+              <p className="rp-eyebrow">Controls</p>
+              <div className="mt-4 grid gap-3">
+                <Link
+                  href={`/applications/${application.id}/edit`}
+                  className="rp-button-secondary w-full"
+                >
+                  Edit Application
+                </Link>
+                <DeleteButton id={application.id} />
+              </div>
+            </section>
+
+            <ResumeJobMatchCard
+              applicationId={application.id}
+              company={application.company}
+              roleTitle={application.role_title}
+              jobSummary={application.ai_summary}
+              requiredSkills={requiredSkills}
+              preferredSkills={preferredSkills}
+              keywords={keywords}
+            />
+          </aside>
         </div>
       </div>
     </main>
+  );
+}
+
+function Snapshot({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <p className="font-mono text-3xl font-bold tracking-[-0.05em]">{value}</p>
+      <p className="mt-1 text-xs text-zinc-300">{label}</p>
+    </div>
+  );
+}
+
+function TagPanel({
+  title,
+  items,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  tone: "accent" | "info" | "neutral";
+}) {
+  const toneClasses = {
+    accent: "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]",
+    info: "border-blue-200 bg-blue-50 text-blue-700",
+    neutral: "border-zinc-300 bg-zinc-100 text-zinc-700",
+  };
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-white p-4">
+      <h3 className="text-sm font-bold">{title}</h3>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {items.length > 0 ? (
+          items.map((item) => (
+            <span key={item} className={`rp-badge ${toneClasses[tone]}`}>
+              {item}
+            </span>
+          ))
+        ) : (
+          <p className="text-sm text-[var(--muted)]">None saved.</p>
+        )}
+      </div>
+    </div>
   );
 }

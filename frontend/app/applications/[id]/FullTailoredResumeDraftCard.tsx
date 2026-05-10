@@ -124,17 +124,16 @@ export default function FullTailoredResumeDraftCard({
   }
 
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 shadow-sm">
+    <section className="rp-panel rp-section">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white">
-            Full Tailored Resume Draft
-          </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="rp-eyebrow">Export flow</p>
+          <h2 className="rp-section-title mt-2">Full tailored resume draft</h2>
+          <p className="rp-section-copy">
             Generate a full structured resume draft using the saved tailored content for this application.
           </p>
           {savedDraftMeta && (
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-[var(--muted)]">
               Last saved: {new Date(savedDraftMeta.updated_at).toLocaleString()}
             </p>
           )}
@@ -144,7 +143,7 @@ export default function FullTailoredResumeDraftCard({
           <button
             onClick={handleGenerateFullDraft}
             disabled={loading}
-            className="rounded-xl border border-emerald-700 bg-emerald-600 px-5 py-3 text-sm font-medium text-white transition hover:border-emerald-600 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rp-button-primary"
           >
             {loading ? "Generating..." : result ? "Refresh Full Draft" : "Generate Full Draft"}
           </button>
@@ -154,7 +153,7 @@ export default function FullTailoredResumeDraftCard({
               <button
                 onClick={handleDownloadDocx}
                 disabled={exportingDocx}
-                className="rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-medium text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rp-button-secondary"
               >
                 {exportingDocx ? "Downloading DOCX..." : "Download DOCX"}
               </button>
@@ -162,7 +161,7 @@ export default function FullTailoredResumeDraftCard({
               <button
                 onClick={handleDownloadPdf}
                 disabled={exportingPdf}
-                className="rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-medium text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rp-button-secondary"
               >
                 {exportingPdf ? "Downloading PDF..." : "Download PDF"}
               </button>
@@ -172,20 +171,21 @@ export default function FullTailoredResumeDraftCard({
       </div>
 
       {error && (
-        <div className="mt-4 rounded-xl border border-red-800 bg-red-950/50 p-4 text-sm text-red-300">
-          {error}
-        </div>
+        <div className="rp-error mt-4">{error}</div>
       )}
 
       {loadingSavedDraft && !result && (
-        <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/40 p-5">
-          <p className="text-sm text-zinc-400">Loading saved full draft...</p>
+        <div className="mt-6 space-y-3">
+          <div className="rp-skeleton h-5 w-1/3" />
+          <div className="rp-skeleton h-24 w-full" />
+          <div className="rp-skeleton h-24 w-full" />
         </div>
       )}
 
       {!result && !loading && !loadingSavedDraft && !error && (
-        <div className="mt-6 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5">
-          <p className="text-sm text-zinc-400">
+        <div className="rp-empty mt-6">
+          <p className="text-sm font-bold">No full draft yet</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
             Generate the full draft first, then you can download DOCX or PDF anytime.
           </p>
         </div>
@@ -193,7 +193,10 @@ export default function FullTailoredResumeDraftCard({
 
       {result && !loading && (
         <div
-          className="mt-6 rounded-2xl border border-zinc-800 bg-white p-24 text-black shadow-sm"
+          className="mt-6 overflow-x-auto rounded-lg border border-[var(--border)] bg-[#f1f3ee] p-3 shadow-sm sm:p-6"
+        >
+          <div
+          className="mx-auto min-w-[720px] max-w-[900px] rounded-sm border border-zinc-200 bg-white p-14 text-black shadow-sm sm:p-20"
           style={{
             fontFamily: '"Times New Roman", Times, serif',
             lineHeight: 1.3,
@@ -301,6 +304,7 @@ export default function FullTailoredResumeDraftCard({
               )}
             </div>
           </ResumeSection>
+        </div>
         </div>
       )}
     </section>
