@@ -124,4 +124,18 @@ RolePilot/
 │   ├── lib/
 │   └── public/
 └── README.md
+```
 
+## CI/CD
+
+RolePilot uses GitHub Actions to run automated checks on every push and pull request to `main`.
+
+The CI workflow runs 4 real automated checks:
+- Frontend lint with `npm run lint`
+- Frontend TypeScript validation with `npm run typecheck`
+- Frontend production build with `npm run build`
+- Backend FastAPI tests with `pytest --cov=app --cov-report=term-missing`
+
+Vercel automatically deploys the frontend from GitHub, and Render automatically deploys the backend from GitHub. GitHub Actions does not replace those deployment platforms; it adds validation before release so build and test failures are caught earlier.
+
+To measure CI/CD impact, track failed GitHub Actions runs that catch lint, type, build, or backend test failures before deployment. Compare release timing by recording the manual local check time plus Vercel/Render deploy time before CI, then compare it with GitHub Actions duration plus Vercel/Render deploy duration after CI.
