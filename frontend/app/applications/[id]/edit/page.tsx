@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getApplication } from "@/lib/api";
+import AccountMenu from "@/components/AccountMenu";
+import { getApplication } from "@/lib/server-api";
 import EditApplicationForm from "./EditApplicationForm";
 
 type PageProps = {
@@ -25,6 +26,7 @@ export default async function EditApplicationPage({ params }: PageProps) {
             <Link href="/applications" className="rp-nav-link">
               Dashboard
             </Link>
+            <AccountMenu />
           </div>
         </nav>
 

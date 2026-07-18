@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from sqlalchemy import text
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
@@ -12,6 +13,7 @@ if str(BACKEND_ROOT) not in sys.path:
 from app.core.database import SessionLocal
 from app.models.application import Application
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
+from app.models.user import User
 from app.services.retrieval_service import build_application_query_text
 
 
@@ -22,8 +24,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("evals/retrieval_eval.from_postgres.template.json"),
+        default=Path("evals/retrieval_eval.local.json"),
         help="Destination JSON file.",
+    )
+    parser.add_argument(
+        "--owner-subject",
+        required=True,
+        help="Exact OIDC subject whose private rows should be exported.",
     )
     return parser.parse_args()
 
@@ -33,8 +40,33 @@ def main() -> None:
     db = SessionLocal()
 
     try:
-        chunks = db.query(ProjectEvidenceChunk).order_by(ProjectEvidenceChunk.id).all()
-        applications = db.query(Application).order_by(Application.id).all()
+        db.execute(
+            text("SELECT set_config('app.current_subject', :subject, true)"),
+            {"subject": args.owner_subject},
+        )
+        owner = (
+            db.query(User)
+            .filter(User.external_subject == args.owner_subject)
+            .first()
+        )
+        if owner is None:
+            raise SystemExit("No user exists for --owner-subject.")
+        db.execute(
+            text("SELECT set_config('app.current_user_id', :user_id, true)"),
+            {"user_id": str(owner.id)},
+        )
+        chunks = (
+            db.query(ProjectEvidenceChunk)
+            .filter(ProjectEvidenceChunk.user_id == owner.id)
+            .order_by(ProjectEvidenceChunk.id)
+            .all()
+        )
+        applications = (
+            db.query(Application)
+            .filter(Application.user_id == owner.id)
+            .order_by(Application.id)
+            .all()
+        )
 
         payload = {
             "corpus": [

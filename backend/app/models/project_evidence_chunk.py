@@ -1,4 +1,7 @@
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from uuid import UUID
+
+from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, Text, func
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 
@@ -7,10 +10,25 @@ from app.core.database import Base
 
 class ProjectEvidenceChunk(Base):
     __tablename__ = "project_evidence_chunks"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["project_evidence_id", "user_id"],
+            ["project_evidence.id", "project_evidence.user_id"],
+            name="fk_evidence_chunks_evidence_owner",
+            ondelete="CASCADE",
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     project_evidence_id: Mapped[int] = mapped_column(
-        ForeignKey("project_evidence.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

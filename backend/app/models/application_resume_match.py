@@ -1,5 +1,7 @@
-from sqlalchemy import DateTime, ForeignKey, Integer, Text, func
-from sqlalchemy.dialects.postgresql import ARRAY
+from uuid import UUID
+
+from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, Integer, Text, func
+from sqlalchemy.dialects.postgresql import ARRAY, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -7,16 +9,38 @@ from app.core.database import Base
 
 class ApplicationResumeMatch(Base):
     __tablename__ = "application_resume_matches"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["application_id", "user_id"],
+            ["applications.id", "applications.user_id"],
+            name="fk_resume_matches_application_owner",
+            ondelete="CASCADE",
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+        ForeignKeyConstraint(
+            ["resume_id", "user_id"],
+            ["resumes.id", "resumes.user_id"],
+            name="fk_resume_matches_resume_owner",
+            ondelete="CASCADE",
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     application_id: Mapped[int] = mapped_column(
-        ForeignKey("applications.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
         index=True,
     )
     resume_id: Mapped[int] = mapped_column(
-        ForeignKey("resumes.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -41,4 +65,4 @@ class ApplicationResumeMatch(Base):
     )
 
     application = relationship("Application")
-    resume = relationship("Resume")
+    resume = relationship("Resume", overlaps="application")

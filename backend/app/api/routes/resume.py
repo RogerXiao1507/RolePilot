@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.core.config import settings
 from app.models.resume import Resume
+from app.models.user import User
 from app.schemas.resume import ResumeAnalysisResponse, ResumeCreate, ResumeResponse
 from app.services.resume_service import analyze_resume_text, extract_text_from_pdf_bytes
 
@@ -23,7 +24,10 @@ async def read_upload_with_limit(file: UploadFile, max_bytes: int) -> bytes:
 
 
 @router.post("/analyze", response_model=ResumeAnalysisResponse)
-async def analyze_resume(file: UploadFile = File(...)):
+async def analyze_resume(
+    file: UploadFile = File(...),
+    _current_user: User = Depends(get_current_user),
+):
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
     if not file.filename or not file.filename.lower().endswith(".pdf"):
@@ -47,8 +51,13 @@ async def analyze_resume(file: UploadFile = File(...)):
 
 
 @router.post("/save", response_model=ResumeResponse)
-def save_resume(payload: ResumeCreate, db: Session = Depends(get_db)):
+def save_resume(
+    payload: ResumeCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     resume = Resume(
+        user_id=current_user.id,
         file_name=payload.file_name,
         extracted_text=payload.extracted_text,
         summary=payload.summary,
@@ -67,8 +76,16 @@ def save_resume(payload: ResumeCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/latest", response_model=ResumeResponse)
-def get_latest_resume(db: Session = Depends(get_db)):
-    resume = db.query(Resume).order_by(Resume.created_at.desc()).first()
+def get_latest_resume(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    resume = (
+        db.query(Resume)
+        .filter(Resume.user_id == current_user.id)
+        .order_by(Resume.created_at.desc())
+        .first()
+    )
 
     if not resume:
         raise HTTPException(status_code=404, detail="No saved resume found.")

@@ -95,29 +95,29 @@ Goal: every user has a private workspace with server-enforced ownership.
 
 #### Identity design
 
-- [ ] Choose an OpenID Connect-compatible authentication provider and document the decision. Prefer a managed provider initially so the team does not own password storage or account recovery.
-- [ ] Add frontend sign-up, sign-in, sign-out, session refresh, protected routes, and an account menu.
-- [ ] Validate access tokens in FastAPI using issuer, audience, signature, and expiry—not a shared user ID supplied by the frontend.
-- [ ] Add a `users` table keyed by an internal UUID with a unique external identity subject, email, name, timestamps, and optional onboarding state.
-- [ ] Replace the unused default `jwt_secret="change-me"` configuration with required, environment-specific auth settings.
+- [x] Choose an OpenID Connect-compatible authentication provider and document the decision. Auth0 with a token-mediating Next.js frontend is recorded in `docs/adr/0001-authentication-and-session-boundary.md`.
+- [x] Add frontend sign-up, sign-in, sign-out, session refresh, protected routes, and an account menu.
+- [x] Validate access tokens in FastAPI using issuer, audience, signature, and expiry—not a shared user ID supplied by the frontend.
+- [x] Add a `users` table keyed by an internal UUID with a unique external identity subject, email, name, timestamps, and optional onboarding state.
+- [x] Replace the unused default `jwt_secret="change-me"` configuration with required, environment-specific auth settings.
 
 #### Ownership model
 
-- [ ] Add non-null `user_id` ownership to applications, resumes, project evidence, and generated artifacts, or enforce ownership transitively where appropriate.
-- [ ] Add ownership-aware foreign keys, indexes, and uniqueness rules. Existing one-draft-per-application constraints should be scoped to the owning application and user.
-- [ ] Introduce a `get_current_user` dependency and repository/service helpers that always include the current user in reads and writes.
-- [ ] Scope application CRUD, latest/selected resume, match, tailored draft, full draft, evidence retrieval, and export queries to the authenticated user.
-- [ ] Ensure related resource IDs belong to the same user before matching, tailoring, saving, or exporting.
-- [ ] Add PostgreSQL row-level security as defense in depth after application-level scoping is proven.
-- [ ] Define a one-time migration policy for existing global data: assign it to an explicit seed/admin user or remove it from production. Never silently expose legacy rows to new accounts.
-- [ ] Remove or anonymize personal seed/evaluation data from distributable builds and document retention/deletion behavior for resumes and exports.
+- [x] Add non-null `user_id` ownership to applications, resumes, project evidence, and generated artifacts, or enforce ownership transitively where appropriate.
+- [x] Add ownership-aware foreign keys, indexes, and uniqueness rules. Existing one-draft-per-application constraints are protected by owner-matching composite foreign keys.
+- [x] Introduce a `get_current_user` dependency and repository/service helpers that always include the current user in reads and writes.
+- [x] Scope application CRUD, latest/selected resume, match, tailored draft, full draft, evidence retrieval, and export queries to the authenticated user.
+- [x] Ensure related resource IDs belong to the same user before matching, tailoring, saving, or exporting.
+- [x] Add PostgreSQL row-level security as defense in depth after application-level scoping is proven.
+- [x] Define a one-time migration policy for existing global data: quarantine it under a disabled legacy principal and require an explicit, guarded transfer to a verified OIDC subject.
+- [x] Remove personal seed/evaluation data from distributable builds and document retention/deletion behavior for resumes and exports.
 
 #### Authentication tests
 
-- [ ] Test unauthenticated access to every protected endpoint.
-- [ ] Test that User A cannot read, update, delete, match, retrieve against, or export User B's resources, including guessed IDs.
-- [ ] Test expired, malformed, wrong-issuer, and wrong-audience tokens.
-- [ ] Test account deletion and cascading or scheduled cleanup.
+- [x] Test unauthenticated access to every protected endpoint.
+- [x] Test that User A cannot read, update, delete, match, retrieve against, or export User B's resources, including guessed IDs.
+- [x] Test expired, malformed, wrong-issuer, and wrong-audience tokens.
+- [x] Test account deletion and cascading cleanup.
 
 Acceptance criteria:
 
@@ -125,6 +125,14 @@ Acceptance criteria:
 - Cross-user resource tests return a non-disclosing 404 or 403 and never access another user's row.
 - Retrieval SQL includes an ownership predicate before vector ranking.
 - Each user sees only their own applications, resumes, evidence, drafts, and exports.
+
+Phase 1 verification completed on 2026-07-18:
+
+- Auth0 uses encrypted HTTP-only Next.js sessions and a token-mediating `/api/backend/*` route; browser JavaScript does not receive API access tokens.
+- FastAPI accepts only RS256 access tokens with the configured issuer and audience and maps the immutable OIDC subject to an internal UUID.
+- PostgreSQL/pgvector integration tests cover guessed cross-user IDs, relationship ownership, vector retrieval filtering before ranking, saved drafts/exports, RLS presence, and account-deletion cascades.
+- Alembic upgrade, downgrade, metadata consistency, legacy quarantine, and the guarded legacy-owner transfer were exercised against PostgreSQL 16 with pgvector.
+- The personal seed corpus, derived evaluation exports, and embedding cache were removed; local private artifacts are ignored and retention/deletion behavior is documented.
 
 ### Phase 2 — Resume and evidence data foundation
 

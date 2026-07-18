@@ -58,6 +58,9 @@ generated_exports/
 uploads/
 tmp/
 temp/
+backend/evals/retrieval_embedding_cache.json
+backend/evals/*.local.json
+backend/seeds/*.local.json
 
 # =========================
 # Database / local tooling

@@ -2,23 +2,35 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.models.application import Application
+from app.models.user import User
 from app.schemas.application import ApplicationCreate, ApplicationOut, ApplicationUpdate
 
 router = APIRouter(prefix="/applications", tags=["applications"])
 
 
 @router.get("", response_model=list[ApplicationOut])
-def list_applications(db: Session = Depends(get_db)):
-    stmt = select(Application).order_by(Application.created_at.desc())
+def list_applications(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    stmt = (
+        select(Application)
+        .where(Application.user_id == current_user.id)
+        .order_by(Application.created_at.desc())
+    )
     applications = db.scalars(stmt).all()
     return applications
 
 
 @router.post("", response_model=ApplicationOut)
-def create_application(payload: ApplicationCreate, db: Session = Depends(get_db)):
-    application = Application(**payload.model_dump())
+def create_application(
+    payload: ApplicationCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    application = Application(user_id=current_user.id, **payload.model_dump())
     db.add(application)
     db.commit()
     db.refresh(application)
@@ -26,8 +38,15 @@ def create_application(payload: ApplicationCreate, db: Session = Depends(get_db)
 
 
 @router.get("/{application_id}", response_model=ApplicationOut)
-def get_application(application_id: int, db: Session = Depends(get_db)):
-    stmt = select(Application).where(Application.id == application_id)
+def get_application(
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    stmt = select(Application).where(
+        Application.id == application_id,
+        Application.user_id == current_user.id,
+    )
     application = db.scalar(stmt)
 
     if not application:
@@ -37,8 +56,16 @@ def get_application(application_id: int, db: Session = Depends(get_db)):
 
 
 @router.patch("/{application_id}", response_model=ApplicationOut)
-def update_application(application_id: int, payload: ApplicationUpdate, db: Session = Depends(get_db)):
-    stmt = select(Application).where(Application.id == application_id)
+def update_application(
+    application_id: int,
+    payload: ApplicationUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    stmt = select(Application).where(
+        Application.id == application_id,
+        Application.user_id == current_user.id,
+    )
     application = db.scalar(stmt)
 
     if not application:
@@ -53,8 +80,15 @@ def update_application(application_id: int, payload: ApplicationUpdate, db: Sess
 
 
 @router.delete("/{application_id}")
-def delete_application(application_id: int, db: Session = Depends(get_db)):
-    stmt = select(Application).where(Application.id == application_id)
+def delete_application(
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    stmt = select(Application).where(
+        Application.id == application_id,
+        Application.user_id == current_user.id,
+    )
     application = db.scalar(stmt)
 
     if not application:

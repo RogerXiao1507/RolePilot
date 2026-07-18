@@ -10,10 +10,11 @@ from app.schemas.ai import ResumeJobMatchRequest, ResumeJobMatchResponse
 from app.services.ai_service import match_resume_to_job
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db, get_owned_or_404
 from app.models.application import Application
 from app.models.project_evidence import ProjectEvidence
 from app.models.resume import Resume
+from app.models.user import User
 from app.schemas.tailor import TailorResumeRequest, TailorResumeResponse
 from app.services.ai_service import tailor_resume_for_application
 
@@ -30,12 +31,18 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 
 
 @router.post("/parse-job", response_model=JobParseResponse)
-def parse_job(payload: JobParseRequest):
+def parse_job(
+    payload: JobParseRequest,
+    _current_user: User = Depends(get_current_user),
+):
     return parse_job_description(payload.text)
 
 
 @router.post("/parse-job-url", response_model=JobParseResponse)
-def parse_job_url(payload: JobUrlParseRequest):
+def parse_job_url(
+    payload: JobUrlParseRequest,
+    _current_user: User = Depends(get_current_user),
+):
     try:
         return parse_job_from_url(payload.url)
     except JobUrlValidationError as exc:
@@ -46,15 +53,15 @@ def parse_job_url(payload: JobUrlParseRequest):
 @router.post("/match-resume-job", response_model=ResumeJobMatchResponse)
 def match_resume_job(
     payload: ResumeJobMatchRequest,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    application = db.query(Application).filter(Application.id == payload.application_id).first()
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found.")
-
-    resume = db.query(Resume).filter(Resume.id == payload.resume_id).first()
-    if not resume:
-        raise HTTPException(status_code=404, detail="Resume not found.")
+    application = get_owned_or_404(
+        db, Application, payload.application_id, current_user.id, "Application not found."
+    )
+    resume = get_owned_or_404(
+        db, Resume, payload.resume_id, current_user.id, "Resume not found."
+    )
 
     result = match_resume_to_job(
         resume_text=resume.extracted_text,
@@ -70,19 +77,15 @@ def match_resume_job(
 @router.post("/tailor-resume", response_model=TailorResumeResponse)
 def tailor_resume(
     payload: TailorResumeRequest,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    application = (
-        db.query(Application)
-        .filter(Application.id == payload.application_id)
-        .first()
+    application = get_owned_or_404(
+        db, Application, payload.application_id, current_user.id, "Application not found."
     )
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found.")
-
-    resume = db.query(Resume).filter(Resume.id == payload.resume_id).first()
-    if not resume:
-        raise HTTPException(status_code=404, detail="Resume not found.")
+    resume = get_owned_or_404(
+        db, Resume, payload.resume_id, current_user.id, "Resume not found."
+    )
 
     try:
         result = tailor_resume_for_application(
@@ -98,25 +101,22 @@ def tailor_resume(
 @router.post("/full-tailored-resume", response_model=FullTailoredResumeDraftResponse)
 def generate_full_tailored_resume(
     payload: FullTailoredResumeDraftRequest,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    application = (
-        db.query(Application)
-        .filter(Application.id == payload.application_id)
-        .first()
+    application = get_owned_or_404(
+        db, Application, payload.application_id, current_user.id, "Application not found."
     )
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found.")
-
-    resume = db.query(Resume).filter(Resume.id == payload.resume_id).first()
-    if not resume:
-        raise HTTPException(status_code=404, detail="Resume not found.")
+    resume = get_owned_or_404(
+        db, Resume, payload.resume_id, current_user.id, "Resume not found."
+    )
 
     tailored_resume = (
         db.query(ApplicationTailoredResume)
         .filter(
             ApplicationTailoredResume.application_id == payload.application_id,
             ApplicationTailoredResume.resume_id == payload.resume_id,
+            ApplicationTailoredResume.user_id == current_user.id,
         )
         .first()
     )
@@ -128,7 +128,11 @@ def generate_full_tailored_resume(
             application=application,
             resume=resume,
             tailored_resume=tailored_resume,
-            project_evidence=db.query(ProjectEvidence).all(),
+            project_evidence=(
+                db.query(ProjectEvidence)
+                .filter(ProjectEvidence.user_id == current_user.id)
+                .all()
+            ),
         )
     except GeneratedContentGroundingError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

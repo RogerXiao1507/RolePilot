@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db, get_owned_or_404
 from app.models.application import Application
 from app.models.application_full_resume_draft import ApplicationFullResumeDraft
 from app.models.resume import Resume
+from app.models.user import User
 from app.schemas.saved_full_resume import (
     ApplicationFullResumeDraftCreate,
     ApplicationFullResumeDraftResponse,
@@ -16,19 +17,20 @@ router = APIRouter(prefix="/full-resume-drafts", tags=["full-resume-drafts"])
 @router.post("", response_model=ApplicationFullResumeDraftResponse)
 def save_full_resume_draft(
     payload: ApplicationFullResumeDraftCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    application = db.query(Application).filter(Application.id == payload.application_id).first()
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found.")
-
-    resume = db.query(Resume).filter(Resume.id == payload.resume_id).first()
-    if not resume:
-        raise HTTPException(status_code=404, detail="Resume not found.")
+    get_owned_or_404(
+        db, Application, payload.application_id, current_user.id, "Application not found."
+    )
+    get_owned_or_404(db, Resume, payload.resume_id, current_user.id, "Resume not found.")
 
     existing = (
         db.query(ApplicationFullResumeDraft)
-        .filter(ApplicationFullResumeDraft.application_id == payload.application_id)
+        .filter(
+            ApplicationFullResumeDraft.application_id == payload.application_id,
+            ApplicationFullResumeDraft.user_id == current_user.id,
+        )
         .first()
     )
 
@@ -42,6 +44,7 @@ def save_full_resume_draft(
         return existing
 
     draft = ApplicationFullResumeDraft(
+        user_id=current_user.id,
         application_id=payload.application_id,
         resume_id=payload.resume_id,
         draft_data=draft_payload,
@@ -55,10 +58,17 @@ def save_full_resume_draft(
 
 
 @router.get("/application/{application_id}", response_model=ApplicationFullResumeDraftResponse)
-def get_full_resume_draft(application_id: int, db: Session = Depends(get_db)):
+def get_full_resume_draft(
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     draft = (
         db.query(ApplicationFullResumeDraft)
-        .filter(ApplicationFullResumeDraft.application_id == application_id)
+        .filter(
+            ApplicationFullResumeDraft.application_id == application_id,
+            ApplicationFullResumeDraft.user_id == current_user.id,
+        )
         .first()
     )
 

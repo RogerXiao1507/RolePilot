@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AccountMenu from "@/components/AccountMenu";
 import ApplicationForm from "./ApplicationForm";
 
 export default function NewApplicationPage() {
@@ -17,6 +18,7 @@ export default function NewApplicationPage() {
             <Link href="/resume" className="rp-nav-link">
               Resume Analyzer
             </Link>
+            <AccountMenu />
           </div>
         </nav>
 

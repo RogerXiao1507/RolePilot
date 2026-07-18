@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Auth0Provider } from "@auth0/nextjs-auth0/client";
+import { auth0 } from "@/lib/auth0";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,17 +19,21 @@ export const metadata: Metadata = {
   description: "AI career dashboard for internship applications and tailored resumes.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth0.getSession();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Auth0Provider user={session?.user}>{children}</Auth0Provider>
+      </body>
     </html>
   );
 }

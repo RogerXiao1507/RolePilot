@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getApplication } from "@/lib/api";
+import AccountMenu from "@/components/AccountMenu";
+import { getApplication } from "@/lib/server-api";
 import DeleteButton from "./DeleteButton";
 import ResumeJobMatchCard from "./ResumeJobMatchCard";
 import ExpandableTextCard from "./ExpandableTextCard";
@@ -39,6 +40,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
             <Link href={`/applications/${application.id}/edit`} className="rp-button-secondary">
               Edit Application
             </Link>
+            <AccountMenu />
           </div>
         </nav>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getApplications } from "@/lib/api";
+import AccountMenu from "@/components/AccountMenu";
+import { getApplications } from "@/lib/server-api";
 import { getStatusClasses } from "@/lib/statusStyles";
 
 export default async function ApplicationsPage() {
@@ -32,6 +33,7 @@ export default async function ApplicationsPage() {
             <Link href="/applications/new" className="rp-button-primary">
               Add Application
             </Link>
+            <AccountMenu />
           </div>
         </nav>
 

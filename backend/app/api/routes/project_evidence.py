@@ -12,8 +12,9 @@ So the evidence becomes retrievable right away.
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.models.project_evidence import ProjectEvidence
+from app.models.user import User
 from app.schemas.project_evidence import (
     ProjectEvidenceCreate,
     ProjectEvidenceResponse,
@@ -26,9 +27,11 @@ router = APIRouter(prefix="/project-evidence", tags=["project-evidence"])
 @router.post("", response_model=ProjectEvidenceResponse)
 def create_project_evidence(
     payload: ProjectEvidenceCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     project = ProjectEvidence(
+        user_id=current_user.id,
         title=payload.title,
         category=payload.category,
         description=payload.description,
@@ -50,9 +53,13 @@ def create_project_evidence(
 
 
 @router.get("", response_model=list[ProjectEvidenceResponse])
-def list_project_evidence(db: Session = Depends(get_db)):
+def list_project_evidence(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     projects = (
         db.query(ProjectEvidence)
+        .filter(ProjectEvidence.user_id == current_user.id)
         .order_by(ProjectEvidence.created_at.desc())
         .all()
     )

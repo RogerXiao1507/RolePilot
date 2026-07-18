@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { analyzeResume, getLatestResume, saveResume } from "@/lib/api"
 import type { ResumeAnalysis, SavedResume } from "@/lib/types"
+import AccountMenu from "@/components/AccountMenu"
 
 export default function ResumePage() {
   const [file, setFile] = useState<File | null>(null)
@@ -108,6 +109,7 @@ export default function ResumePage() {
             <Link href="/applications/new" className="rp-button-primary">
               Add Application
             </Link>
+            <AccountMenu />
           </div>
         </nav>
 

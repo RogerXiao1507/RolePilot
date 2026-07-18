@@ -32,6 +32,11 @@ class FakeSession:
     def query(self, model):
         return FakeQuery(self.rows_by_model.get(model, []))
 
+    def scalar(self, statement):
+        model = statement.column_descriptions[0]["entity"]
+        rows = self.rows_by_model.get(model, [])
+        return rows[0] if rows else None
+
 
 def test_match_loads_authoritative_resume_and_job_from_database(monkeypatch):
     application = SimpleNamespace(

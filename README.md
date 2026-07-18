@@ -1,5 +1,7 @@
 # RolePilot
 
+Authentication and local identity-provider setup are documented in [`docs/authentication-setup.md`](docs/authentication-setup.md). The architecture decision is recorded in [`docs/adr/0001-authentication-and-session-boundary.md`](docs/adr/0001-authentication-and-session-boundary.md).
+
 link to website: https://rolepilot-nu.vercel.app/?jr_id=69a677a1d706a731db3865db
 
 RolePilot is an AI powered career copilot that helps users track job and internship applications, analyze resumes, compare resumes against job postings, generate tailored resume content, and export polished resume drafts.

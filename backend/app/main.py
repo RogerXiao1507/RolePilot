@@ -14,6 +14,7 @@ from app.api.routes.project_evidence import router as project_evidence_router
 from app.api.routes.tailored_resume import router as tailored_resume_router
 from app.api.routes.export import router as export_router
 from app.api.routes.full_resume_draft import router as full_resume_draft_router
+from app.api.routes.users import router as users_router
 
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,6 @@ origin_list = [origin.strip() for origin in origins.split(",") if origin.strip()
 default_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://10.192.100.197:3000",
 ]
 
 allow_origins = list(dict.fromkeys(origin_list + default_origins))
@@ -70,6 +70,7 @@ app.include_router(project_evidence_router)
 app.include_router(tailored_resume_router)
 app.include_router(export_router)
 app.include_router(full_resume_draft_router)
+app.include_router(users_router)
 
 @app.get("/")
 def root():

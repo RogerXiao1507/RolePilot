@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from sqlalchemy import text
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
@@ -12,6 +13,7 @@ if str(BACKEND_ROOT) not in sys.path:
 from app.core.database import SessionLocal
 from app.models.project_evidence import ProjectEvidence
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
+from app.models.user import User
 from app.services.retrieval_service import rebuild_project_evidence_chunks_for_project
 
 
@@ -22,8 +24,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--seed-file",
         type=Path,
-        default=Path("seeds/project_evidence.roger.json"),
+        required=True,
         help="Path to the seed JSON file.",
+    )
+    parser.add_argument(
+        "--owner-subject",
+        required=True,
+        help="Exact OIDC subject of the existing user who will own the seeded evidence.",
     )
     parser.add_argument(
         "--drop-placeholder",
@@ -40,15 +47,35 @@ def main() -> None:
 
     db = SessionLocal()
     try:
+        db.execute(
+            text("SELECT set_config('app.current_subject', :subject, true)"),
+            {"subject": args.owner_subject},
+        )
+        owner = (
+            db.query(User)
+            .filter(User.external_subject == args.owner_subject)
+            .first()
+        )
+        if owner is None:
+            raise SystemExit("No user exists for --owner-subject; sign in first.")
+        db.execute(
+            text("SELECT set_config('app.current_user_id', :user_id, true)"),
+            {"user_id": str(owner.id)},
+        )
+
         if args.drop_placeholder:
             placeholders = (
                 db.query(ProjectEvidence)
-                .filter(ProjectEvidence.title.in_(["string", "test", "placeholder"]))
+                .filter(
+                    ProjectEvidence.user_id == owner.id,
+                    ProjectEvidence.title.in_(["string", "test", "placeholder"]),
+                )
                 .all()
             )
             for project in placeholders:
                 db.query(ProjectEvidenceChunk).filter(
-                    ProjectEvidenceChunk.project_evidence_id == project.id
+                    ProjectEvidenceChunk.project_evidence_id == project.id,
+                    ProjectEvidenceChunk.user_id == owner.id,
                 ).delete()
                 db.delete(project)
             db.commit()
@@ -56,12 +83,16 @@ def main() -> None:
         for entry in entries:
             project = (
                 db.query(ProjectEvidence)
-                .filter(ProjectEvidence.title == entry["title"])
+                .filter(
+                    ProjectEvidence.title == entry["title"],
+                    ProjectEvidence.user_id == owner.id,
+                )
                 .first()
             )
 
             if project is None:
                 project = ProjectEvidence(
+                    user_id=owner.id,
                     title=entry["title"],
                     category=entry["category"],
                     description=entry["description"],

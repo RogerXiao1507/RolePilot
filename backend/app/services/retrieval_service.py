@@ -156,7 +156,8 @@ def rebuild_project_evidence_chunks_for_project(
     project: ProjectEvidence,
 ) -> list[ProjectEvidenceChunk]:
     db.query(ProjectEvidenceChunk).filter(
-        ProjectEvidenceChunk.project_evidence_id == project.id
+        ProjectEvidenceChunk.project_evidence_id == project.id,
+        ProjectEvidenceChunk.user_id == project.user_id,
     ).delete()
 
     chunks = chunk_project_evidence(project)
@@ -166,6 +167,7 @@ def rebuild_project_evidence_chunks_for_project(
         embedding = embed_text(chunk["chunk_text"])
 
         chunk_row = ProjectEvidenceChunk(
+            user_id=project.user_id,
             project_evidence_id=project.id,
             chunk_text=chunk["chunk_text"],
             chunk_type=chunk["chunk_type"],
@@ -208,6 +210,7 @@ def retrieve_relevant_chunks_for_application(
         """
         SELECT id
         FROM project_evidence_chunks
+        WHERE user_id = :user_id
         ORDER BY embedding <=> :query_embedding
         LIMIT :top_k
         """
@@ -217,6 +220,7 @@ def retrieve_relevant_chunks_for_application(
         sql,
         {
             "query_embedding": str(query_embedding),
+            "user_id": str(application.user_id),
             "top_k": top_k,
         },
     ).fetchall()
@@ -228,7 +232,10 @@ def retrieve_relevant_chunks_for_application(
 
     chunks = (
         db.query(ProjectEvidenceChunk)
-        .filter(ProjectEvidenceChunk.id.in_(chunk_ids))
+        .filter(
+            ProjectEvidenceChunk.id.in_(chunk_ids),
+            ProjectEvidenceChunk.user_id == application.user_id,
+        )
         .all()
     )
 
@@ -245,7 +252,11 @@ def retrieve_relevant_chunks_for_application_keyword(
     top_k: int = 5,
 ) -> list[ProjectEvidenceChunk]:
     query_text = build_application_query_text(application)
-    chunks = db.query(ProjectEvidenceChunk).all()
+    chunks = (
+        db.query(ProjectEvidenceChunk)
+        .filter(ProjectEvidenceChunk.user_id == application.user_id)
+        .all()
+    )
     return rank_chunks_by_keyword_overlap(
         query_text=query_text,
         chunks=chunks,
