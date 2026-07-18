@@ -66,14 +66,14 @@ Database tables are created with `Base.metadata.create_all` instead of versioned
 
 Goal: make the current prototype safe enough to evolve.
 
-- [ ] Remove the fixed personal skill lists from `build_full_tailored_resume_draft`; only use skills supported by the selected resume or saved evidence.
-- [ ] Export the saved full-resume draft rather than regenerating it during DOCX/PDF download.
-- [ ] Change matching and generation endpoints to accept resource IDs, then load the resume and application server-side. Do not accept authoritative resume text from the browser.
-- [ ] Add upload size, page count, extracted-text length, and supported-file validation.
-- [ ] Add SSRF defenses to job URL parsing: allow only HTTP/HTTPS, resolve and reject private/loopback/link-local addresses, cap redirects and response size, and reject non-text content.
-- [ ] Stop returning raw internal exception messages to clients; log a request ID and return a safe error response.
-- [ ] Replace permissive string fields such as application status with validated enums and constraints.
-- [ ] Add Alembic configuration and an initial migration; remove table creation as an application-startup side effect.
+- [x] Remove the fixed personal skill lists from `build_full_tailored_resume_draft`; only use skills supported by the selected resume or saved evidence.
+- [x] Export the saved full-resume draft rather than regenerating it during DOCX/PDF download.
+- [x] Change matching and generation endpoints to accept resource IDs, then load the resume and application server-side. Do not accept authoritative resume text from the browser.
+- [x] Add upload size, page count, extracted-text length, and supported-file validation.
+- [x] Add SSRF defenses to job URL parsing: allow only HTTP/HTTPS, resolve and reject private/loopback/link-local addresses, cap redirects and response size, and reject non-text content.
+- [x] Stop returning raw internal exception messages to clients; log a request ID and return a safe error response.
+- [x] Replace permissive string fields such as application status with validated enums and constraints.
+- [x] Add Alembic configuration and an initial migration; remove table creation as an application-startup side effect.
 
 Acceptance criteria:
 
@@ -81,6 +81,13 @@ Acceptance criteria:
 - Exporting a saved draft twice produces the same content and does not call the model.
 - Unsafe job URLs and oversized uploads are rejected before external processing.
 - Schema changes can be applied and rolled back through versioned migrations.
+
+Phase 0 verification completed on 2026-07-18:
+
+- Backend tests cover server-owned AI inputs, saved-draft export, generated skill and numeric-claim grounding, PDF limits, SSRF cases, safe errors, migration bootstrapping, and status validation.
+- Alembic upgrade, metadata consistency, full rollback, fresh re-upgrade, and guarded legacy-schema bootstrap were exercised against PostgreSQL 16 with pgvector.
+- Frontend lint, TypeScript validation, and the Next.js production build pass with the updated API contract.
+- Next.js was patched from 16.2.1 to 16.2.10, eliminating the high-severity production advisories reported by `npm audit` at the time of verification.
 
 ### Phase 1 — Per-user authentication and data isolation
 

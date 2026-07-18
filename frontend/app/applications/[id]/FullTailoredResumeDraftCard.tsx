@@ -64,7 +64,7 @@ export default function FullTailoredResumeDraftCard({
         throw new Error("No saved resume found")
       }
 
-      const data = await getFullTailoredResumeDraft(applicationId)
+      const data = await getFullTailoredResumeDraft(applicationId, savedResume.id)
 
       const saved = await saveFullResumeDraft({
         application_id: applicationId,

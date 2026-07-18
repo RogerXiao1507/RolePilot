@@ -160,15 +160,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
               </div>
             </section>
 
-            <ResumeJobMatchCard
-              applicationId={application.id}
-              company={application.company}
-              roleTitle={application.role_title}
-              jobSummary={application.ai_summary}
-              requiredSkills={requiredSkills}
-              preferredSkills={preferredSkills}
-              keywords={keywords}
-            />
+            <ResumeJobMatchCard applicationId={application.id} />
           </aside>
         </div>
       </div>

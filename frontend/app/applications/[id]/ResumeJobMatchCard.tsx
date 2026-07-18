@@ -15,22 +15,10 @@ import type {
 
 type ResumeJobMatchCardProps = {
   applicationId: number
-  company: string
-  roleTitle: string
-  jobSummary?: string | null
-  requiredSkills?: string[]
-  preferredSkills?: string[]
-  keywords?: string[]
 }
 
 export default function ResumeJobMatchCard({
   applicationId,
-  company,
-  roleTitle,
-  jobSummary,
-  requiredSkills = [],
-  preferredSkills = [],
-  keywords = [],
 }: ResumeJobMatchCardProps) {
   const [loading, setLoading] = useState(false)
   const [loadingSavedMatch, setLoadingSavedMatch] = useState(true)
@@ -87,13 +75,8 @@ export default function ResumeJobMatchCard({
 
     try {
       const data = await matchResumeToJob({
-        resume_text: savedResume.extracted_text,
-        role_title: roleTitle,
-        company,
-        job_summary: jobSummary || "",
-        required_skills: requiredSkills,
-        preferred_skills: preferredSkills,
-        keywords,
+        application_id: applicationId,
+        resume_id: savedResume.id,
       })
 
       const saved = await saveApplicationResumeMatch({

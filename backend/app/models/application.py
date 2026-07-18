@@ -1,19 +1,31 @@
 from datetime import datetime
-from sqlalchemy import String, Text, DateTime, func
+from sqlalchemy import CheckConstraint, String, Text, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 from app.core.database import Base
+from app.core.enums import ApplicationStatus
 
 
 class Application(Base):
     __tablename__ = "applications"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('saved', 'applied', 'interview', 'offer', 'rejected')",
+            name="ck_applications_status",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    company: Mapped[str] = mapped_column(String, nullable=False)
-    role_title: Mapped[str] = mapped_column(String, nullable=False)
-    status: Mapped[str] = mapped_column(String, nullable=False, default="saved")
-    location: Mapped[str | None] = mapped_column(String, nullable=True)
-    job_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    company: Mapped[str] = mapped_column(String(200), nullable=False)
+    role_title: Mapped[str] = mapped_column(String(200), nullable=False)
+    status: Mapped[ApplicationStatus] = mapped_column(
+        String(32),
+        nullable=False,
+        default=ApplicationStatus.SAVED,
+        server_default=ApplicationStatus.SAVED.value,
+    )
+    location: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    job_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     job_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     ai_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
 

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.api.deps import get_db
+from app.core.config import settings
 from app.models.resume import Resume
 from app.schemas.resume import ResumeAnalysisResponse, ResumeCreate, ResumeResponse
 from app.services.resume_service import analyze_resume_text, extract_text_from_pdf_bytes
@@ -9,13 +10,34 @@ from app.services.resume_service import analyze_resume_text, extract_text_from_p
 router = APIRouter(prefix="/resume", tags=["resume"])
 
 
+async def read_upload_with_limit(file: UploadFile, max_bytes: int) -> bytes:
+    payload = bytearray()
+    while chunk := await file.read(1024 * 1024):
+        payload.extend(chunk)
+        if len(payload) > max_bytes:
+            raise HTTPException(
+                status_code=413,
+                detail=f"Resume PDF cannot exceed {max_bytes // (1024 * 1024)} MB.",
+            )
+    return bytes(payload)
+
+
 @router.post("/analyze", response_model=ResumeAnalysisResponse)
 async def analyze_resume(file: UploadFile = File(...)):
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Resume filename must end in .pdf.")
 
-    pdf_bytes = await file.read()
-    extracted_text = extract_text_from_pdf_bytes(pdf_bytes)
+    pdf_bytes = await read_upload_with_limit(file, settings.max_resume_upload_bytes)
+    try:
+        extracted_text = extract_text_from_pdf_bytes(
+            pdf_bytes,
+            max_pages=settings.max_resume_pages,
+            max_text_chars=settings.max_resume_text_chars,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     analysis = analyze_resume_text(extracted_text)
 
     return {

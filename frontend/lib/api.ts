@@ -133,13 +133,8 @@ export async function analyzeResume(file: File): Promise<ResumeAnalysis> {
 }
 
 export async function matchResumeToJob(payload: {
-  resume_text: string
-  role_title?: string | null
-  company?: string | null
-  job_summary?: string | null
-  required_skills?: string[]
-  preferred_skills?: string[]
-  keywords?: string[]
+  application_id: number
+  resume_id: number
 }): Promise<ResumeJobMatch> {
   const res = await fetch(`${API_BASE}/ai/match-resume-job`, {
     method: "POST",
@@ -240,14 +235,15 @@ export async function getApplicationResumeMatch(
 }
 
 export async function tailorResumeForApplication(
-  applicationId: number
+  applicationId: number,
+  resumeId: number
 ): Promise<TailoredResumeContent> {
   const res = await fetch(`${API_BASE}/ai/tailor-resume`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ application_id: applicationId }),
+    body: JSON.stringify({ application_id: applicationId, resume_id: resumeId }),
   })
 
   if (!res.ok) {
@@ -305,14 +301,15 @@ export async function getApplicationTailoredResume(
 }
 
 export async function getFullTailoredResumeDraft(
-  applicationId: number
+  applicationId: number,
+  resumeId: number
 ): Promise<FullTailoredResumeDraft> {
   const res = await fetch(`${API_BASE}/ai/full-tailored-resume`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ application_id: applicationId }),
+    body: JSON.stringify({ application_id: applicationId, resume_id: resumeId }),
   })
 
   if (!res.ok) {

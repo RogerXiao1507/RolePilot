@@ -1,8 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TailorResumeRequest(BaseModel):
-    application_id: int
+    model_config = ConfigDict(extra="forbid")
+
+    application_id: int = Field(gt=0)
+    resume_id: int = Field(gt=0)
 
 
 class TailoredBullet(BaseModel):
@@ -20,4 +23,13 @@ class TailorResumeResponse(BaseModel):
     tailoring_notes: list[str]
 
 class FullTailoredResumeDraftRequest(BaseModel):
-    application_id: int
+    model_config = ConfigDict(extra="forbid")
+
+    application_id: int = Field(gt=0)
+    resume_id: int = Field(gt=0)
+
+
+class ExportSavedResumeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    application_id: int = Field(gt=0)

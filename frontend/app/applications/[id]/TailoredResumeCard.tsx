@@ -66,7 +66,7 @@ export default function TailoredResumeCard({
         throw new Error("No saved resume found")
       }
 
-      const data = await tailorResumeForApplication(applicationId)
+      const data = await tailorResumeForApplication(applicationId, savedResume.id)
 
       const saved = await saveApplicationTailoredResume({
         application_id: applicationId,

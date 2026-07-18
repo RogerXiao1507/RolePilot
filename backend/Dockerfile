@@ -17,4 +17,4 @@ COPY . .
 
 ENV PORT=10000
 
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "python scripts/migrate_database.py && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

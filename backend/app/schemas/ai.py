@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class JobParseRequest(BaseModel):
-    text: str
+    text: str = Field(min_length=50, max_length=100_000)
 
 
 class JobUrlParseRequest(BaseModel):
-    url: str
+    url: str = Field(min_length=8, max_length=2048)
 
 
 class JobParseResponse(BaseModel):
@@ -15,20 +15,17 @@ class JobParseResponse(BaseModel):
     location: str | None = None
     employment_type: str | None = None
     internship_season: str | None = None
-    required_skills: list[str] = []
-    preferred_skills: list[str] = []
-    keywords: list[str] = []
+    required_skills: list[str] = Field(default_factory=list)
+    preferred_skills: list[str] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
     summary: str = ""
-    next_steps: list[str] = []
+    next_steps: list[str] = Field(default_factory=list)
 
 class ResumeJobMatchRequest(BaseModel):
-    resume_text: str
-    role_title: str | None = None
-    company: str | None = None
-    job_summary: str | None = None
-    required_skills: list[str] = []
-    preferred_skills: list[str] = []
-    keywords: list[str] = []
+    model_config = ConfigDict(extra="forbid")
+
+    application_id: int = Field(gt=0)
+    resume_id: int = Field(gt=0)
 
 
 class ResumeJobMatchResponse(BaseModel):

@@ -1,4 +1,9 @@
 import json
+import ipaddress
+import re
+import socket
+from urllib.parse import urljoin, urlsplit
+
 import httpx
 from bs4 import BeautifulSoup
 from openai import OpenAI
@@ -13,6 +18,28 @@ from app.models.project_evidence_chunk import ProjectEvidenceChunk
 from app.models.application_tailored_resume import ApplicationTailoredResume
 
 client = OpenAI(api_key=settings.openai_api_key)
+
+ALLOWED_JOB_CONTENT_TYPES = {
+    "application/xhtml+xml",
+    "text/html",
+    "text/plain",
+}
+REDIRECT_STATUS_CODES = {301, 302, 303, 307, 308}
+
+
+class JobUrlValidationError(ValueError):
+    """The supplied URL is not safe to request."""
+
+
+class JobUrlFetchError(RuntimeError):
+    """The remote job page could not be fetched safely."""
+
+
+class GeneratedContentGroundingError(RuntimeError):
+    """Generated content failed a deterministic grounding check."""
+
+
+NUMBER_PATTERN = re.compile(r"(?<![A-Za-z0-9])\d+(?:[.,]\d+)*%?(?![A-Za-z0-9])")
 
 
 def parse_job_description(text: str) -> dict:
@@ -93,19 +120,124 @@ def parse_job_description(text: str) -> dict:
     return json.loads(response.output_text)
 
 
+def _resolve_public_addresses(hostname: str, port: int) -> set[str]:
+    try:
+        direct_address = ipaddress.ip_address(hostname)
+        addresses = {str(direct_address)}
+    except ValueError:
+        try:
+            address_info = socket.getaddrinfo(
+                hostname,
+                port,
+                type=socket.SOCK_STREAM,
+            )
+        except socket.gaierror as exc:
+            raise JobUrlValidationError("Job URL host could not be resolved.") from exc
+        addresses = {item[4][0].split("%", 1)[0] for item in address_info}
+
+    if not addresses:
+        raise JobUrlValidationError("Job URL host could not be resolved.")
+
+    for address in addresses:
+        try:
+            parsed_address = ipaddress.ip_address(address)
+        except ValueError as exc:
+            raise JobUrlValidationError("Job URL resolved to an invalid address.") from exc
+        if not parsed_address.is_global:
+            raise JobUrlValidationError(
+                "Job URLs cannot resolve to private or local network addresses."
+            )
+
+    return addresses
+
+
+def validate_public_job_url(url: str) -> str:
+    try:
+        parsed = urlsplit(url.strip())
+        port = parsed.port
+    except ValueError as exc:
+        raise JobUrlValidationError("Job URL is invalid.") from exc
+
+    if parsed.scheme not in {"http", "https"}:
+        raise JobUrlValidationError("Job URL must use HTTP or HTTPS.")
+    if not parsed.hostname:
+        raise JobUrlValidationError("Job URL must include a hostname.")
+    if parsed.username or parsed.password:
+        raise JobUrlValidationError("Job URL cannot include embedded credentials.")
+
+    expected_port = 443 if parsed.scheme == "https" else 80
+    if port not in {None, expected_port}:
+        raise JobUrlValidationError("Job URL must use the standard HTTP or HTTPS port.")
+
+    _resolve_public_addresses(parsed.hostname, port or expected_port)
+    return parsed.geturl()
+
+
+def _read_limited_response(response: httpx.Response) -> bytes:
+    content_length = response.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > settings.job_url_max_response_bytes:
+                raise JobUrlFetchError("Job posting response is too large.")
+        except ValueError:
+            pass
+
+    payload = bytearray()
+    for chunk in response.iter_bytes():
+        payload.extend(chunk)
+        if len(payload) > settings.job_url_max_response_bytes:
+            raise JobUrlFetchError("Job posting response is too large.")
+    return bytes(payload)
+
+
 def extract_text_from_url(url: str) -> str:
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/122.0.0.0 Safari/537.36"
-        )
+        ),
+        "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9",
     }
 
-    response = httpx.get(url, headers=headers, timeout=15.0, follow_redirects=True)
-    response.raise_for_status()
+    current_url = url.strip()
+    timeout = httpx.Timeout(settings.job_url_timeout_seconds)
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    try:
+        with httpx.Client(timeout=timeout, follow_redirects=False, trust_env=False) as http_client:
+            for redirect_count in range(settings.job_url_max_redirects + 1):
+                current_url = validate_public_job_url(current_url)
+
+                with http_client.stream("GET", current_url, headers=headers) as response:
+                    if response.status_code in REDIRECT_STATUS_CODES:
+                        location = response.headers.get("location")
+                        if not location:
+                            raise JobUrlFetchError("Job posting returned an invalid redirect.")
+                        if redirect_count >= settings.job_url_max_redirects:
+                            raise JobUrlFetchError("Job posting exceeded the redirect limit.")
+                        current_url = urljoin(current_url, location)
+                        continue
+
+                    response.raise_for_status()
+                    content_type = response.headers.get("content-type", "")
+                    media_type = content_type.split(";", 1)[0].strip().lower()
+                    if media_type not in ALLOWED_JOB_CONTENT_TYPES:
+                        raise JobUrlFetchError("Job URL did not return a supported text page.")
+
+                    content = _read_limited_response(response)
+                    encoding = response.encoding or "utf-8"
+                    response_text = content.decode(encoding, errors="replace")
+                    break
+            else:
+                raise JobUrlFetchError("Job posting exceeded the redirect limit.")
+    except JobUrlValidationError:
+        raise
+    except JobUrlFetchError:
+        raise
+    except httpx.HTTPError as exc:
+        raise JobUrlFetchError("Job posting could not be fetched.") from exc
+
+    soup = BeautifulSoup(response_text, "html.parser")
 
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
@@ -354,7 +486,23 @@ Retrieved Project Evidence:
             continue
         normalized_skills.append(str(skill).strip())
 
-    result["tailored_skills"] = [skill for skill in normalized_skills if skill]
+    grounding_source_text = "\n\n".join(
+        part for part in [resume.extracted_text, retrieved_evidence_text] if part
+    )
+
+    def source_contains_term(term: str) -> bool:
+        cleaned = " ".join(term.strip().split())
+        if not cleaned:
+            return False
+        return re.search(
+            rf"(?<![A-Za-z0-9]){re.escape(cleaned)}(?![A-Za-z0-9])",
+            grounding_source_text,
+            re.IGNORECASE,
+        ) is not None
+
+    result["tailored_skills"] = [
+        skill for skill in normalized_skills if skill and source_contains_term(skill)
+    ]
 
     if isinstance(result.get("tailoring_notes"), str):
         result["tailoring_notes"] = [result["tailoring_notes"]]
@@ -402,8 +550,15 @@ Retrieved Project Evidence:
 
     result["tailored_bullets"] = normalized_bullets
 
-    print("TAILOR RESULT:")
-    print(result)
+    supported_numbers = set(NUMBER_PATTERN.findall(grounding_source_text))
+    generated_claim_text = "\n".join(
+        [result["tailored_summary"]]
+        + [bullet["tailored_bullet"] for bullet in normalized_bullets]
+    )
+    if set(NUMBER_PATTERN.findall(generated_claim_text)) - supported_numbers:
+        raise GeneratedContentGroundingError(
+            "Generated tailored content contained unsupported numeric claims."
+        )
 
     return result
 
@@ -412,7 +567,26 @@ def build_full_tailored_resume_draft(
     application: Application,
     resume: Resume,
     tailored_resume,
+    project_evidence: list[ProjectEvidence] | None = None,
 ):
+    project_evidence = project_evidence or []
+    project_evidence_text = "\n\n".join(
+        "\n".join(
+            [
+                f"Title: {project.title}",
+                f"Category: {project.category}",
+                f"Description: {project.description}",
+                f"Skills: {', '.join(project.skills or [])}",
+                f"Keywords: {', '.join(project.keywords or [])}",
+                f"Bullets: {' | '.join(project.bullet_bank or [])}",
+            ]
+        )
+        for project in project_evidence
+    )
+    grounding_source_text = "\n\n".join(
+        part for part in [resume.extracted_text, project_evidence_text] if part
+    )
+
     prompt = f"""
 You are an expert resume writing assistant.
 
@@ -428,9 +602,9 @@ You must preserve the candidate's core factual content unless tailoring improves
 - preserve the candidate's factual background from the saved resume and evidence
 - only include GPA or coursework if supported by the resume text or evidence
 - skill groupings should be relevant to the target role and supported by evidence
-- all saved tailored skills must be preserved in the final skills section unless they are exact duplicates
-- do not omit saved tailored skills just because they overlap semantically with another skill
-- include the saved tailored skills in the most appropriate skill category
+- preserve saved tailored skills only when the exact skill is supported by the saved resume or verified project evidence
+- omit any tailored skill that cannot be grounded in those sources
+- include supported saved tailored skills in the most appropriate skill category
 
 Return JSON only with exactly these keys:
 header
@@ -503,6 +677,9 @@ Weaknesses: {resume.weaknesses}
 Wording Issues: {resume.wording_issues}
 Missing Metrics: {resume.missing_metrics}
 Suggested Improvements: {resume.suggested_improvements}
+
+Verified Project Evidence:
+{project_evidence_text if project_evidence_text else "No additional project evidence supplied."}
 
 Saved Tailored Resume Content:
 Tailored Summary: {tailored_resume.tailored_summary}
@@ -629,20 +806,27 @@ Tailoring Notes: {tailored_resume.tailoring_notes}
     all_candidate_skills.extend(model_skill_inputs)
     all_candidate_skills.extend([str(skill).strip() for skill in (tailored_resume.tailored_skills or []) if str(skill).strip()])
 
-    original_resume_skill_inputs = []
-    for maybe_list in [
-        ["C++", "C", "Python", "Java", "RISC-V Assembly", "SystemVerilog"],
-        ["KiCad", "Vivado", "Arduino", "MATLAB"],
-        ["Oscilloscope", "Function Generator", "Multimeter", "AC/DC Power Supply"],
-        ["FPGA Design", "Digital Hardware Design", "Power Subsystem Design", "Analog Design", "RTL Design", "Embedded Systems"],
-        ["Git", "GitHub", "VS Code", "Excel", "Microsoft Office"],
-    ]:
-        original_resume_skill_inputs.extend(maybe_list)
-
-    all_candidate_skills.extend(original_resume_skill_inputs)
-
     def canonicalize_skill(skill: str) -> str:
         return " ".join(skill.strip().split())
+
+    explicit_evidence_skills = {
+        canonicalize_skill(skill).lower()
+        for project in project_evidence
+        for skill in (project.skills or [])
+        if canonicalize_skill(skill)
+    }
+
+    def skill_is_grounded(skill: str) -> bool:
+        cleaned = canonicalize_skill(skill)
+        if not cleaned:
+            return False
+        if cleaned.lower() in explicit_evidence_skills:
+            return True
+        pattern = re.compile(
+            rf"(?<![A-Za-z0-9]){re.escape(cleaned)}(?![A-Za-z0-9])",
+            re.IGNORECASE,
+        )
+        return pattern.search(grounding_source_text) is not None
 
     programming_languages_set = {
         "c", "c++", "python", "java", "risc-v assembly", "systemverilog",
@@ -755,7 +939,7 @@ Tailoring Notes: {tailored_resume.tailoring_notes}
 
     for skill in all_candidate_skills:
         cleaned = canonicalize_skill(skill)
-        if not cleaned:
+        if not cleaned or not skill_is_grounded(cleaned):
             continue
 
         cleaned_lower = cleaned.lower()
@@ -770,5 +954,28 @@ Tailoring Notes: {tailored_resume.tailoring_notes}
         categorized[key] = sorted(categorized[key], key=skill_relevance_score)
 
     result["skills"] = categorized
+
+    supported_numbers = set(NUMBER_PATTERN.findall(grounding_source_text))
+
+    def iter_generated_strings(value):
+        if isinstance(value, str):
+            yield value
+        elif isinstance(value, dict):
+            for nested_value in value.values():
+                yield from iter_generated_strings(nested_value)
+        elif isinstance(value, list):
+            for nested_value in value:
+                yield from iter_generated_strings(nested_value)
+
+    generated_numbers = {
+        number
+        for value in iter_generated_strings(result)
+        for number in NUMBER_PATTERN.findall(value)
+    }
+    unsupported_numbers = sorted(generated_numbers - supported_numbers)
+    if unsupported_numbers:
+        raise GeneratedContentGroundingError(
+            "Generated draft contained unsupported numeric claims."
+        )
 
     return result

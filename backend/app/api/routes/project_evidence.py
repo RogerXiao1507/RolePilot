@@ -12,7 +12,7 @@ So the evidence becomes retrievable right away.
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.api.deps import get_db
 from app.models.project_evidence import ProjectEvidence
 from app.schemas.project_evidence import (
     ProjectEvidenceCreate,

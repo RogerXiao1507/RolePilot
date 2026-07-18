@@ -41,6 +41,20 @@ jobs:
   backend:
     name: Backend tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     defaults:
       run:
         working-directory: backend
@@ -66,7 +80,14 @@ jobs:
 
       - name: Report automated check count
         run: |
-          echo "Automated checks in this workflow: 4 (frontend lint, frontend type check, frontend build, backend pytest with coverage)"
+          echo "Automated checks in this workflow: 5 (frontend lint, frontend type check, frontend build, Alembic migration validation, backend pytest with coverage)"
+
+      - name: Validate Alembic upgrade, schema, and rollback
+        run: |
+          alembic upgrade head
+          alembic check
+          alembic downgrade base
+          alembic upgrade head
 
       - name: Run backend tests with coverage
         run: pytest --cov=app --cov-report=term-missing

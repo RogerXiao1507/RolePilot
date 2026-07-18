@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ResumeAnalysisResponse(BaseModel):
@@ -13,9 +13,9 @@ class ResumeAnalysisResponse(BaseModel):
 
 
 class ResumeCreate(BaseModel):
-    file_name: str
-    extracted_text: str
-    summary: str
+    file_name: str = Field(min_length=1, max_length=255)
+    extracted_text: str = Field(min_length=1, max_length=100_000)
+    summary: str = Field(min_length=1, max_length=20_000)
     strengths: list[str]
     weaknesses: list[str]
     wording_issues: list[str]

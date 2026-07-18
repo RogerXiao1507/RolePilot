@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.api.deps import get_db
 from app.models.application import Application
 from app.models.application_tailored_resume import ApplicationTailoredResume
 from app.models.resume import Resume

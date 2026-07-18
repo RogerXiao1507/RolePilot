@@ -126,14 +126,39 @@ RolePilot/
 └── README.md
 ```
 
+## Database migrations
+
+RolePilot uses Alembic for all schema changes. The API no longer creates or
+changes tables during application startup.
+
+From `backend/`, apply migrations with:
+
+```bash
+alembic upgrade head
+```
+
+The Docker startup command runs `scripts/migrate_database.py` before starting
+FastAPI. On a fresh database it applies every migration. On a database created
+by an older RolePilot release, the script verifies the complete legacy table
+and column shape before stamping the baseline revision and applying the Phase 0
+constraints. It refuses to stamp partial or unrecognized schemas.
+
+Generate and inspect offline upgrade and rollback SQL with:
+
+```bash
+alembic upgrade head --sql
+alembic downgrade head:base --sql
+```
+
 ## CI/CD
 
 RolePilot uses GitHub Actions to run automated checks on every push and pull request to `main`.
 
-The CI workflow runs 4 real automated checks:
+The CI workflow runs 5 real automated checks:
 - Frontend lint with `npm run lint`
 - Frontend TypeScript validation with `npm run typecheck`
 - Frontend production build with `npm run build`
+- Alembic upgrade, schema consistency check, rollback, and re-upgrade against PostgreSQL/pgvector
 - Backend FastAPI tests with `pytest --cov=app --cov-report=term-missing`
 
 Vercel automatically deploys the frontend from GitHub, and Render automatically deploys the backend from GitHub. GitHub Actions does not replace those deployment platforms; it adds validation before release so build and test failures are caught earlier.
