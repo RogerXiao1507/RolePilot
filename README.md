@@ -5,6 +5,9 @@ Authentication and local identity-provider setup are documented in [`docs/authen
 The versioned resume/evidence model and private object-storage deployment are
 documented in [`docs/phase2-data-foundation.md`](docs/phase2-data-foundation.md).
 
+The Phase 3 saved-search, discovery catalog, and public ATS connectors are
+documented in [`docs/phase3-job-discovery.md`](docs/phase3-job-discovery.md).
+
 link to website: https://rolepilot-nu.vercel.app/?jr_id=69a677a1d706a731db3865db
 
 RolePilot is an AI powered career copilot that helps users track job and internship applications, analyze resumes, compare resumes against job postings, generate tailored resume content, and export polished resume drafts.

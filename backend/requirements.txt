@@ -12,6 +12,7 @@ pgvector
 python-docx
 requests
 beautifulsoup4
+defusedxml
 jinja2
 httpx
 PyJWT[crypto]

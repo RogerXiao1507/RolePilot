@@ -1,5 +1,35 @@
-from pydantic import field_validator, model_validator
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class LeverBoardConfig(BaseModel):
+    site: str = Field(min_length=1, max_length=120)
+    company_name: str | None = Field(default=None, min_length=1, max_length=240)
+    region: Literal["global", "eu"] = "global"
+
+
+class PublicATSBoardConfig(BaseModel):
+    identifier: str = Field(min_length=1, max_length=120)
+    company_name: str | None = Field(default=None, min_length=1, max_length=240)
+
+
+class PersonioBoardConfig(BaseModel):
+    account: str = Field(min_length=1, max_length=120)
+    company_name: str | None = Field(default=None, min_length=1, max_length=240)
+    domain: Literal["com", "de"] = "com"
+    job_url_template: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("job_url_template")
+    @classmethod
+    def validate_job_url_template(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        template = value.strip()
+        if not template.startswith("https://") or "{id}" not in template:
+            raise ValueError("Personio job_url_template must be HTTPS and contain {id}")
+        return template
 
 
 class Settings(BaseSettings):
@@ -23,6 +53,22 @@ class Settings(BaseSettings):
     job_url_timeout_seconds: float = 15.0
     job_url_max_redirects: int = 3
     job_url_max_response_bytes: int = 2 * 1024 * 1024
+    job_discovery_max_response_bytes: int = 8 * 1024 * 1024
+    job_discovery_max_jobs_per_board: int = 500
+    job_discovery_greenhouse_enabled: bool = False
+    job_discovery_greenhouse_boards: list[str] = Field(default_factory=list)
+    job_discovery_lever_enabled: bool = False
+    job_discovery_lever_boards: list[LeverBoardConfig] = Field(default_factory=list)
+    job_discovery_ashby_enabled: bool = False
+    job_discovery_ashby_boards: list[PublicATSBoardConfig] = Field(default_factory=list)
+    job_discovery_smartrecruiters_enabled: bool = False
+    job_discovery_smartrecruiters_boards: list[PublicATSBoardConfig] = Field(
+        default_factory=list
+    )
+    job_discovery_personio_enabled: bool = False
+    job_discovery_personio_boards: list[PersonioBoardConfig] = Field(
+        default_factory=list
+    )
 
     @field_validator("auth_issuer")
     @classmethod
@@ -62,7 +108,9 @@ class Settings(BaseSettings):
             missing = ", ".join(
                 name for name, value in required_values.items() if not value
             )
-            raise ValueError(f"Private object storage configuration is incomplete: {missing}")
+            raise ValueError(
+                f"Private object storage configuration is incomplete: {missing}"
+            )
         if self.object_storage_required and configured_count == 0:
             raise ValueError(
                 "Private object storage is required but its bucket and credentials are missing"

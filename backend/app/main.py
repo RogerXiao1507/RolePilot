@@ -15,6 +15,7 @@ from app.api.routes.tailored_resume import router as tailored_resume_router
 from app.api.routes.export import router as export_router
 from app.api.routes.full_resume_draft import router as full_resume_draft_router
 from app.api.routes.users import router as users_router
+from app.api.routes.job_discovery import router as job_discovery_router
 
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,7 @@ app.include_router(tailored_resume_router)
 app.include_router(export_router)
 app.include_router(full_resume_draft_router)
 app.include_router(users_router)
+app.include_router(job_discovery_router)
 
 @app.get("/")
 def root():

@@ -19,6 +19,8 @@ from app.models.project_evidence_chunk import ProjectEvidenceChunk
 from app.models.resume import Resume
 from app.models.resume_source_item import ResumeSourceItem
 from app.models.user import User
+from app.models.job_search import JobSearch
+from app.models.job_discovery_action import JobDiscoveryAction
 from app.services import retrieval_service
 
 
@@ -278,6 +280,12 @@ def test_account_deletion_cascades_all_workspace_data(tenant_client):
         json=_full_draft_payload(application["id"], resume["id"]),
     )
     assert draft.status_code == 200
+    search = tenant_client.post(
+        "/job-discovery/searches",
+        headers=_headers(USER_A),
+        json={"name": "Delete me", "target_titles": ["Engineer"]},
+    )
+    assert search.status_code == 200, search.text
 
     with SessionLocal() as db:
         user = db.scalar(select(User).where(User.external_subject == USER_A))
@@ -318,6 +326,8 @@ def test_account_deletion_cascades_all_workspace_data(tenant_client):
             ApplicationResumeMatch,
             ApplicationTailoredResume,
             ApplicationFullResumeDraft,
+            JobSearch,
+            JobDiscoveryAction,
         ):
             assert db.scalar(select(model).where(model.user_id == user_id)) is None
 
@@ -347,7 +357,43 @@ def test_row_level_security_is_enabled_for_every_owned_table(tenant_client):
         "application_resume_matches",
         "application_tailored_resumes",
         "application_full_resume_drafts",
+        "job_searches",
+        "job_discovery_actions",
     }.issubset(rls_tables)
+
+
+def test_saved_job_searches_are_private(tenant_client):
+    search_a = tenant_client.post(
+        "/job-discovery/searches",
+        headers=_headers(USER_A),
+        json={"name": "Tenant A search", "target_titles": ["Backend Engineer"]},
+    )
+    search_b = tenant_client.post(
+        "/job-discovery/searches",
+        headers=_headers(USER_B),
+        json={"name": "Tenant B search", "target_titles": ["Hardware Engineer"]},
+    )
+    assert search_a.status_code == 200, search_a.text
+    assert search_b.status_code == 200, search_b.text
+
+    search_b_id = search_b.json()["id"]
+    for method, payload in (
+        ("get", None),
+        ("patch", {"name": "Stolen"}),
+        ("delete", None),
+    ):
+        response = tenant_client.request(
+            method,
+            f"/job-discovery/searches/{search_b_id}",
+            headers=_headers(USER_A),
+            json=payload,
+        )
+        assert response.status_code == 404
+
+    own_searches = tenant_client.get(
+        "/job-discovery/searches", headers=_headers(USER_A)
+    )
+    assert [item["name"] for item in own_searches.json()] == ["Tenant A search"]
 
 
 def test_resume_library_defaults_selection_archive_and_cross_user_guards(tenant_client):

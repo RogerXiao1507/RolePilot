@@ -178,6 +178,13 @@ Phase 2 verification completed on 2026-07-18:
 
 Goal: proactively find relevant active roles from public or explicitly authorized sources based on each user's target role and experience preferences, while giving the user control over recency.
 
+Phase 3 backend foundation started on 2026-07-19:
+
+- Added private saved-search records, a shared normalized discovery catalog, per-source provenance, user actions, query-time recency/sorting, separate preference/resume signals, and conversion into the existing application tracker.
+- Added the normalized connector interface and operator-triggered public Greenhouse, Lever global/EU, Ashby, SmartRecruiters, and Personio connectors with independent default-off startup flags. Ambiguous source timestamps are not misrepresented as posting dates.
+- Added migration, tenant-isolation, connector, recency, action, conversion, source-scoped removal, response-limit, and cross-source deduplication coverage. The discovery frontend, scheduled/retried background execution, quality evaluation, and notifications remain open.
+- Connector policy, retention, controls, operation, and current limitations are documented in `docs/phase3-job-discovery.md`.
+
 #### User preferences and discovery
 
 - [ ] Add a job-search profile with target titles, adjacent titles, seniority/experience level, employment type, locations, remote/hybrid preferences, salary range, industries, required keywords, and excluded keywords or companies.
@@ -189,29 +196,29 @@ Goal: proactively find relevant active roles from public or explicitly authorize
 
 #### Source connectors and freshness
 
-- [ ] Build source adapters behind one normalized connector interface. Start with public Greenhouse, Lever, and Ashby company job boards or documented endpoints.
+- [x] Build source adapters behind one normalized connector interface. Start with public Greenhouse, Lever, and Ashby company job boards or documented endpoints. SmartRecruiters and Personio public feeds are also implemented.
 - [ ] Treat LinkedIn and other restricted platforms as authorized integrations only: use an official/licensed API, approved partner feed, or user-provided job URL. Do not automate authenticated sessions, evade access controls, or bypass anti-bot systems.
-- [ ] Store source name, external job ID, canonical URL, source posting timestamp, first-seen timestamp, last-seen timestamp, and last verification status for every discovered job.
-- [ ] Ingest relevant active jobs regardless of age, then apply the user's selected recency window at query time rather than enforcing a global cutoff.
-- [ ] Clearly label jobs with missing or ambiguous source dates as `Date unavailable`; exclude them from finite recency filters and rank them below dated postings in recency-aware views.
-- [ ] Recheck active postings, mark removed/expired roles, and stop recommending jobs that are no longer available.
-- [ ] Normalize titles, locations, employment types, descriptions, and company identities across sources while retaining the raw source payload for debugging within a short retention window.
+- [x] Store source name, external job ID, canonical URL, source posting timestamp, first-seen timestamp, last-seen timestamp, and last verification status for every discovered job.
+- [x] Ingest relevant active jobs regardless of age, then apply the user's selected recency window at query time rather than enforcing a global cutoff.
+- [x] Clearly label jobs with missing or ambiguous source dates as `Date unavailable`; exclude them from finite recency filters and rank them below dated postings in recency-aware views.
+- [x] Recheck active postings, mark removed/expired roles, and stop recommending jobs that are no longer available.
+- [x] Normalize titles, locations, employment types, descriptions, and company identities across sources while retaining the raw source payload for debugging within a short retention window.
 
 #### Relevance, deduplication, and delivery
 
-- [ ] Apply inexpensive preference filters before semantic ranking so clearly wrong locations, experience levels, or employment types are excluded early.
-- [ ] Rank remaining jobs against the user's search profile and selected/default resume, with separate preference-match and resume-match signals rather than one opaque score.
-- [ ] Deduplicate reposts and cross-posted roles using source IDs, canonical URLs, normalized company/title/location fields, and description fingerprints.
+- [ ] Apply inexpensive preference filters before semantic ranking so clearly wrong locations, experience levels, or employment types are excluded early. The inexpensive filters are implemented; semantic ranking and its evaluation remain Phase 3 work.
+- [x] Rank remaining jobs against the user's search profile and selected/default resume, with separate preference-match and resume-match signals rather than one opaque score.
+- [x] Deduplicate reposts and cross-posted roles using source IDs, canonical URLs, normalized company/title/location fields, and description fingerprints.
 - [ ] Run ingestion and rechecks as bounded background jobs with per-source rate limits, retries, backoff, caching, and observable connector health.
 - [ ] Add optional in-app or email digests only after relevance and freshness quality are measured; avoid notifying users repeatedly about the same role.
 
 #### Compliance and safety
 
-- [ ] Document the allowed acquisition method, terms constraints, attribution requirements, rate limits, and retention policy for every connector before enabling it in production.
-- [ ] Respect robots directives where applicable, identify the service appropriately, and prefer documented APIs or employer-hosted ATS feeds over HTML scraping.
-- [ ] Never request or store a user's job-board password, browser cookies, or authenticated session tokens for scraping.
-- [ ] Reuse the URL-fetching SSRF protections and add strict redirect, response-size, timeout, content-type, and domain controls to every connector.
-- [ ] Add a connector kill switch so a source can be disabled without redeploying if its contract, markup, or access policy changes.
+- [x] Document the allowed acquisition method, terms constraints, attribution requirements, rate limits, and retention policy for every connector before enabling it in production.
+- [x] Respect robots directives where applicable, identify the service appropriately, and prefer documented APIs or employer-hosted ATS feeds over HTML scraping.
+- [x] Never request or store a user's job-board password, browser cookies, or authenticated session tokens for scraping.
+- [x] Reuse the URL-fetching SSRF protections and add strict redirect, response-size, timeout, content-type, and domain controls to every connector.
+- [ ] Add a connector kill switch so a source can be disabled without redeploying if its contract, markup, or access policy changes. A default-off startup configuration flag is implemented; a runtime control plane remains open.
 
 Acceptance criteria:
 
