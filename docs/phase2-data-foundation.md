@@ -75,3 +75,18 @@ the complete storage flow.
    environment variables.
 5. Smoke-test two resumes, application selection, parsed-data editing, evidence
    ingestion, stale-state blocking, and a signed original-PDF link.
+
+## Production migration note
+
+The first Render deployment of Phase 2 exposed a PostgreSQL migration edge case
+that was not present on an empty database. Revision `0005` backfills source items
+for existing resumes; its deferrable foreign-key checks left pending trigger
+events in the transaction before the migration enabled row-level security.
+
+Commit `50fdb23` resolves those constraints before the RLS statement and adds a
+CI migration regression seeded with an existing user and resume. The failed
+Render migration was transactional, so redeploy the latest commit normally; do
+not manually stamp the Alembic revision or edit the production schema.
+
+After Render reports a successful deployment, verify the health endpoint and
+complete step 5 above before considering Phase 2 production-verified.

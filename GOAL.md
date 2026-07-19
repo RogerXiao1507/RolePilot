@@ -27,29 +27,40 @@ The repository already contains a functional end-to-end prototype:
 - A retrieval evaluation script with keyword, semantic, and hybrid metrics, plus labeled evaluation data.
 - CI configuration for frontend lint/type/build and backend tests.
 
-This is a strong prototype foundation, but it is still effectively a single-user application. Authentication, ownership, data isolation, generation grounding, test coverage, and operational controls must be addressed before treating it as a multi-user product.
+The original audit found a strong prototype with single-user assumptions. Phases 0-2 have since added authentication, ownership, isolation, grounded source records, deterministic export, and deployment migrations. Retrieval quality, generation depth, UI cohesion, and production operations remain the main areas of work.
 
-## Highest-priority findings
+## Current handoff status
 
-### 1. There is no user or tenant boundary
+Phases 0, 1, and 2 are complete in code and are merged to `main`.
 
-Every route is public and every database query is global. `GET /resume/latest` returns the latest resume in the entire database, application IDs can be read or changed directly, and retrieval searches every project evidence chunk. Adding a login page without changing these queries would not protect user data.
+- Phase 1 introduced Auth0 authentication, server-enforced per-user ownership, PostgreSQL row-level security, and cross-user isolation tests.
+- Phase 2 introduced the resume library, per-application resume selection, structured/versioned source items, private S3-compatible original-file storage, evidence management, stable citations, and stale-artifact tracking.
+- Commit `e28bb7b` contains the Phase 2 implementation.
+- Commit `50fdb23` fixes the populated-production migration failure caused by deferred foreign-key trigger events before row-level security was enabled. The fix and its populated-database regression test are pushed to GitHub.
+- The next production action is to confirm Render successfully deploys commit `50fdb23`, then perform the Phase 2 smoke test documented in `docs/phase2-data-foundation.md`.
+- After production verification, begin Phase 3. Start by measuring and preserving the current retrieval baseline before changing chunking, ranking, or embeddings.
 
-### 2. Generated content can include user-specific hard-coded skills
+## Original audit findings and disposition
 
-The full-resume builder currently appends a fixed skill inventory to every generated resume. This can leak one person's background into another person's draft and can fabricate skills even in single-user use. This should be removed before onboarding additional users.
+### 1. User and tenant boundary — resolved in Phase 1
 
-### 3. Retrieval is real, but not yet safely grounded
+The original public/global query model was replaced with Auth0 authentication, internal users, ownership-scoped queries, relationship validation, cross-user tests, and PostgreSQL RLS defense in depth.
 
-The hybrid retriever is a good baseline, but it uses a fixed top-k, a noisy full-job query, equal rank fusion, no reranker, no diversity control, no vector index definition, and no tenant filter. The generation response contains free-form evidence names rather than verifiable evidence IDs, so citations cannot currently be audited.
+### 2. Hard-coded generated skills — resolved in Phase 0
 
-### 4. The generated preview and exported file can differ
+The personal skill inventory was removed. Generated skills and claims must come from the authenticated user's selected resume or evidence.
 
-The frontend saves a full draft, but export endpoints call the model again instead of exporting that saved draft. A download can therefore differ from the approved preview, incur extra cost, or introduce new unsupported claims.
+### 3. Retrieval and grounding — foundation complete; quality work remains in Phase 3
 
-### 5. Production safety and reliability are limited
+Retrieval is tenant-filtered and Phase 2 introduced stable, versioned source citations. The hybrid baseline still uses fixed tuning, a broad job query, no reranker/diversity stage, and needs measured lexical/vector indexing and stronger post-generation grounding.
 
-Database tables are created with `Base.metadata.create_all` instead of versioned migrations. Job URL parsing can request arbitrary URLs and needs SSRF protection. Upload size/page limits, rate limits, AI timeouts/retries, structured logging, cost tracking, background jobs, and cleanup policies are absent. Backend coverage currently exercises only health/root and one not-found case.
+### 4. Preview/export mismatch — resolved in Phase 0
+
+Exports now use the saved, user-approved draft and do not regenerate content during download.
+
+### 5. Production safety and reliability — partially resolved; continues in Phase 6
+
+Alembic migrations, SSRF defenses, upload limits, safe errors, ownership tests, and broader backend coverage are in place. Rate limits, AI timeouts/retries, structured observability, cost controls, background jobs, backups, and operational release gates remain.
 
 ## Guiding principles
 
@@ -160,7 +171,8 @@ Phase 2 verification completed on 2026-07-18:
 - Private object-storage tests cover opaque per-user keys, server-side encryption, five-minute signed reads, and deletion; production deployment is configured to fail closed with `OBJECT_STORAGE_REQUIRED=true` when its private bucket is unavailable.
 - Alembic revisions `0004` and `0005` passed fresh upgrade, metadata consistency, full rollback, and re-upgrade against PostgreSQL 16 with pgvector.
 - The backend suite passes 54 tests; frontend lint, TypeScript validation, and the Next.js production build pass with the new resume library, parsed editor, evidence library, source citations, and stale-state UI.
-- Render object-storage variables and the private bucket remain a deployment operation documented in `docs/phase2-data-foundation.md`; no storage secret belongs in Vercel.
+- The operator configured the private AWS S3 bucket and restricted Render credentials; production verification remains pending after the migration hotfix. No storage secret belongs in Vercel.
+- A populated-database migration regression was added after Render exposed deferred foreign-key trigger events during the `0005` backfill. Commit `50fdb23` resolves constraints before enabling RLS and passed upgrade/downgrade/re-upgrade validation with existing resume data.
 
 ### Phase 3 — Better retrieval and RAG
 
@@ -303,19 +315,18 @@ Release gates:
 
 Authentication should not be postponed behind UI polish or RAG tuning. Retrieval work must happen after ownership fields exist so indexes, filters, evaluation fixtures, and service APIs are designed correctly once.
 
-## Near-term implementation slice
+## Next implementation slice
 
-The first shippable slice should be small enough to review but foundational enough to reduce risk:
+Begin Phase 3 with a measured retrieval baseline and an inspectable candidate pipeline:
 
-- [ ] Add Alembic and create a `users` table.
-- [ ] Add nullable `user_id` columns through a migration, backfill legacy data to an explicit seed user, then make ownership non-null.
-- [ ] Integrate one OIDC provider and implement `get_current_user`.
-- [ ] Protect and scope application, resume, match, tailored-resume, full-draft, project-evidence, retrieval, and export routes.
-- [ ] Add cross-user authorization tests for all resource families.
-- [ ] Remove hard-coded skills and export only saved drafts.
-- [ ] Add a minimal signed-in app shell with account/sign-out controls.
+- [ ] Run and record the existing keyword, semantic, and hybrid evaluation metrics without changing retrieval behavior.
+- [ ] Inventory the current chunk schema, retrieval SQL, ownership predicates, embedding cache behavior, and prompt citation inputs.
+- [ ] Add retrieval metadata and content hashes needed for reproducible indexing without invalidating stable Phase 2 source IDs.
+- [ ] Add PostgreSQL lexical search and a pgvector ANN index, then inspect query plans with tenant filters applied before ranking.
+- [ ] Retrieve a wider candidate set, deduplicate and diversify it, and rerank to a smaller cited context set.
+- [ ] Extend offline evaluation and CI regression coverage before changing production defaults.
 
-Definition of done for this slice: two test users can complete the current RolePilot workflow independently, neither can discover or affect the other's data by changing IDs, and the downloaded resume exactly matches the saved preview.
+Definition of done for this slice: the new pipeline beats the recorded hybrid baseline on held-out retrieval metrics, preserves strict user isolation, returns stable source citations, and stays within the Phase 3 latency target.
 
 ## Decisions to record before implementation
 
