@@ -9,7 +9,6 @@ const BACKEND_API_URL = (
 const RESPONSE_HEADERS = [
   "content-type",
   "content-disposition",
-  "content-length",
   "x-request-id",
 ] as const;
 
@@ -58,6 +57,9 @@ async function forward(request: NextRequest, context: RouteContext) {
     if (value) responseHeaders.set(headerName, value);
   }
 
+  // Node's fetch transparently decompresses upstream responses. Forwarding the
+  // upstream Content-Length with that decoded stream can truncate JSON in the
+  // browser, so let Next.js determine the response framing.
   return new NextResponse(response.body, {
     status: response.status,
     headers: responseHeaders,

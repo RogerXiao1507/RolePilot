@@ -40,16 +40,24 @@ async function apiError(res: Response, fallback: string): Promise<Error> {
   return new Error(fallback)
 }
 
+async function responseJson<T>(res: Response, fallback: string): Promise<T> {
+  try {
+    return await res.json() as T
+  } catch {
+    throw new Error(`${fallback} The server returned an incomplete response; please retry.`)
+  }
+}
+
 export async function getJobSearches(): Promise<JobSearch[]> {
   const res = await fetch(`${API_BASE}/job-discovery/searches`, { cache: "no-store" })
   if (!res.ok) throw await apiError(res, "Could not load saved searches.")
-  return res.json()
+  return responseJson<JobSearch[]>(res, "Could not load saved searches.")
 }
 
 export async function getDiscoveryCatalogStatus(): Promise<DiscoveryCatalogStatus> {
   const res = await fetch(`${API_BASE}/job-discovery/status`, { cache: "no-store" })
   if (!res.ok) throw await apiError(res, "Could not load discovery catalog status.")
-  return res.json()
+  return responseJson<DiscoveryCatalogStatus>(res, "Could not load discovery catalog status.")
 }
 
 export async function createJobSearch(payload: JobSearchInput): Promise<JobSearch> {
@@ -59,7 +67,7 @@ export async function createJobSearch(payload: JobSearchInput): Promise<JobSearc
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw await apiError(res, "Could not create the saved search.")
-  return res.json()
+  return responseJson<JobSearch>(res, "Could not create the saved search.")
 }
 
 export async function updateJobSearch(
@@ -72,7 +80,7 @@ export async function updateJobSearch(
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw await apiError(res, "Could not update the saved search.")
-  return res.json()
+  return responseJson<JobSearch>(res, "Could not update the saved search.")
 }
 
 export async function deleteJobSearch(id: string): Promise<void> {
@@ -92,7 +100,7 @@ export async function getDiscoveryFeed(params: {
   })
   const res = await fetch(`${API_BASE}/job-discovery/feed?${query}`, { cache: "no-store" })
   if (!res.ok) throw await apiError(res, "Could not load discovered jobs.")
-  return res.json()
+  return responseJson<DiscoveryFeed>(res, "Could not load discovered jobs.")
 }
 
 export async function setDiscoveryAction(
@@ -105,7 +113,7 @@ export async function setDiscoveryAction(
     body: JSON.stringify({ state }),
   })
   if (!res.ok) throw await apiError(res, "Could not update that job.")
-  return res.json()
+  return responseJson<DiscoveryAction>(res, "Could not update that job.")
 }
 
 export async function clearDiscoveryAction(jobId: string): Promise<void> {
@@ -125,7 +133,10 @@ export async function convertDiscoveryJob(
     body: JSON.stringify({ search_id: searchId }),
   })
   if (!res.ok) throw await apiError(res, "Could not convert this job to an application.")
-  return res.json()
+  return responseJson<DiscoveryAction & { application_id: number }>(
+    res,
+    "Could not convert this job to an application."
+  )
 }
 
 export async function getApplications(): Promise<Application[]> {
