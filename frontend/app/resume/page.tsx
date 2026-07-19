@@ -1,34 +1,58 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import { analyzeResume, getLatestResume, saveResume } from "@/lib/api"
-import type { ResumeAnalysis, SavedResume } from "@/lib/types"
+import { useCallback, useEffect, useState } from "react"
+import {
+  deleteResume,
+  getResume,
+  getResumes,
+  getResumeSourceUrl,
+  uploadResume,
+  updateResume,
+} from "@/lib/api"
+import type { ResumeAnalysis, ResumeListItem, SavedResume } from "@/lib/types"
 import AccountMenu from "@/components/AccountMenu"
+import ParsedResumeEditor from "./ParsedResumeEditor"
 
 export default function ResumePage() {
   const [file, setFile] = useState<File | null>(null)
+  const [label, setLabel] = useState("")
+  const [makeDefault, setMakeDefault] = useState(false)
+  const [resumes, setResumes] = useState<ResumeListItem[]>([])
   const [savedResume, setSavedResume] = useState<SavedResume | null>(null)
   const [result, setResult] = useState<ResumeAnalysis | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingSavedResume, setLoadingSavedResume] = useState(true)
   const [error, setError] = useState("")
 
-  useEffect(() => {
-    async function loadLatestResume() {
-      try {
-        const resume = await getLatestResume()
+  const showResume = useCallback((resume: SavedResume) => {
+    setSavedResume(resume)
+    setResult({
+      summary: resume.summary,
+      strengths: resume.strengths,
+      weaknesses: resume.weaknesses,
+      wording_issues: resume.wording_issues,
+      missing_metrics: resume.missing_metrics,
+      suggested_improvements: resume.suggested_improvements,
+      extracted_text: resume.extracted_text,
+      structured_data: resume.structured_data,
+    })
+  }, [])
 
-        setSavedResume(resume)
-        setResult({
-          summary: resume.summary,
-          strengths: resume.strengths,
-          weaknesses: resume.weaknesses,
-          wording_issues: resume.wording_issues,
-          missing_metrics: resume.missing_metrics,
-          suggested_improvements: resume.suggested_improvements,
-          extracted_text: resume.extracted_text,
-        })
+  const selectResume = useCallback(async (id: number) => {
+    const resume = await getResume(id)
+    showResume(resume)
+  }, [showResume])
+
+  useEffect(() => {
+    async function loadResumeLibrary() {
+      try {
+        const items = await getResumes(true)
+        setResumes(items)
+        const initial = items.find((item) => item.is_default) ?? items.find((item) => !item.is_archived)
+        if (initial) {
+          await selectResume(initial.id)
+        }
       } catch (err) {
         console.error(err)
       } finally {
@@ -36,8 +60,60 @@ export default function ResumePage() {
       }
     }
 
-    loadLatestResume()
-  }, [])
+    loadResumeLibrary()
+  }, [selectResume])
+
+  async function refreshLibrary(preferredId?: number) {
+    const items = await getResumes(true)
+    setResumes(items)
+    const target =
+      items.find((item) => item.id === preferredId) ??
+      items.find((item) => item.is_default) ??
+      items.find((item) => !item.is_archived)
+    if (target) {
+      await selectResume(target.id)
+    } else {
+      setSavedResume(null)
+      setResult(null)
+    }
+  }
+
+  async function handleResumeUpdate(
+    id: number,
+    payload: { is_default?: true; is_archived?: boolean }
+  ) {
+    setError("")
+    try {
+      const updated = await updateResume(id, payload)
+      await refreshLibrary(updated.is_archived ? undefined : updated.id)
+    } catch (err) {
+      console.error(err)
+      setError("Could not update that resume. Please try again.")
+    }
+  }
+
+  async function handleDeleteResume(id: number) {
+    if (!window.confirm("Permanently delete this resume and its generated drafts?")) return
+    setError("")
+    try {
+      await deleteResume(id)
+      await refreshLibrary()
+    } catch (err) {
+      console.error(err)
+      setError("Could not delete that resume. Please try again.")
+    }
+  }
+
+  async function openOriginalResume() {
+    if (!savedResume) return
+    try {
+      const signed = await getResumeSourceUrl(savedResume.id)
+      window.open(signed.url, "_blank", "noopener,noreferrer")
+    } catch (err) {
+      console.error(err)
+      setError("The private original resume could not be opened.")
+    }
+  }
 
   async function handleAnalyze() {
     if (!file) {
@@ -49,21 +125,17 @@ export default function ResumePage() {
     setError("")
 
     try {
-      const analysis = await analyzeResume(file)
+      const saved = await uploadResume(
+        file,
+        label || file.name.replace(/\.pdf$/i, ""),
+        makeDefault
+      )
 
-      const saved = await saveResume({
-        file_name: file.name,
-        extracted_text: analysis.extracted_text,
-        summary: analysis.summary,
-        strengths: analysis.strengths,
-        weaknesses: analysis.weaknesses,
-        wording_issues: analysis.wording_issues,
-        missing_metrics: analysis.missing_metrics,
-        suggested_improvements: analysis.suggested_improvements,
-      })
-
-      setSavedResume(saved)
-      setResult(analysis)
+      showResume(saved)
+      setResumes(await getResumes(true))
+      setFile(null)
+      setLabel("")
+      setMakeDefault(false)
     } catch (err) {
       console.error(err)
       setError("Resume analysis failed. Keep the selected PDF and try again.")
@@ -88,6 +160,7 @@ export default function ResumePage() {
 
     setError("")
     setFile(selectedFile)
+    setLabel(selectedFile.name.replace(/\.pdf$/i, ""))
   }
 
   const displayedFileName =
@@ -106,6 +179,9 @@ export default function ResumePage() {
             <Link href="/applications" className="rp-nav-link">
               Dashboard
             </Link>
+            <Link href="/evidence" className="rp-nav-link">
+              Evidence
+            </Link>
             <Link href="/applications/new" className="rp-button-primary">
               Add Application
             </Link>
@@ -118,8 +194,8 @@ export default function ResumePage() {
             <p className="rp-eyebrow">Resume intelligence</p>
             <h1 className="rp-title">Review your resume before every application.</h1>
             <p className="rp-subtitle">
-              Upload a PDF, save structured feedback, and reuse the latest resume for
-              application matching and tailored draft generation.
+              Upload PDFs, manage structured source data, and choose the right resume
+              for each application and tailored draft.
             </p>
           </div>
 
@@ -139,8 +215,20 @@ export default function ResumePage() {
               <p className="rp-eyebrow">Upload</p>
               <h2 className="rp-section-title mt-2">Resume PDF</h2>
               <p className="rp-section-copy">
-                Select a PDF file and generate structured AI feedback.
+                Select a PDF, give it a recognizable label, and generate structured feedback.
               </p>
+
+              <label htmlFor="resume-label" className="rp-field-label mt-5">
+                Resume label
+              </label>
+              <input
+                id="resume-label"
+                value={label}
+                onChange={(event) => setLabel(event.target.value)}
+                placeholder="e.g. Software engineering master"
+                maxLength={120}
+                className="rp-input"
+              />
 
               <label htmlFor="resume-upload" className="rp-field-label mt-5">
                 PDF file
@@ -152,6 +240,15 @@ export default function ResumePage() {
                 onChange={handleFileChange}
                 className="block w-full cursor-pointer rounded-lg border border-[var(--border)] bg-white p-2 text-sm text-[var(--muted)] file:mr-4 file:rounded-md file:border-0 file:bg-[var(--surface-strong)] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:bg-[var(--surface-muted)]"
               />
+
+              <label className="mt-4 flex items-center gap-3 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={makeDefault}
+                  onChange={(event) => setMakeDefault(event.target.checked)}
+                />
+                Make this my default resume
+              </label>
 
               <div className="mt-4 rounded-lg border border-[var(--border)] bg-white p-4">
                 <p className="rp-eyebrow">Selected file</p>
@@ -168,6 +265,15 @@ export default function ResumePage() {
                 <div className="mt-4 rounded-lg border border-[var(--border)] bg-white p-4">
                   <p className="rp-eyebrow">Saved resume ID</p>
                   <p className="mt-2 font-mono text-sm font-bold">{savedResume.id}</p>
+                  {savedResume.has_original_upload && (
+                    <button
+                      type="button"
+                      onClick={openOriginalResume}
+                      className="mt-3 text-xs font-bold text-[var(--accent-strong)]"
+                    >
+                      Open private original PDF
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -180,6 +286,78 @@ export default function ResumePage() {
               >
                 {loading ? "Analyzing Resume..." : "Analyze Resume"}
               </button>
+            </section>
+
+            <section className="rp-panel rp-section">
+              <p className="rp-eyebrow">Resume library</p>
+              <h2 className="rp-section-title mt-2">Saved resumes</h2>
+              <p className="rp-section-copy">
+                Select a resume to review it. Applications keep their own explicit selection.
+              </p>
+
+              {resumes.length === 0 ? (
+                <p className="mt-4 text-sm text-[var(--muted)]">No saved resumes yet.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {resumes.map((resume) => (
+                    <article
+                      key={resume.id}
+                      className={`rounded-lg border p-4 ${
+                        savedResume?.id === resume.id
+                          ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+                          : "border-[var(--border)] bg-white"
+                      } ${resume.is_archived ? "opacity-65" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => selectResume(resume.id)}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold">{resume.label}</p>
+                            <p className="mt-1 break-all text-xs text-[var(--muted)]">
+                              {resume.file_name}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            {resume.is_default && <span className="rp-badge">Default</span>}
+                            {resume.is_archived && <span className="rp-badge">Archived</span>}
+                          </div>
+                        </div>
+                      </button>
+
+                      <div className="mt-3 flex flex-wrap gap-2 border-t border-[var(--border)] pt-3">
+                        {!resume.is_archived && !resume.is_default && (
+                          <button
+                            type="button"
+                            onClick={() => handleResumeUpdate(resume.id, { is_default: true })}
+                            className="text-xs font-bold text-[var(--accent-strong)]"
+                          >
+                            Make default
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleResumeUpdate(resume.id, { is_archived: !resume.is_archived })
+                          }
+                          className="text-xs font-bold text-[var(--foreground)]"
+                        >
+                          {resume.is_archived ? "Restore" : "Archive"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteResume(resume.id)}
+                          className="text-xs font-bold text-red-700"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="rp-panel overflow-hidden">
@@ -234,6 +412,15 @@ export default function ResumePage() {
 
             {result && !loading && (
               <>
+                {savedResume && (
+                  <ParsedResumeEditor
+                    resume={savedResume}
+                    onSaved={(updated) => {
+                      showResume(updated)
+                      getResumes(true).then(setResumes).catch(console.error)
+                    }}
+                  />
+                )}
                 <SectionCard title="Summary">
                   <p className="text-sm leading-7 text-[var(--foreground)]">{result.summary}</p>
                 </SectionCard>

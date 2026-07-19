@@ -49,6 +49,14 @@ def _load_saved_draft(
             status_code=404,
             detail="No saved full resume draft found for this application.",
         )
+    if (
+        saved_draft.is_stale
+        or saved_draft.resume_id != application.selected_resume_id
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="The saved draft is stale. Regenerate it before exporting.",
+        )
 
     return FullTailoredResumeDraftResponse(**saved_draft.draft_data)
 

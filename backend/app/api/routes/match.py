@@ -20,10 +20,12 @@ def save_application_resume_match(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    get_owned_or_404(
+    application = get_owned_or_404(
         db, Application, payload.application_id, current_user.id, "Application not found."
     )
-    get_owned_or_404(db, Resume, payload.resume_id, current_user.id, "Resume not found.")
+    resume = get_owned_or_404(db, Resume, payload.resume_id, current_user.id, "Resume not found.")
+    if application.selected_resume_id != resume.id:
+        raise HTTPException(status_code=409, detail="Select this resume for the application first.")
 
     existing_match = (
         db.query(ApplicationResumeMatch)
@@ -36,6 +38,8 @@ def save_application_resume_match(
 
     if existing_match:
         existing_match.resume_id = payload.resume_id
+        existing_match.resume_version = resume.version
+        existing_match.is_stale = False
         existing_match.overall_match_summary = payload.overall_match_summary
         existing_match.matched_skills = payload.matched_skills
         existing_match.missing_skills = payload.missing_skills
@@ -51,6 +55,8 @@ def save_application_resume_match(
         user_id=current_user.id,
         application_id=payload.application_id,
         resume_id=payload.resume_id,
+        resume_version=resume.version,
+        is_stale=False,
         overall_match_summary=payload.overall_match_summary,
         matched_skills=payload.matched_skills,
         missing_skills=payload.missing_skills,

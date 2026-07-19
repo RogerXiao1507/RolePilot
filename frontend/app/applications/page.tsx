@@ -28,7 +28,10 @@ export default async function ApplicationsPage() {
               Dashboard
             </Link>
             <Link href="/resume" className="rp-nav-link">
-              Resume Analyzer
+              Resumes
+            </Link>
+            <Link href="/evidence" className="rp-nav-link">
+              Evidence
             </Link>
             <Link href="/applications/new" className="rp-button-primary">
               Add Application

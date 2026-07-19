@@ -10,6 +10,11 @@ import {
   SavedApplicationTailoredResume,
   FullTailoredResumeDraft,
   SavedApplicationFullResumeDraft,
+  ResumeListItem,
+  ResumeStructuredData,
+  ProjectEvidence,
+  ProjectEvidenceInput,
+  ResumeSourceItem,
 } from "@/lib/types";
 
 const API_BASE = "/api/backend";
@@ -132,6 +137,26 @@ export async function analyzeResume(file: File): Promise<ResumeAnalysis> {
   return res.json()
 }
 
+export async function uploadResume(
+  file: File,
+  label: string,
+  makeDefault: boolean
+): Promise<SavedResume> {
+  const formData = new FormData()
+  formData.append("file", file)
+  formData.append("label", label)
+  formData.append("make_default", String(makeDefault))
+  const res = await fetch(`${API_BASE}/resume/upload`, {
+    method: "POST",
+    body: formData,
+  })
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to upload and analyze resume")
+  }
+  return res.json()
+}
+
 export async function matchResumeToJob(payload: {
   application_id: number
   resume_id: number
@@ -153,8 +178,11 @@ export async function matchResumeToJob(payload: {
 }
 
 export async function saveResume(payload: {
+  label?: string
+  make_default?: boolean
   file_name: string
   extracted_text: string
+  structured_data: ResumeStructuredData
   summary: string
   strengths: string[]
   weaknesses: string[]
@@ -189,6 +217,165 @@ export async function getLatestResume(): Promise<SavedResume> {
     throw new Error(errorText || "Failed to load latest resume")
   }
 
+  return res.json()
+}
+
+export async function getResumes(includeArchived = false): Promise<ResumeListItem[]> {
+  const query = includeArchived ? "?include_archived=true" : ""
+  const res = await fetch(`${API_BASE}/resume${query}`, {
+    method: "GET",
+    cache: "no-store",
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to load resumes")
+  }
+  return res.json()
+}
+
+export async function getResume(id: number): Promise<SavedResume> {
+  const res = await fetch(`${API_BASE}/resume/${id}`, {
+    method: "GET",
+    cache: "no-store",
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to load resume")
+  }
+  return res.json()
+}
+
+export async function updateResume(
+  id: number,
+  payload: { label?: string; is_default?: true; is_archived?: boolean }
+): Promise<SavedResume> {
+  const res = await fetch(`${API_BASE}/resume/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to update resume")
+  }
+  return res.json()
+}
+
+export async function updateResumeStructuredData(
+  id: number,
+  structuredData: ResumeStructuredData
+): Promise<SavedResume> {
+  const res = await fetch(`${API_BASE}/resume/${id}/structured-data`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ structured_data: structuredData }),
+  })
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to update parsed resume")
+  }
+  return res.json()
+}
+
+export async function getResumeSourceItems(id: number): Promise<ResumeSourceItem[]> {
+  const res = await fetch(`${API_BASE}/resume/${id}/source-items`, {
+    cache: "no-store",
+  })
+  if (!res.ok) throw new Error("Failed to load resume source items")
+  return res.json()
+}
+
+export async function getResumeSourceUrl(id: number): Promise<{ url: string; expires_in_seconds: number }> {
+  const res = await fetch(`${API_BASE}/resume/${id}/source-url`, { cache: "no-store" })
+  if (!res.ok) throw new Error("Failed to create a private resume link")
+  return res.json()
+}
+
+export async function convertResumeSourceToEvidence(
+  sourceItemId: string,
+  payload: { title?: string; category?: string; outcome?: string; skills?: string[] }
+): Promise<ProjectEvidence> {
+  const res = await fetch(`${API_BASE}/project-evidence/from-resume-source/${sourceItemId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to convert resume source")
+  }
+  return res.json()
+}
+
+export async function deleteResume(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/resume/${id}`, { method: "DELETE" })
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to delete resume")
+  }
+}
+
+export async function getProjectEvidence(): Promise<ProjectEvidence[]> {
+  const res = await fetch(`${API_BASE}/project-evidence`, { cache: "no-store" })
+  if (!res.ok) throw new Error("Failed to load evidence")
+  return res.json()
+}
+
+export async function createProjectEvidence(
+  payload: ProjectEvidenceInput
+): Promise<ProjectEvidence> {
+  const res = await fetch(`${API_BASE}/project-evidence`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to create evidence")
+  }
+  return res.json()
+}
+
+export async function updateProjectEvidence(
+  id: number,
+  payload: Partial<ProjectEvidenceInput>
+): Promise<ProjectEvidence> {
+  const res = await fetch(`${API_BASE}/project-evidence/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(errorText || "Failed to update evidence")
+  }
+  return res.json()
+}
+
+export async function deleteProjectEvidence(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/project-evidence/${id}`, { method: "DELETE" })
+  if (!res.ok) throw new Error("Failed to delete evidence")
+}
+
+export async function retryProjectEvidence(id: number): Promise<ProjectEvidence> {
+  const res = await fetch(`${API_BASE}/project-evidence/${id}/retry`, {
+    method: "POST",
+  })
+  if (!res.ok) throw new Error("Failed to retry evidence ingestion")
+  return res.json()
+}
+
+export async function confirmProjectEvidenceMetric(
+  id: number,
+  suggestionIndex: number
+): Promise<ProjectEvidence> {
+  const res = await fetch(`${API_BASE}/project-evidence/${id}/confirm-metric`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ suggestion_index: suggestionIndex }),
+  })
+  if (!res.ok) throw new Error("Failed to confirm suggested metric")
   return res.json()
 }
 
@@ -265,6 +452,7 @@ export async function saveApplicationTailoredResume(payload: {
     original_bullet: string
     tailored_bullet: string
     evidence_used: string[]
+    citations: { source_type: "resume_item" | "evidence"; source_id: string; source_version: number }[]
   }[]
   tailoring_notes: string[]
 }): Promise<SavedApplicationTailoredResume> {

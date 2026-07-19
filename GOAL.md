@@ -138,14 +138,14 @@ Phase 1 verification completed on 2026-07-18:
 
 Goal: give generation a clean, structured, user-managed source of truth.
 
-- [ ] Support multiple resumes with labels, an explicit default resume, archive/delete, and resume selection per application. Replace the global "latest resume" behavior.
-- [ ] Store the original upload in private object storage with encryption and signed, short-lived access; keep only required derived text in PostgreSQL.
-- [ ] Parse resumes into structured sections and stable source items: contact, education, experience, projects, skills, and individual bullets.
-- [ ] Add a source fingerprint and version so analysis, chunks, matches, and drafts can be marked stale when a resume changes.
-- [ ] Build project-evidence management in the frontend; the backend currently supports only create and list. Add edit, delete, re-embed, and ingestion-status endpoints.
-- [ ] Let users convert resume bullets into evidence entries and add outcomes, metrics, dates, skills, and links through a guided form.
-- [ ] Separate user assertions from AI suggestions. Metrics suggested by the model should remain unverified until the user confirms them.
-- [ ] Use transactions or an asynchronous ingestion job so an evidence row cannot appear ready when its chunk embedding failed.
+- [x] Support multiple resumes with labels, an explicit default resume, archive/delete, and resume selection per application. Replace the global "latest resume" behavior.
+- [x] Store the original upload in private object storage with encryption and signed, short-lived access; keep only required derived text in PostgreSQL.
+- [x] Parse resumes into structured sections and stable source items: contact, education, experience, projects, skills, and individual bullets.
+- [x] Add a source fingerprint and version so analysis, chunks, matches, and drafts can be marked stale when a resume changes.
+- [x] Build project-evidence management in the frontend; the backend currently supports only create and list. Add edit, delete, re-embed, and ingestion-status endpoints.
+- [x] Let users convert resume bullets into evidence entries and add outcomes, metrics, dates, skills, and links through a guided form.
+- [x] Separate user assertions from AI suggestions. Metrics suggested by the model should remain unverified until the user confirms them.
+- [x] Use transactions or an asynchronous ingestion job so an evidence row cannot appear ready when its chunk embedding failed.
 
 Acceptance criteria:
 
@@ -153,6 +153,14 @@ Acceptance criteria:
 - Every generated bullet points to stable source item IDs and source versions.
 - Editing a source marks dependent retrieval data and generated artifacts stale.
 - Evidence ingestion exposes `pending`, `ready`, and `failed` states with a retry action.
+
+Phase 2 verification completed on 2026-07-18:
+
+- PostgreSQL/pgvector integration tests cover explicit default and per-application resume selection, archive reassignment, cross-user guards, stable source UUIDs across edits/insertion, artifact staleness, citation ownership/version checks, metric confirmation, and failed/retry evidence ingestion.
+- Private object-storage tests cover opaque per-user keys, server-side encryption, five-minute signed reads, and deletion; production deployment is configured to fail closed with `OBJECT_STORAGE_REQUIRED=true` when its private bucket is unavailable.
+- Alembic revisions `0004` and `0005` passed fresh upgrade, metadata consistency, full rollback, and re-upgrade against PostgreSQL 16 with pgvector.
+- The backend suite passes 54 tests; frontend lint, TypeScript validation, and the Next.js production build pass with the new resume library, parsed editor, evidence library, source citations, and stale-state UI.
+- Render object-storage variables and the private bucket remain a deployment operation documented in `docs/phase2-data-foundation.md`; no storage secret belongs in Vercel.
 
 ### Phase 3 — Better retrieval and RAG
 

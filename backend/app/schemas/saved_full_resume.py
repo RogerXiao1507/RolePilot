@@ -14,6 +14,8 @@ class ApplicationFullResumeDraftResponse(BaseModel):
     id: int
     application_id: int
     resume_id: int
+    resume_version: int
+    is_stale: bool
     draft_data: FullTailoredResumeDraftResponse
     created_at: datetime
     updated_at: datetime

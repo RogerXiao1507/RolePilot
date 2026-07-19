@@ -7,3 +7,9 @@ class ApplicationStatus(str, Enum):
     INTERVIEW = "interview"
     OFFER = "offer"
     REJECTED = "rejected"
+
+
+class EvidenceIngestionStatus(str, Enum):
+    PENDING = "pending"
+    READY = "ready"
+    FAILED = "failed"

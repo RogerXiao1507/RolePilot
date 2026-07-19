@@ -20,6 +20,7 @@ class ApplicationFields(BaseModel):
 
 
 class ApplicationCreate(ApplicationFields):
+    selected_resume_id: int | None = Field(default=None, gt=0)
     company: str = ShortText
     role_title: str = ShortText
     status: ApplicationStatus = ApplicationStatus.SAVED
@@ -34,6 +35,7 @@ class ApplicationCreate(ApplicationFields):
 
 
 class ApplicationUpdate(ApplicationFields):
+    selected_resume_id: int | None = Field(default=None, gt=0)
     company: str | None = Field(default=None, min_length=1, max_length=200)
     role_title: str | None = Field(default=None, min_length=1, max_length=200)
     status: ApplicationStatus | None = None
@@ -56,6 +58,7 @@ class ApplicationUpdate(ApplicationFields):
 
 class ApplicationOut(BaseModel):
     id: int
+    selected_resume_id: int | None
     company: str
     role_title: str
     status: ApplicationStatus

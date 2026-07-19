@@ -19,6 +19,7 @@ provides a deterministic keyword-overlap baseline for benchmarking
 against semantic retrieval
 '''
 from collections import Counter
+import hashlib
 import re
 from openai import OpenAI
 from sqlalchemy.orm import Session
@@ -30,6 +31,7 @@ from app.models.application import Application
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
 
 client = OpenAI(api_key=settings.openai_api_key)
+EMBEDDING_MODEL = "text-embedding-3-small"
 
 TOKEN_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9+#./-]*")
 STOPWORDS = {
@@ -49,6 +51,10 @@ def chunk_project_evidence(project: ProjectEvidence) -> list[dict]:
             f"Description: {project.description}",
             f"Skills: {', '.join(project.skills or [])}",
             f"Keywords: {', '.join(project.keywords or [])}",
+            f"Outcome: {project.outcome or ''}",
+            f"Dates: {' to '.join(part for part in [project.start_date, project.end_date] if part)}",
+            f"Verified Metrics: {project.verified_metrics or []}",
+            f"Links: {', '.join(project.links or [])}",
         ]
     )
     chunks.append(
@@ -78,7 +84,7 @@ def chunk_project_evidence(project: ProjectEvidence) -> list[dict]:
 
 def embed_text(text: str) -> list[float]:
     response = client.embeddings.create(
-        model="text-embedding-3-small",
+        model=EMBEDDING_MODEL,
         input=text,
     )
     return response.data[0].embedding
@@ -158,7 +164,8 @@ def rebuild_project_evidence_chunks_for_project(
     db.query(ProjectEvidenceChunk).filter(
         ProjectEvidenceChunk.project_evidence_id == project.id,
         ProjectEvidenceChunk.user_id == project.user_id,
-    ).delete()
+    ).delete(synchronize_session=False)
+    db.flush()
 
     chunks = chunk_project_evidence(project)
     saved_chunks = []
@@ -171,17 +178,24 @@ def rebuild_project_evidence_chunks_for_project(
             project_evidence_id=project.id,
             chunk_text=chunk["chunk_text"],
             chunk_type=chunk["chunk_type"],
+            source_version=project.version,
+            section=project.category,
+            title=project.title,
+            dates=" to ".join(
+                part for part in [project.start_date, project.end_date] if part
+            ) or None,
+            skills=project.skills or [],
+            embedding_model=EMBEDDING_MODEL,
+            content_hash=hashlib.sha256(
+                chunk["chunk_text"].encode("utf-8")
+            ).hexdigest(),
             embedding=embedding,
         )
 
         db.add(chunk_row)
         saved_chunks.append(chunk_row)
 
-    db.commit()
-
-    for chunk_row in saved_chunks:
-        db.refresh(chunk_row)
-
+    db.flush()
     return saved_chunks
 
 def build_application_query_text(application: Application) -> str:
@@ -208,10 +222,18 @@ def retrieve_relevant_chunks_for_application(
 
     sql = text(
         """
-        SELECT id
-        FROM project_evidence_chunks
-        WHERE user_id = :user_id
-        ORDER BY embedding <=> :query_embedding
+        SELECT chunk.id
+        FROM project_evidence_chunks AS chunk
+        WHERE chunk.user_id = :user_id
+          AND chunk.embedding IS NOT NULL
+          AND EXISTS (
+              SELECT 1
+              FROM project_evidence AS evidence
+              WHERE evidence.id = chunk.project_evidence_id
+                AND evidence.user_id = chunk.user_id
+                AND evidence.ingestion_status = 'ready'
+          )
+        ORDER BY chunk.embedding <=> :query_embedding
         LIMIT :top_k
         """
     )
@@ -232,9 +254,15 @@ def retrieve_relevant_chunks_for_application(
 
     chunks = (
         db.query(ProjectEvidenceChunk)
+        .join(
+            ProjectEvidence,
+            (ProjectEvidence.id == ProjectEvidenceChunk.project_evidence_id)
+            & (ProjectEvidence.user_id == ProjectEvidenceChunk.user_id),
+        )
         .filter(
             ProjectEvidenceChunk.id.in_(chunk_ids),
             ProjectEvidenceChunk.user_id == application.user_id,
+            ProjectEvidence.ingestion_status == "ready",
         )
         .all()
     )
@@ -254,7 +282,15 @@ def retrieve_relevant_chunks_for_application_keyword(
     query_text = build_application_query_text(application)
     chunks = (
         db.query(ProjectEvidenceChunk)
-        .filter(ProjectEvidenceChunk.user_id == application.user_id)
+        .join(
+            ProjectEvidence,
+            (ProjectEvidence.id == ProjectEvidenceChunk.project_evidence_id)
+            & (ProjectEvidence.user_id == ProjectEvidenceChunk.user_id),
+        )
+        .filter(
+            ProjectEvidenceChunk.user_id == application.user_id,
+            ProjectEvidence.ingestion_status == "ready",
+        )
         .all()
     )
     return rank_chunks_by_keyword_overlap(

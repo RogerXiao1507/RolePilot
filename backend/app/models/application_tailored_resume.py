@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, Integer, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, ForeignKeyConstraint, Integer, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -46,6 +46,8 @@ class ApplicationTailoredResume(Base):
         nullable=False,
         index=True,
     )
+    resume_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    is_stale: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     tailored_summary: Mapped[str] = mapped_column(Text, nullable=False)
     tailored_skills: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)

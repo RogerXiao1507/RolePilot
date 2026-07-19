@@ -62,6 +62,8 @@ def match_resume_job(
     resume = get_owned_or_404(
         db, Resume, payload.resume_id, current_user.id, "Resume not found."
     )
+    if application.selected_resume_id != resume.id:
+        raise HTTPException(status_code=409, detail="Select this resume for the application first.")
 
     result = match_resume_to_job(
         resume_text=resume.extracted_text,
@@ -86,6 +88,8 @@ def tailor_resume(
     resume = get_owned_or_404(
         db, Resume, payload.resume_id, current_user.id, "Resume not found."
     )
+    if application.selected_resume_id != resume.id:
+        raise HTTPException(status_code=409, detail="Select this resume for the application first.")
 
     try:
         result = tailor_resume_for_application(
@@ -110,6 +114,8 @@ def generate_full_tailored_resume(
     resume = get_owned_or_404(
         db, Resume, payload.resume_id, current_user.id, "Resume not found."
     )
+    if application.selected_resume_id != resume.id:
+        raise HTTPException(status_code=409, detail="Select this resume for the application first.")
 
     tailored_resume = (
         db.query(ApplicationTailoredResume)
@@ -122,6 +128,11 @@ def generate_full_tailored_resume(
     )
     if not tailored_resume:
         raise HTTPException(status_code=404, detail="No saved tailored resume found for this application.")
+    if tailored_resume.is_stale or tailored_resume.resume_version != resume.version:
+        raise HTTPException(
+            status_code=409,
+            detail="The tailored resume is stale. Regenerate it before building a full draft.",
+        )
 
     try:
         result = build_full_tailored_resume_draft(

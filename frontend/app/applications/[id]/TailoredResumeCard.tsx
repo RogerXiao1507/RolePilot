@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import {
   getApplicationTailoredResume,
-  getLatestResume,
   saveApplicationTailoredResume,
   tailorResumeForApplication,
 } from "@/lib/api"
@@ -15,28 +14,22 @@ import type {
 
 type TailoredResumeCardProps = {
   applicationId: number
+  resume: SavedResume | null
 }
 
 export default function TailoredResumeCard({
   applicationId,
+  resume,
 }: TailoredResumeCardProps) {
   const [loading, setLoading] = useState(false)
   const [loadingSavedTailoredResume, setLoadingSavedTailoredResume] = useState(true)
   const [error, setError] = useState("")
-  const [savedResume, setSavedResume] = useState<SavedResume | null>(null)
   const [savedTailoredMeta, setSavedTailoredMeta] =
     useState<SavedApplicationTailoredResume | null>(null)
   const [result, setResult] = useState<TailoredResumeContent | null>(null)
 
   useEffect(() => {
     async function loadData() {
-      try {
-        const resume = await getLatestResume()
-        setSavedResume(resume)
-      } catch (err) {
-        console.error(err)
-      }
-
       try {
         const savedTailored = await getApplicationTailoredResume(applicationId)
 
@@ -55,22 +48,22 @@ export default function TailoredResumeCard({
     }
 
     loadData()
-  }, [applicationId])
+  }, [applicationId, resume?.id])
 
   async function handleTailorResume() {
     setLoading(true)
     setError("")
 
     try {
-      if (!savedResume) {
+      if (!resume) {
         throw new Error("No saved resume found")
       }
 
-      const data = await tailorResumeForApplication(applicationId, savedResume.id)
+      const data = await tailorResumeForApplication(applicationId, resume.id)
 
       const saved = await saveApplicationTailoredResume({
         application_id: applicationId,
-        resume_id: savedResume.id,
+        resume_id: resume.id,
         tailored_summary: data.tailored_summary,
         tailored_skills: data.tailored_skills,
         tailored_bullets: data.tailored_bullets,
@@ -101,7 +94,7 @@ export default function TailoredResumeCard({
 
         <button
           onClick={handleTailorResume}
-          disabled={loading || !savedResume}
+          disabled={loading || !resume}
           className="rp-button-primary"
         >
           {loading ? "Tailoring Resume..." : result ? "Refresh Tailored Resume" : "Tailor Resume"}
@@ -112,7 +105,7 @@ export default function TailoredResumeCard({
         <div className="rounded-lg border border-[var(--border)] bg-white p-4">
           <p className="rp-eyebrow">Saved resume</p>
           <p className="mt-2 text-sm font-semibold">
-            {savedResume ? savedResume.file_name : "No saved resume found"}
+            {resume ? `${resume.label} · ${resume.file_name}` : "No resume selected"}
           </p>
         </div>
 
@@ -123,6 +116,9 @@ export default function TailoredResumeCard({
               ? `Last tailored ${new Date(savedTailoredMeta.updated_at).toLocaleString()}`
               : "No saved tailored draft"}
           </p>
+          {savedTailoredMeta?.is_stale && (
+            <p className="mt-2 text-xs font-bold text-amber-700">Stale — regenerate before building a full draft.</p>
+          )}
         </div>
       </div>
 
@@ -210,6 +206,20 @@ export default function TailoredResumeCard({
                           ))}
                         </div>
                       </div>
+                    )}
+                    {bullet.citations.length > 0 && (
+                      <details className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-3">
+                        <summary className="cursor-pointer text-xs font-bold">
+                          Grounding sources ({bullet.citations.length})
+                        </summary>
+                        <ul className="mt-2 space-y-1 font-mono text-xs text-[var(--muted)]">
+                          {bullet.citations.map((citation) => (
+                            <li key={`${citation.source_type}-${citation.source_id}-${citation.source_version}`}>
+                              {citation.source_type}:{citation.source_id} · v{citation.source_version}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
                     )}
                   </article>
                 ))}

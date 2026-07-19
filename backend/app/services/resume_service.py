@@ -73,7 +73,9 @@ def analyze_resume_text(text: str) -> dict:
                             "in software engineering, hardware engineering, and technical roles. "
                             "Analyze the resume text and return only valid JSON matching the schema. "
                             "Do not invent experience. Focus on strengths, weaknesses, wording quality, "
-                            "missing metrics, and practical improvement suggestions."
+                            "missing metrics, and practical improvement suggestions. Also parse the resume "
+                            "into the supplied structured sections. Every structured value must be copied "
+                            "or faithfully normalized from the resume; use null or an empty list when absent."
                         ),
                     }
                 ],
@@ -116,6 +118,44 @@ def analyze_resume_text(text: str) -> dict:
                             "type": "array",
                             "items": {"type": "string"},
                         },
+                        "structured_data": {
+                            "type": "object",
+                            "properties": {
+                                "contact": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {"type": ["string", "null"]},
+                                        "email": {"type": ["string", "null"]},
+                                        "phone": {"type": ["string", "null"]},
+                                        "location": {"type": ["string", "null"]},
+                                        "links": {"type": "array", "items": {"type": "string"}},
+                                    },
+                                    "required": ["name", "email", "phone", "location", "links"],
+                                    "additionalProperties": False,
+                                },
+                                "education": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+                                "experience": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+                                "projects": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+                                "skills": {"type": "array", "items": {"type": "string"}},
+                                "other": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+                            },
+                            "required": ["contact", "education", "experience", "projects", "skills", "other"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "$defs": {
+                        "entry": {
+                            "type": "object",
+                            "properties": {
+                                "title": {"type": "string"},
+                                "subtitle": {"type": ["string", "null"]},
+                                "location": {"type": ["string", "null"]},
+                                "date_range": {"type": ["string", "null"]},
+                                "bullets": {"type": "array", "items": {"type": "string"}},
+                            },
+                            "required": ["title", "subtitle", "location", "date_range", "bullets"],
+                            "additionalProperties": False,
+                        }
                     },
                     "required": [
                         "summary",
@@ -124,6 +164,7 @@ def analyze_resume_text(text: str) -> dict:
                         "wording_issues",
                         "missing_metrics",
                         "suggested_improvements",
+                        "structured_data",
                     ],
                     "additionalProperties": False,
                 },

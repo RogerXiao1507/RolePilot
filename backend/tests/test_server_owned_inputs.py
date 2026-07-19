@@ -41,6 +41,7 @@ class FakeSession:
 def test_match_loads_authoritative_resume_and_job_from_database(monkeypatch):
     application = SimpleNamespace(
         id=7,
+        selected_resume_id=9,
         role_title="Backend Engineer",
         company="Example",
         ai_summary="Build APIs",
@@ -96,7 +97,7 @@ def test_match_rejects_browser_supplied_resume_text():
 
 
 def test_tailor_loads_the_requested_resume_id(monkeypatch):
-    application = SimpleNamespace(id=7)
+    application = SimpleNamespace(id=7, selected_resume_id=9)
     resume = SimpleNamespace(id=9)
     db = FakeSession({Application: [application], Resume: [resume]})
     captured = {}
@@ -130,9 +131,14 @@ def test_tailor_loads_the_requested_resume_id(monkeypatch):
 
 
 def test_full_draft_uses_requested_resume_and_saved_tailoring(monkeypatch):
-    application = SimpleNamespace(id=7)
-    resume = SimpleNamespace(id=9)
-    tailored = SimpleNamespace(application_id=7, resume_id=9)
+    application = SimpleNamespace(id=7, selected_resume_id=9)
+    resume = SimpleNamespace(id=9, version=1)
+    tailored = SimpleNamespace(
+        application_id=7,
+        resume_id=9,
+        resume_version=1,
+        is_stale=False,
+    )
     evidence = SimpleNamespace(id=3)
     db = FakeSession(
         {

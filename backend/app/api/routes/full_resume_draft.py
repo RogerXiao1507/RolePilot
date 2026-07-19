@@ -20,10 +20,12 @@ def save_full_resume_draft(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    get_owned_or_404(
+    application = get_owned_or_404(
         db, Application, payload.application_id, current_user.id, "Application not found."
     )
-    get_owned_or_404(db, Resume, payload.resume_id, current_user.id, "Resume not found.")
+    resume = get_owned_or_404(db, Resume, payload.resume_id, current_user.id, "Resume not found.")
+    if application.selected_resume_id != resume.id:
+        raise HTTPException(status_code=409, detail="Select this resume for the application first.")
 
     existing = (
         db.query(ApplicationFullResumeDraft)
@@ -38,6 +40,8 @@ def save_full_resume_draft(
 
     if existing:
         existing.resume_id = payload.resume_id
+        existing.resume_version = resume.version
+        existing.is_stale = False
         existing.draft_data = draft_payload
         db.commit()
         db.refresh(existing)
@@ -47,6 +51,8 @@ def save_full_resume_draft(
         user_id=current_user.id,
         application_id=payload.application_id,
         resume_id=payload.resume_id,
+        resume_version=resume.version,
+        is_stale=False,
         draft_data=draft_payload,
     )
 

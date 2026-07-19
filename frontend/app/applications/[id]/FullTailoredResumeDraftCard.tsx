@@ -5,7 +5,6 @@ import {
   downloadTailoredResumeDocx,
   downloadTailoredResumePdf,
   getFullTailoredResumeDraft,
-  getLatestResume,
   getSavedFullResumeDraft,
   saveFullResumeDraft,
 } from "@/lib/api"
@@ -17,30 +16,24 @@ import type {
 
 type FullTailoredResumeDraftCardProps = {
   applicationId: number
+  resume: SavedResume | null
 }
 
 export default function FullTailoredResumeDraftCard({
   applicationId,
+  resume,
 }: FullTailoredResumeDraftCardProps) {
   const [loading, setLoading] = useState(false)
   const [loadingSavedDraft, setLoadingSavedDraft] = useState(true)
   const [exportingDocx, setExportingDocx] = useState(false)
   const [exportingPdf, setExportingPdf] = useState(false)
   const [error, setError] = useState("")
-  const [savedResume, setSavedResume] = useState<SavedResume | null>(null)
   const [savedDraftMeta, setSavedDraftMeta] =
     useState<SavedApplicationFullResumeDraft | null>(null)
   const [result, setResult] = useState<FullTailoredResumeDraft | null>(null)
 
   useEffect(() => {
     async function loadData() {
-      try {
-        const resume = await getLatestResume()
-        setSavedResume(resume)
-      } catch (err) {
-        console.error(err)
-      }
-
       try {
         const savedDraft = await getSavedFullResumeDraft(applicationId)
         setSavedDraftMeta(savedDraft)
@@ -53,22 +46,22 @@ export default function FullTailoredResumeDraftCard({
     }
 
     loadData()
-  }, [applicationId])
+  }, [applicationId, resume?.id])
 
   async function handleGenerateFullDraft() {
     setLoading(true)
     setError("")
 
     try {
-      if (!savedResume) {
+      if (!resume) {
         throw new Error("No saved resume found")
       }
 
-      const data = await getFullTailoredResumeDraft(applicationId, savedResume.id)
+      const data = await getFullTailoredResumeDraft(applicationId, resume.id)
 
       const saved = await saveFullResumeDraft({
         application_id: applicationId,
-        resume_id: savedResume.id,
+        resume_id: resume.id,
         draft_data: data,
       })
 
@@ -137,18 +130,23 @@ export default function FullTailoredResumeDraftCard({
               Last saved: {new Date(savedDraftMeta.updated_at).toLocaleString()}
             </p>
           )}
+          {savedDraftMeta?.is_stale && (
+            <p className="mt-2 text-xs font-bold text-amber-700">
+              Stale — regenerate this draft before export.
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleGenerateFullDraft}
-            disabled={loading}
+            disabled={loading || !resume}
             className="rp-button-primary"
           >
             {loading ? "Generating..." : result ? "Refresh Full Draft" : "Generate Full Draft"}
           </button>
 
-          {result && (
+          {result && !savedDraftMeta?.is_stale && (
             <>
               <button
                 onClick={handleDownloadDocx}

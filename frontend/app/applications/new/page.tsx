@@ -16,7 +16,10 @@ export default function NewApplicationPage() {
               Back to Dashboard
             </Link>
             <Link href="/resume" className="rp-nav-link">
-              Resume Analyzer
+              Resumes
+            </Link>
+            <Link href="/evidence" className="rp-nav-link">
+              Evidence
             </Link>
             <AccountMenu />
           </div>

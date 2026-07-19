@@ -1,5 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.schemas.tailor import SourceCitation
 
 
 class SavedTailoredBullet(BaseModel):
@@ -8,6 +10,7 @@ class SavedTailoredBullet(BaseModel):
     original_bullet: str
     tailored_bullet: str
     evidence_used: list[str]
+    citations: list[SourceCitation] = Field(default_factory=list)
 
 
 class ApplicationTailoredResumeCreate(BaseModel):
@@ -23,6 +26,8 @@ class ApplicationTailoredResumeResponse(BaseModel):
     id: int
     application_id: int
     resume_id: int
+    resume_version: int
+    is_stale: bool
     tailored_summary: str
     tailored_skills: list[str]
     tailored_bullets: list[SavedTailoredBullet]

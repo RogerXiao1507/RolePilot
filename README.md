@@ -2,6 +2,9 @@
 
 Authentication and local identity-provider setup are documented in [`docs/authentication-setup.md`](docs/authentication-setup.md). The architecture decision is recorded in [`docs/adr/0001-authentication-and-session-boundary.md`](docs/adr/0001-authentication-and-session-boundary.md).
 
+The versioned resume/evidence model and private object-storage deployment are
+documented in [`docs/phase2-data-foundation.md`](docs/phase2-data-foundation.md).
+
 link to website: https://rolepilot-nu.vercel.app/?jr_id=69a677a1d706a731db3865db
 
 RolePilot is an AI powered career copilot that helps users track job and internship applications, analyze resumes, compare resumes against job postings, generate tailored resume content, and export polished resume drafts.
@@ -21,7 +24,10 @@ It goes beyond a basic application tracker by combining structured application m
 - Save parsed company, role title, location, required skills, preferred skills, keywords, summary, and next steps
 
 ### Resume analysis
-- Upload a PDF resume
+- Upload and label multiple PDF resumes
+- Choose a default resume and a different resume per application
+- Archive, restore, or delete resumes
+- Edit parsed resume sections and track source versions
 - Extract text and analyze:
   - strengths
   - weaknesses
@@ -40,7 +46,9 @@ It goes beyond a basic application tracker by combining structured application m
   - suggested resume changes
 
 ### RAG based resume tailoring
-- Save structured project evidence
+- Save, edit, delete, and retry structured project evidence
+- Track outcomes, dates, skills, links, bullets, and verified metrics
+- Convert parsed resume bullets into stable evidence sources
 - Chunk project evidence into smaller retrievable units
 - Generate embeddings for chunks
 - Store embeddings in PostgreSQL using pgvector
@@ -49,6 +57,7 @@ It goes beyond a basic application tracker by combining structured application m
   - saved resume
   - application job data
   - retrieved project evidence
+- Show the stable source ID and version cited by each tailored bullet
 
 ### Tailored resume generation
 - Generate tailored bullets and skill emphasis for a specific application

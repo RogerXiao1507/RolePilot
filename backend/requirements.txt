@@ -15,3 +15,4 @@ beautifulsoup4
 jinja2
 httpx
 PyJWT[crypto]
+boto3

@@ -19,6 +19,7 @@ from app.models.application_tailored_resume import ApplicationTailoredResume
 from app.models.project_evidence import ProjectEvidence
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
 from app.models.resume import Resume
+from app.models.resume_source_item import ResumeSourceItem
 from app.models.user import User
 
 
@@ -28,6 +29,7 @@ OWNED_MODELS = (
     ApplicationTailoredResume,
     ApplicationFullResumeDraft,
     ProjectEvidenceChunk,
+    ResumeSourceItem,
     Application,
     Resume,
     ProjectEvidence,

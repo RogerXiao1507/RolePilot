@@ -1,12 +1,13 @@
 import Link from "next/link";
 import AccountMenu from "@/components/AccountMenu";
-import { getApplication } from "@/lib/server-api";
+import { getApplication, getResume, getResumes } from "@/lib/server-api";
 import DeleteButton from "./DeleteButton";
 import ResumeJobMatchCard from "./ResumeJobMatchCard";
 import ExpandableTextCard from "./ExpandableTextCard";
 import { getStatusClasses } from "@/lib/statusStyles";
 import TailoredResumeCard from "./TailoredResumeCard";
 import FullTailoredResumeDraftCard from "./FullTailoredResumeDraftCard";
+import ApplicationResumeSelector from "./ApplicationResumeSelector";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -14,7 +15,17 @@ type PageProps = {
 
 export default async function ApplicationDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const application = await getApplication(Number(id));
+  const [application, resumes] = await Promise.all([
+    getApplication(Number(id)),
+    getResumes(),
+  ]);
+  const selectedResumeItem =
+    resumes.find((resume) => resume.id === application.selected_resume_id) ??
+    resumes.find((resume) => resume.is_default) ??
+    null;
+  const selectedResume = selectedResumeItem
+    ? await getResume(selectedResumeItem.id)
+    : null;
 
   const requiredSkills = application.required_skills ?? [];
   const preferredSkills = application.preferred_skills ?? [];
@@ -35,7 +46,10 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
               Dashboard
             </Link>
             <Link href="/resume" className="rp-nav-link">
-              Resume Analyzer
+              Resumes
+            </Link>
+            <Link href="/evidence" className="rp-nav-link">
+              Evidence
             </Link>
             <Link href={`/applications/${application.id}/edit`} className="rp-button-secondary">
               Edit Application
@@ -144,11 +158,16 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
               </div>
             </section>
 
-            <TailoredResumeCard applicationId={application.id} />
-            <FullTailoredResumeDraftCard applicationId={application.id} />
+            <TailoredResumeCard applicationId={application.id} resume={selectedResume} />
+            <FullTailoredResumeDraftCard applicationId={application.id} resume={selectedResume} />
           </div>
 
           <aside className="space-y-4 lg:sticky lg:top-5 lg:self-start">
+            <ApplicationResumeSelector
+              applicationId={application.id}
+              resumes={resumes}
+              selectedResumeId={selectedResume?.id ?? null}
+            />
             <section className="rp-panel rp-section">
               <p className="rp-eyebrow">Controls</p>
               <div className="mt-4 grid gap-3">
@@ -162,7 +181,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
               </div>
             </section>
 
-            <ResumeJobMatchCard applicationId={application.id} />
+            <ResumeJobMatchCard applicationId={application.id} resume={selectedResume} />
           </aside>
         </div>
       </div>

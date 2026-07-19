@@ -17,6 +17,8 @@ class ApplicationResumeMatchResponse(BaseModel):
     id: int
     application_id: int
     resume_id: int
+    resume_version: int
+    is_stale: bool
     overall_match_summary: str
     matched_skills: list[str]
     missing_skills: list[str]

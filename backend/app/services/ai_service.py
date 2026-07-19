@@ -12,6 +12,8 @@ from app.core.config import settings
 from app.models.application import Application
 from app.models.project_evidence import ProjectEvidence
 from app.models.resume import Resume
+from app.models.resume_source_item import ResumeSourceItem
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.services.retrieval_service import retrieve_relevant_chunks_for_application_hybrid
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
@@ -382,6 +384,32 @@ def tailor_resume_for_application(
         top_k=5,
     )
 
+    resume_source_items = []
+    if getattr(resume, "id", None) is not None and hasattr(db, "scalars"):
+        resume_source_items = list(
+            db.scalars(
+                select(ResumeSourceItem).where(
+                    ResumeSourceItem.resume_id == resume.id,
+                    ResumeSourceItem.user_id == resume.user_id,
+                    ResumeSourceItem.is_active.is_(True),
+                    ResumeSourceItem.source_version == resume.version,
+                )
+            ).all()
+        )
+
+    source_catalog: dict[tuple[str, str, int], str] = {}
+    for item in resume_source_items:
+        source_catalog[("resume_item", str(item.id), item.source_version)] = item.content
+    for chunk in relevant_chunks:
+        source_catalog[
+            ("evidence", str(chunk.project_evidence_id), chunk.source_version)
+        ] = chunk.chunk_text
+
+    source_catalog_text = "\n\n".join(
+        f"[{source_type} id={source_id} version={source_version}]\n{content}"
+        for (source_type, source_id, source_version), content in source_catalog.items()
+    )
+
     retrieved_evidence_text = "\n\n".join(
         [
             f"""
@@ -419,11 +447,13 @@ Rules:
   - original_bullet
   - tailored_bullet
   - evidence_used
+  - citations
 - section should be something like "Projects", "Research", "Experience", or "Skills"
 - source_title should identify the project, role, or source area the bullet comes from
 - original_bullet should identify the resume or project bullet that should be replaced
 - tailored_bullet should be the improved replacement bullet
 - evidence_used should be a short list naming the specific source evidence used, such as project titles or "Saved Resume"
+- citations must be a list with at least one exact source from the Source Catalog. Each citation object must contain source_type, source_id, and source_version. Never invent an ID or version.
 - tailored_bullet should aim to follow XYZ style:
   Accomplished X as measured by Y by doing Z
 - prefer quantified results when supported by the provided evidence
@@ -454,6 +484,9 @@ Extracted Resume Text:
 
 Retrieved Project Evidence:
 {retrieved_evidence_text if retrieved_evidence_text else "No additional project evidence retrieved."}
+
+Source Catalog for citations:
+{source_catalog_text if source_catalog_text else "No structured source catalog is available."}
 """
 
     response = client.responses.create(
@@ -538,6 +571,52 @@ Retrieved Project Evidence:
                 continue
             normalized_evidence.append(str(item).strip())
 
+        normalized_citations = []
+        for citation in bullet.get("citations") or []:
+            if not isinstance(citation, dict):
+                continue
+            try:
+                source_version = int(citation.get("source_version"))
+            except (TypeError, ValueError):
+                continue
+            key = (
+                str(citation.get("source_type") or "").strip(),
+                str(citation.get("source_id") or "").strip(),
+                source_version,
+            )
+            if key not in source_catalog:
+                continue
+            normalized_citations.append(
+                {
+                    "source_type": key[0],
+                    "source_id": key[1],
+                    "source_version": key[2],
+                }
+            )
+
+        if source_catalog and not normalized_citations:
+            comparison_text = " ".join(
+                str(bullet.get(field) or "")
+                for field in ("source_title", "original_bullet", "tailored_bullet")
+            )
+            comparison_tokens = _tokenize_for_match(comparison_text)
+            ranked_sources = sorted(
+                source_catalog.items(),
+                key=lambda item: len(
+                    comparison_tokens.intersection(_tokenize_for_match(item[1]))
+                ),
+                reverse=True,
+            )
+            if ranked_sources:
+                key, _content = ranked_sources[0]
+                normalized_citations = [
+                    {
+                        "source_type": key[0],
+                        "source_id": key[1],
+                        "source_version": key[2],
+                    }
+                ]
+
         normalized_bullets.append(
             {
                 "section": str(bullet.get("section", "Projects")).strip(),
@@ -545,10 +624,16 @@ Retrieved Project Evidence:
                 "original_bullet": str(bullet.get("original_bullet", "")).strip(),
                 "tailored_bullet": str(bullet.get("tailored_bullet", "")).strip(),
                 "evidence_used": [item for item in normalized_evidence if item],
+                "citations": normalized_citations,
             }
         )
 
     result["tailored_bullets"] = normalized_bullets
+
+    if source_catalog and any(not bullet["citations"] for bullet in normalized_bullets):
+        raise GeneratedContentGroundingError(
+            "Generated tailored content did not cite a valid source item."
+        )
 
     supported_numbers = set(NUMBER_PATTERN.findall(grounding_source_text))
     generated_claim_text = "\n".join(

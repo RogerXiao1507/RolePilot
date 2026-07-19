@@ -1,5 +1,6 @@
 export type Application = {
   id: number;
+  selected_resume_id: number | null;
   company: string;
   role_title: string;
   status: string;
@@ -15,6 +16,7 @@ export type Application = {
 };
 
 export type ApplicationCreate = {
+  selected_resume_id?: number | null;
   company: string;
   role_title: string;
   status?: string;
@@ -49,6 +51,30 @@ export type ResumeAnalysis = {
   missing_metrics: string[]
   suggested_improvements: string[]
   extracted_text: string
+  structured_data: ResumeStructuredData
+}
+
+export type ResumeStructuredEntry = {
+  title: string
+  subtitle: string | null
+  location: string | null
+  date_range: string | null
+  bullets: string[]
+}
+
+export type ResumeStructuredData = {
+  contact: {
+    name: string | null
+    email: string | null
+    phone: string | null
+    location: string | null
+    links: string[]
+  }
+  education: ResumeStructuredEntry[]
+  experience: ResumeStructuredEntry[]
+  projects: ResumeStructuredEntry[]
+  skills: string[]
+  other: ResumeStructuredEntry[]
 }
 
 export type ResumeJobMatch = {
@@ -61,21 +87,43 @@ export type ResumeJobMatch = {
 }
 export type SavedResume = {
   id: number
+  label: string
   file_name: string
   extracted_text: string
+  structured_data: ResumeStructuredData
+  source_fingerprint: string
+  version: number
+  has_original_upload: boolean
   summary: string
   strengths: string[]
   weaknesses: string[]
   wording_issues: string[]
   missing_metrics: string[]
   suggested_improvements: string[]
+  is_default: boolean
+  is_archived: boolean
   created_at: string
+  updated_at: string
+}
+
+export type ResumeListItem = {
+  id: number
+  label: string
+  file_name: string
+  is_default: boolean
+  is_archived: boolean
+  version: number
+  source_fingerprint: string
+  created_at: string
+  updated_at: string
 }
 
 export type SavedApplicationResumeMatch = {
   id: number
   application_id: number
   resume_id: number
+  resume_version: number
+  is_stale: boolean
   overall_match_summary: string
   matched_skills: string[]
   missing_skills: string[]
@@ -92,6 +140,13 @@ export type TailoredBullet = {
   original_bullet: string
   tailored_bullet: string
   evidence_used: string[]
+  citations: SourceCitation[]
+}
+
+export type SourceCitation = {
+  source_type: "resume_item" | "evidence"
+  source_id: string
+  source_version: number
 }
 
 export type TailoredResumeContent = {
@@ -107,12 +162,15 @@ export type SavedTailoredBullet = {
   original_bullet: string
   tailored_bullet: string
   evidence_used: string[]
+  citations: SourceCitation[]
 }
 
 export type SavedApplicationTailoredResume = {
   id: number
   application_id: number
   resume_id: number
+  resume_version: number
+  is_stale: boolean
   tailored_summary: string
   tailored_skills: string[]
   tailored_bullets: SavedTailoredBullet[]
@@ -167,7 +225,69 @@ export type SavedApplicationFullResumeDraft = {
   id: number
   application_id: number
   resume_id: number
+  resume_version: number
+  is_stale: boolean
   draft_data: FullTailoredResumeDraft
+  created_at: string
+  updated_at: string
+}
+
+export type EvidenceMetric = {
+  label: string
+  value: string
+  context: string | null
+}
+
+export type ProjectEvidence = {
+  id: number
+  title: string
+  category: string
+  description: string
+  skills: string[]
+  keywords: string[]
+  bullet_bank: string[]
+  outcome: string | null
+  start_date: string | null
+  end_date: string | null
+  links: string[]
+  verified_metrics: EvidenceMetric[]
+  ai_suggested_metrics: EvidenceMetric[]
+  version: number
+  content_fingerprint: string
+  ingestion_status: "pending" | "ready" | "failed"
+  ingestion_error: string | null
+  resume_source_item_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ProjectEvidenceInput = {
+  title: string
+  category: string
+  description: string
+  skills: string[]
+  keywords: string[]
+  bullet_bank: string[]
+  outcome?: string | null
+  start_date?: string | null
+  end_date?: string | null
+  links: string[]
+  verified_metrics: EvidenceMetric[]
+  resume_source_item_id?: string | null
+}
+
+export type ResumeSourceItem = {
+  id: string
+  resume_id: number
+  source_version: number
+  section: string
+  item_type: string
+  title: string | null
+  content: string
+  ordinal: number
+  source_metadata: Record<string, unknown>
+  is_user_verified: boolean
+  is_active: boolean
   created_at: string
   updated_at: string
 }

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react"
 import {
   getApplicationResumeMatch,
-  getLatestResume,
   matchResumeToJob,
   saveApplicationResumeMatch,
 } from "@/lib/api"
@@ -15,28 +14,22 @@ import type {
 
 type ResumeJobMatchCardProps = {
   applicationId: number
+  resume: SavedResume | null
 }
 
 export default function ResumeJobMatchCard({
   applicationId,
+  resume,
 }: ResumeJobMatchCardProps) {
   const [loading, setLoading] = useState(false)
   const [loadingSavedMatch, setLoadingSavedMatch] = useState(true)
   const [error, setError] = useState("")
-  const [savedResume, setSavedResume] = useState<SavedResume | null>(null)
   const [savedMatchMeta, setSavedMatchMeta] =
     useState<SavedApplicationResumeMatch | null>(null)
   const [result, setResult] = useState<ResumeJobMatch | null>(null)
 
   useEffect(() => {
     async function loadData() {
-      try {
-        const resume = await getLatestResume()
-        setSavedResume(resume)
-      } catch (err) {
-        console.error(err)
-      }
-
       try {
         const savedMatch = await getApplicationResumeMatch(applicationId)
         setSavedMatchMeta(savedMatch)
@@ -56,17 +49,17 @@ export default function ResumeJobMatchCard({
     }
 
     loadData()
-  }, [applicationId])
+  }, [applicationId, resume?.id])
 
   async function handleMatchResume() {
     setError("")
 
-    if (!savedResume) {
+    if (!resume) {
       setError("No saved resume found. Upload and analyze a resume before matching.")
       return
     }
 
-    if (!savedResume.extracted_text?.trim()) {
+    if (!resume.extracted_text?.trim()) {
       setError("Saved resume text is missing. Re-upload your resume to rebuild the match input.")
       return
     }
@@ -76,12 +69,12 @@ export default function ResumeJobMatchCard({
     try {
       const data = await matchResumeToJob({
         application_id: applicationId,
-        resume_id: savedResume.id,
+        resume_id: resume.id,
       })
 
       const saved = await saveApplicationResumeMatch({
         application_id: applicationId,
-        resume_id: savedResume.id,
+        resume_id: resume.id,
         overall_match_summary: data.overall_match_summary,
         matched_skills: data.matched_skills,
         missing_skills: data.missing_skills,
@@ -137,7 +130,7 @@ export default function ResumeJobMatchCard({
           <p className="rp-eyebrow">Resume fit</p>
           <h2 className="rp-section-title mt-2">Match scorecard</h2>
           <p className="rp-section-copy">
-            Compare your latest saved resume against this role.
+            Compare the resume selected for this application against the role.
           </p>
         </div>
 
@@ -147,7 +140,7 @@ export default function ResumeJobMatchCard({
       <div className="mt-5 rounded-lg border border-[var(--border)] bg-white p-4">
         <p className="rp-eyebrow">Current resume</p>
         <p className="mt-2 text-sm font-semibold">
-          {savedResume ? savedResume.file_name : "No saved resume found"}
+          {resume ? `${resume.label} · ${resume.file_name}` : "No resume selected"}
         </p>
 
         {savedMatchMeta && (
@@ -155,13 +148,16 @@ export default function ResumeJobMatchCard({
             Last matched: {new Date(savedMatchMeta.updated_at).toLocaleString()}
           </p>
         )}
+        {savedMatchMeta?.is_stale && (
+          <p className="mt-2 text-xs font-bold text-amber-700">Stale — run the match again.</p>
+        )}
       </div>
 
       {error && <div className="rp-error mt-4">{error}</div>}
 
       <button
         onClick={handleMatchResume}
-        disabled={loading || !savedResume}
+        disabled={loading || !resume}
         className="rp-button-primary mt-4 w-full"
       >
         {loading ? "Matching Resume..." : result ? "Refresh Match" : "Match Resume to Job"}

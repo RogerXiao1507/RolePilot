@@ -55,8 +55,15 @@ def test_docx_export_uses_the_same_saved_draft_every_time(monkeypatch, tmp_path)
     draft_data = saved_draft_data()
     db = FakeSession(
         {
-            Application: [SimpleNamespace(id=4)],
-            ApplicationFullResumeDraft: [SimpleNamespace(draft_data=draft_data)],
+            Application: [SimpleNamespace(id=4, selected_resume_id=9)],
+            ApplicationFullResumeDraft: [
+                SimpleNamespace(
+                    draft_data=draft_data,
+                    resume_id=9,
+                    resume_version=1,
+                    is_stale=False,
+                )
+            ],
         }
     )
     exported_drafts = []

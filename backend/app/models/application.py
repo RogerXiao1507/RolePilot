@@ -1,7 +1,18 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, Text, DateTime, UniqueConstraint, func
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
@@ -17,6 +28,19 @@ class Application(Base):
             name="ck_applications_status",
         ),
         UniqueConstraint("id", "user_id", name="uq_applications_id_user_id"),
+        ForeignKeyConstraint(
+            ["selected_resume_id", "user_id"],
+            ["resumes.id", "resumes.user_id"],
+            name="fk_applications_selected_resume_owner",
+            ondelete="RESTRICT",
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+        Index(
+            "ix_applications_user_selected_resume",
+            "user_id",
+            "selected_resume_id",
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -26,6 +50,7 @@ class Application(Base):
         nullable=False,
         index=True,
     )
+    selected_resume_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     company: Mapped[str] = mapped_column(String(200), nullable=False)
     role_title: Mapped[str] = mapped_column(String(200), nullable=False)
     status: Mapped[ApplicationStatus] = mapped_column(

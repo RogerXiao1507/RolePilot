@@ -17,6 +17,7 @@ from app.models.application_tailored_resume import ApplicationTailoredResume
 from app.models.project_evidence import ProjectEvidence
 from app.models.project_evidence_chunk import ProjectEvidenceChunk
 from app.models.resume import Resume
+from app.models.resume_source_item import ResumeSourceItem
 from app.models.user import User
 from app.services import retrieval_service
 
@@ -311,6 +312,7 @@ def test_account_deletion_cascades_all_workspace_data(tenant_client):
         for model in (
             Application,
             Resume,
+            ResumeSourceItem,
             ProjectEvidence,
             ProjectEvidenceChunk,
             ApplicationResumeMatch,
@@ -339,9 +341,323 @@ def test_row_level_security_is_enabled_for_every_owned_table(tenant_client):
         "users",
         "applications",
         "resumes",
+        "resume_source_items",
         "project_evidence",
         "project_evidence_chunks",
         "application_resume_matches",
         "application_tailored_resumes",
         "application_full_resume_drafts",
     }.issubset(rls_tables)
+
+
+def test_resume_library_defaults_selection_archive_and_cross_user_guards(tenant_client):
+    application = _create_application(tenant_client, USER_A, "Resume Choice Co")
+    first = _create_resume(tenant_client, USER_A, "general.pdf")
+    second_response = tenant_client.post(
+        "/resume/save",
+        headers=_headers(USER_A),
+        json={**_resume_payload("backend.pdf"), "label": "Backend", "make_default": True},
+    )
+    assert second_response.status_code == 200, second_response.text
+    second = second_response.json()
+
+    items = tenant_client.get("/resume", headers=_headers(USER_A)).json()
+    assert [item["label"] for item in items] == ["Backend", "general"]
+    assert second["is_default"] is True
+    assert items[0]["is_default"] is True
+    assert items[1]["id"] == first["id"]
+    assert items[1]["is_default"] is False
+
+    # Changing the global default does not silently rewrite an explicit application choice.
+    saved_application = tenant_client.get(
+        f"/applications/{application['id']}", headers=_headers(USER_A)
+    ).json()
+    assert saved_application["selected_resume_id"] == first["id"]
+
+    selection = tenant_client.patch(
+        f"/applications/{application['id']}",
+        headers=_headers(USER_A),
+        json={"selected_resume_id": second["id"]},
+    )
+    assert selection.status_code == 200, selection.text
+    assert selection.json()["selected_resume_id"] == second["id"]
+
+    saved_match = tenant_client.post(
+        "/matches",
+        headers=_headers(USER_A),
+        json=_match_payload(application["id"], second["id"]),
+    )
+    assert saved_match.status_code == 200
+
+    foreign = _create_resume(tenant_client, USER_B, "private.pdf")
+    denied = tenant_client.patch(
+        f"/applications/{application['id']}",
+        headers=_headers(USER_A),
+        json={"selected_resume_id": foreign["id"]},
+    )
+    assert denied.status_code == 404
+
+    archived = tenant_client.patch(
+        f"/resume/{second['id']}",
+        headers=_headers(USER_A),
+        json={"is_archived": True},
+    )
+    assert archived.status_code == 200, archived.text
+    assert archived.json()["is_archived"] is True
+    assert tenant_client.get(
+        f"/applications/{application['id']}", headers=_headers(USER_A)
+    ).json()["selected_resume_id"] == first["id"]
+    assert tenant_client.get(
+        f"/matches/application/{application['id']}", headers=_headers(USER_A)
+    ).json()["is_stale"] is True
+
+
+def test_resume_source_ids_stay_stable_and_edits_mark_artifacts_stale(tenant_client):
+    resume = _create_resume(tenant_client, USER_A, "versioned.pdf")
+    application = _create_application(tenant_client, USER_A, "Version Co")
+    selected = tenant_client.patch(
+        f"/applications/{application['id']}",
+        headers=_headers(USER_A),
+        json={"selected_resume_id": resume["id"]},
+    )
+    assert selected.status_code == 200
+    match = tenant_client.post(
+        "/matches",
+        headers=_headers(USER_A),
+        json=_match_payload(application["id"], resume["id"]),
+    )
+    assert match.status_code == 200, match.text
+
+    structured = {
+        "contact": {"name": "Candidate", "email": None, "phone": None, "location": None, "links": []},
+        "education": [],
+        "experience": [
+            {
+                "title": "Engineer",
+                "subtitle": "Example",
+                "location": None,
+                "date_range": "2025",
+                "bullets": ["Built a Python API."],
+            }
+        ],
+        "projects": [],
+        "skills": ["Python"],
+        "other": [],
+    }
+    first_update = tenant_client.put(
+        f"/resume/{resume['id']}/structured-data",
+        headers=_headers(USER_A),
+        json={"structured_data": structured},
+    )
+    assert first_update.status_code == 200, first_update.text
+    assert first_update.json()["version"] == 2
+    source_items = tenant_client.get(
+        f"/resume/{resume['id']}/source-items", headers=_headers(USER_A)
+    ).json()
+    bullet_id = next(item["id"] for item in source_items if item["item_type"] == "bullet")
+
+    structured["experience"][0]["bullets"] = ["Built and deployed a Python API."]
+    second_update = tenant_client.put(
+        f"/resume/{resume['id']}/structured-data",
+        headers=_headers(USER_A),
+        json={"structured_data": structured},
+    )
+    assert second_update.status_code == 200
+    source_items = tenant_client.get(
+        f"/resume/{resume['id']}/source-items", headers=_headers(USER_A)
+    ).json()
+    updated_bullet = next(item for item in source_items if item["item_type"] == "bullet")
+    assert updated_bullet["id"] == bullet_id
+    assert updated_bullet["source_version"] == 3
+    assert updated_bullet["content"] == "Built and deployed a Python API."
+
+    # Inserting a new bullet before an unchanged one must not shift that source's UUID.
+    structured["experience"][0]["bullets"] = [
+        "Documented the API for internal users.",
+        "Built and deployed a Python API.",
+    ]
+    inserted_update = tenant_client.put(
+        f"/resume/{resume['id']}/structured-data",
+        headers=_headers(USER_A),
+        json={"structured_data": structured},
+    )
+    assert inserted_update.status_code == 200
+    source_items = tenant_client.get(
+        f"/resume/{resume['id']}/source-items", headers=_headers(USER_A)
+    ).json()
+    preserved_bullet = next(
+        item
+        for item in source_items
+        if item["content"] == "Built and deployed a Python API."
+    )
+    assert preserved_bullet["id"] == bullet_id
+    assert preserved_bullet["source_version"] == 4
+
+    saved_match = tenant_client.get(
+        f"/matches/application/{application['id']}", headers=_headers(USER_A)
+    ).json()
+    assert saved_match["is_stale"] is True
+    assert saved_match["resume_version"] == 1
+
+
+def test_saved_tailored_bullets_require_current_owned_citations(tenant_client):
+    resume = _create_resume(tenant_client, USER_A, "cited.pdf")
+    application = _create_application(tenant_client, USER_A, "Citation Co")
+    source = tenant_client.get(
+        f"/resume/{resume['id']}/source-items", headers=_headers(USER_A)
+    ).json()[0]
+
+    def payload(citations):
+        return {
+            "application_id": application["id"],
+            "resume_id": resume["id"],
+            "tailored_summary": "Grounded summary",
+            "tailored_skills": [],
+            "tailored_bullets": [
+                {
+                    "section": "Experience",
+                    "source_title": "Saved resume",
+                    "original_bullet": source["content"],
+                    "tailored_bullet": source["content"],
+                    "evidence_used": ["Saved resume"],
+                    "citations": citations,
+                }
+            ],
+            "tailoring_notes": [],
+        }
+
+    valid = tenant_client.post(
+        "/tailored-resumes",
+        headers=_headers(USER_A),
+        json=payload(
+            [
+                {
+                    "source_type": "resume_item",
+                    "source_id": source["id"],
+                    "source_version": source["source_version"],
+                }
+            ]
+        ),
+    )
+    assert valid.status_code == 200, valid.text
+
+    uncited = tenant_client.post(
+        "/tailored-resumes", headers=_headers(USER_A), json=payload([])
+    )
+    assert uncited.status_code == 422
+
+    foreign_resume = _create_resume(tenant_client, USER_B, "foreign-citation.pdf")
+    foreign_source = tenant_client.get(
+        f"/resume/{foreign_resume['id']}/source-items", headers=_headers(USER_B)
+    ).json()[0]
+    foreign = tenant_client.post(
+        "/tailored-resumes",
+        headers=_headers(USER_A),
+        json=payload(
+            [
+                {
+                    "source_type": "resume_item",
+                    "source_id": foreign_source["id"],
+                    "source_version": foreign_source["source_version"],
+                }
+            ]
+        ),
+    )
+    assert foreign.status_code == 422
+
+
+def test_evidence_ingestion_failure_is_visible_and_retryable(tenant_client, monkeypatch):
+    monkeypatch.setattr(retrieval_service, "embed_text", lambda _text: [0.0] * 1536)
+    created = tenant_client.post(
+        "/project-evidence",
+        headers=_headers(USER_A),
+        json={
+            "title": "API project",
+            "category": "project",
+            "description": "Built a Python API",
+            "skills": ["Python"],
+            "keywords": ["API"],
+            "bullet_bank": ["Reduced latency through caching"],
+            "links": [],
+            "verified_metrics": [{"label": "Latency", "value": "20%", "context": "Measured in load tests"}],
+        },
+    )
+    assert created.status_code == 200, created.text
+    evidence = created.json()
+    assert evidence["ingestion_status"] == "ready"
+    assert evidence["version"] == 1
+
+    def fail_embedding(_text):
+        raise RuntimeError("provider unavailable")
+
+    monkeypatch.setattr(retrieval_service, "embed_text", fail_embedding)
+    failed = tenant_client.patch(
+        f"/project-evidence/{evidence['id']}",
+        headers=_headers(USER_A),
+        json={"outcome": "Shipped to users"},
+    )
+    assert failed.status_code == 200, failed.text
+    assert failed.json()["ingestion_status"] == "failed"
+    assert "provider unavailable" not in failed.json()["ingestion_error"]
+
+    monkeypatch.setattr(retrieval_service, "embed_text", lambda _text: [0.0] * 1536)
+    retried = tenant_client.post(
+        f"/project-evidence/{evidence['id']}/retry",
+        headers=_headers(USER_A),
+    )
+    assert retried.status_code == 200, retried.text
+    assert retried.json()["ingestion_status"] == "ready"
+    assert retried.json()["version"] == 2
+
+
+def test_ai_suggested_metric_requires_explicit_user_confirmation(tenant_client, monkeypatch):
+    monkeypatch.setattr(retrieval_service, "embed_text", lambda _text: [0.0] * 1536)
+    created = tenant_client.post(
+        "/project-evidence",
+        headers=_headers(USER_A),
+        json={
+            "title": "Suggested metric project",
+            "category": "project",
+            "description": "Improved a service",
+            "skills": [],
+            "keywords": [],
+            "bullet_bank": [],
+            "links": [],
+            "verified_metrics": [],
+        },
+    )
+    assert created.status_code == 200
+    evidence_id = created.json()["id"]
+
+    with SessionLocal() as db:
+        evidence = db.get(ProjectEvidence, evidence_id)
+        evidence.ai_suggested_metrics = [
+            {
+                "label": "Latency",
+                "value": "20%",
+                "context": "AI suggestion awaiting user verification",
+            }
+        ]
+        db.commit()
+
+    before_confirmation = tenant_client.get(
+        f"/project-evidence/{evidence_id}", headers=_headers(USER_A)
+    ).json()
+    assert before_confirmation["verified_metrics"] == []
+    assert len(before_confirmation["ai_suggested_metrics"]) == 1
+
+    confirmed = tenant_client.post(
+        f"/project-evidence/{evidence_id}/confirm-metric",
+        headers=_headers(USER_A),
+        json={"suggestion_index": 0},
+    )
+    assert confirmed.status_code == 200, confirmed.text
+    assert confirmed.json()["ai_suggested_metrics"] == []
+    assert confirmed.json()["verified_metrics"] == [
+        {
+            "label": "Latency",
+            "value": "20%",
+            "context": "AI suggestion awaiting user verification",
+        }
+    ]
+    assert confirmed.json()["version"] == 2
