@@ -174,15 +174,16 @@ Phase 2 verification completed on 2026-07-18:
 - The operator configured the private AWS S3 bucket and restricted Render credentials; production verification remains pending after the migration hotfix. No storage secret belongs in Vercel.
 - A populated-database migration regression was added after Render exposed deferred foreign-key trigger events during the `0005` backfill. Commit `50fdb23` resolves constraints before enabling RLS and passed upgrade/downgrade/re-upgrade validation with existing resume data.
 
-### Phase 3 — Fresh job discovery and ingestion
+### Phase 3 — Relevant job discovery and ingestion
 
-Goal: proactively find relevant, recently posted roles from public or explicitly authorized sources based on each user's target role and experience preferences.
+Goal: proactively find relevant active roles from public or explicitly authorized sources based on each user's target role and experience preferences, while giving the user control over recency.
 
 #### User preferences and discovery
 
 - [ ] Add a job-search profile with target titles, adjacent titles, seniority/experience level, employment type, locations, remote/hybrid preferences, salary range, industries, required keywords, and excluded keywords or companies.
-- [ ] Let users create multiple saved searches and choose their notification frequency.
+- [ ] Let users create multiple saved searches, choose their notification frequency, and save a recency preference: last 24 hours, last 7 days, last 14 days, last 30 days, or all active postings.
 - [ ] Show a discovery feed with source, company, location, workplace type, posting date, freshness, and a concise explanation of why the role matches the saved search.
+- [ ] Offer `Recommended`, `Newest`, and `Most relevant` sorting. Recommended should combine relevance and recency without imposing a hidden age cutoff; the other modes should make their primary ordering explicit.
 - [ ] Support save, dismiss, hide company, mark duplicate, and convert-to-application actions without losing the original source URL and metadata.
 - [ ] Keep manual URL parsing and manual application creation available when a source is unsupported.
 
@@ -191,7 +192,8 @@ Goal: proactively find relevant, recently posted roles from public or explicitly
 - [ ] Build source adapters behind one normalized connector interface. Start with public Greenhouse, Lever, and Ashby company job boards or documented endpoints.
 - [ ] Treat LinkedIn and other restricted platforms as authorized integrations only: use an official/licensed API, approved partner feed, or user-provided job URL. Do not automate authenticated sessions, evade access controls, or bypass anti-bot systems.
 - [ ] Store source name, external job ID, canonical URL, source posting timestamp, first-seen timestamp, last-seen timestamp, and last verification status for every discovered job.
-- [ ] Admit jobs only when a trustworthy posting timestamp is no more than 14 days old. Quarantine records with missing or ambiguous dates instead of presenting them as fresh.
+- [ ] Ingest relevant active jobs regardless of age, then apply the user's selected recency window at query time rather than enforcing a global cutoff.
+- [ ] Clearly label jobs with missing or ambiguous source dates as `Date unavailable`; exclude them from finite recency filters and rank them below dated postings in recency-aware views.
 - [ ] Recheck active postings, mark removed/expired roles, and stop recommending jobs that are no longer available.
 - [ ] Normalize titles, locations, employment types, descriptions, and company identities across sources while retaining the raw source payload for debugging within a short retention window.
 
@@ -213,8 +215,10 @@ Goal: proactively find relevant, recently posted roles from public or explicitly
 
 Acceptance criteria:
 
-- Every recommended job has a verifiable source URL and posting timestamp no more than 14 days old at ingestion time.
-- A user can define a target role and experience profile, review relevant fresh jobs, dismiss or save them, and turn a saved job into an application.
+- Every recommended job has a verifiable source URL, and its source posting date is displayed when available.
+- A user can define a target role and experience profile, filter jobs to the last 24 hours, 7 days, 14 days, 30 days, or all active postings, and sort by recommended, newest, or most relevant.
+- Changing the recency filter changes only the user's view and saved-search behavior; it does not discard otherwise relevant active jobs from the shared ingestion catalog.
+- A user can review relevant jobs, dismiss or save them, and turn a saved job into an application.
 - The same role appearing on multiple sources is shown once, with source provenance retained.
 - No connector depends on an authenticated browser session or anti-bot bypass.
 - Connector failures do not block the application tracker or manual job-entry workflow.
@@ -361,7 +365,7 @@ Release gates:
 1. Phase 0 safety fixes and migrations.
 2. Phase 1 authentication plus complete ownership scoping.
 3. Phase 2 multiple resumes and evidence management.
-4. Phase 3 fresh job discovery through public/authorized ATS connectors.
+4. Phase 3 relevant job discovery through public/authorized ATS connectors.
 5. Phase 4 retrieval evaluation, tenant-safe hybrid search, citations, and grounding.
 6. Phase 5 structured matching, editable/versioned generation, and background jobs.
 7. Phase 6 guided UI redesign.
@@ -376,11 +380,11 @@ Begin Phase 3 with a narrow, testable public-ATS ingestion path:
 - [ ] Record an ADR for connector compliance boundaries, freshness semantics, raw-payload retention, and background job execution.
 - [ ] Add saved job-search profiles and normalized discovered-job/source records with per-user state.
 - [ ] Implement the connector interface plus one Greenhouse adapter using public employer-hosted data.
-- [ ] Enforce the 14-day freshness rule, canonical source attribution, deterministic deduplication, and removed-job rechecks.
+- [ ] Add user-selectable recency filters, recency/relevance sorting, canonical source attribution, deterministic deduplication, and removed-job rechecks.
 - [ ] Add a minimal discovery feed with save, dismiss, and convert-to-application actions.
 - [ ] Add fixture-based connector contract tests and database tests for ownership, freshness, deduplication, and idempotent re-ingestion.
 
-Definition of done for this slice: one user-configured search can ingest and display fresh Greenhouse roles, never show a posting older than 14 days, safely re-run without duplicates, remain isolated from other users, and convert a result into a normal RolePilot application.
+Definition of done for this slice: one user-configured search can ingest and display relevant Greenhouse roles, apply each recency preset correctly, sort by newest or relevance, safely re-run without duplicates, remain isolated from other users, and convert a result into a normal RolePilot application.
 
 ## Decisions to record before implementation
 
