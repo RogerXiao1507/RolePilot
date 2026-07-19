@@ -38,7 +38,7 @@ Phases 0, 1, and 2 are complete in code and are merged to `main`.
 - Commit `e28bb7b` contains the Phase 2 implementation.
 - Commit `50fdb23` fixes the populated-production migration failure caused by deferred foreign-key trigger events before row-level security was enabled. The fix and its populated-database regression test are pushed to GitHub.
 - The next production action is to confirm Render successfully deploys commit `50fdb23`, then perform the Phase 2 smoke test documented in `docs/phase2-data-foundation.md`.
-- After production verification, begin Phase 3. Start by measuring and preserving the current retrieval baseline before changing chunking, ranking, or embeddings.
+- After production verification, begin Phase 3 job discovery with public or explicitly authorized ATS sources. Preserve the existing manual job-entry flow while the ingestion pipeline is proven.
 
 ## Original audit findings and disposition
 
@@ -50,7 +50,7 @@ The original public/global query model was replaced with Auth0 authentication, i
 
 The personal skill inventory was removed. Generated skills and claims must come from the authenticated user's selected resume or evidence.
 
-### 3. Retrieval and grounding — foundation complete; quality work remains in Phase 3
+### 3. Retrieval and grounding — foundation complete; quality work remains in Phase 4
 
 Retrieval is tenant-filtered and Phase 2 introduced stable, versioned source citations. The hybrid baseline still uses fixed tuning, a broad job query, no reranker/diversity stage, and needs measured lexical/vector indexing and stronger post-generation grounding.
 
@@ -58,7 +58,7 @@ Retrieval is tenant-filtered and Phase 2 introduced stable, versioned source cit
 
 Exports now use the saved, user-approved draft and do not regenerate content during download.
 
-### 5. Production safety and reliability — partially resolved; continues in Phase 6
+### 5. Production safety and reliability — partially resolved; continues in Phase 7
 
 Alembic migrations, SSRF defenses, upload limits, safe errors, ownership tests, and broader backend coverage are in place. Rate limits, AI timeouts/retries, structured observability, cost controls, background jobs, backups, and operational release gates remain.
 
@@ -174,7 +174,60 @@ Phase 2 verification completed on 2026-07-18:
 - The operator configured the private AWS S3 bucket and restricted Render credentials; production verification remains pending after the migration hotfix. No storage secret belongs in Vercel.
 - A populated-database migration regression was added after Render exposed deferred foreign-key trigger events during the `0005` backfill. Commit `50fdb23` resolves constraints before enabling RLS and passed upgrade/downgrade/re-upgrade validation with existing resume data.
 
-### Phase 3 — Better retrieval and RAG
+### Phase 3 — Fresh job discovery and ingestion
+
+Goal: proactively find relevant, recently posted roles from public or explicitly authorized sources based on each user's target role and experience preferences.
+
+#### User preferences and discovery
+
+- [ ] Add a job-search profile with target titles, adjacent titles, seniority/experience level, employment type, locations, remote/hybrid preferences, salary range, industries, required keywords, and excluded keywords or companies.
+- [ ] Let users create multiple saved searches and choose their notification frequency.
+- [ ] Show a discovery feed with source, company, location, workplace type, posting date, freshness, and a concise explanation of why the role matches the saved search.
+- [ ] Support save, dismiss, hide company, mark duplicate, and convert-to-application actions without losing the original source URL and metadata.
+- [ ] Keep manual URL parsing and manual application creation available when a source is unsupported.
+
+#### Source connectors and freshness
+
+- [ ] Build source adapters behind one normalized connector interface. Start with public Greenhouse, Lever, and Ashby company job boards or documented endpoints.
+- [ ] Treat LinkedIn and other restricted platforms as authorized integrations only: use an official/licensed API, approved partner feed, or user-provided job URL. Do not automate authenticated sessions, evade access controls, or bypass anti-bot systems.
+- [ ] Store source name, external job ID, canonical URL, source posting timestamp, first-seen timestamp, last-seen timestamp, and last verification status for every discovered job.
+- [ ] Admit jobs only when a trustworthy posting timestamp is no more than 14 days old. Quarantine records with missing or ambiguous dates instead of presenting them as fresh.
+- [ ] Recheck active postings, mark removed/expired roles, and stop recommending jobs that are no longer available.
+- [ ] Normalize titles, locations, employment types, descriptions, and company identities across sources while retaining the raw source payload for debugging within a short retention window.
+
+#### Relevance, deduplication, and delivery
+
+- [ ] Apply inexpensive preference filters before semantic ranking so clearly wrong locations, experience levels, or employment types are excluded early.
+- [ ] Rank remaining jobs against the user's search profile and selected/default resume, with separate preference-match and resume-match signals rather than one opaque score.
+- [ ] Deduplicate reposts and cross-posted roles using source IDs, canonical URLs, normalized company/title/location fields, and description fingerprints.
+- [ ] Run ingestion and rechecks as bounded background jobs with per-source rate limits, retries, backoff, caching, and observable connector health.
+- [ ] Add optional in-app or email digests only after relevance and freshness quality are measured; avoid notifying users repeatedly about the same role.
+
+#### Compliance and safety
+
+- [ ] Document the allowed acquisition method, terms constraints, attribution requirements, rate limits, and retention policy for every connector before enabling it in production.
+- [ ] Respect robots directives where applicable, identify the service appropriately, and prefer documented APIs or employer-hosted ATS feeds over HTML scraping.
+- [ ] Never request or store a user's job-board password, browser cookies, or authenticated session tokens for scraping.
+- [ ] Reuse the URL-fetching SSRF protections and add strict redirect, response-size, timeout, content-type, and domain controls to every connector.
+- [ ] Add a connector kill switch so a source can be disabled without redeploying if its contract, markup, or access policy changes.
+
+Acceptance criteria:
+
+- Every recommended job has a verifiable source URL and posting timestamp no more than 14 days old at ingestion time.
+- A user can define a target role and experience profile, review relevant fresh jobs, dismiss or save them, and turn a saved job into an application.
+- The same role appearing on multiple sources is shown once, with source provenance retained.
+- No connector depends on an authenticated browser session or anti-bot bypass.
+- Connector failures do not block the application tracker or manual job-entry workflow.
+
+Initial source order:
+
+1. Greenhouse public employer job boards.
+2. Lever public employer job boards.
+3. Ashby public employer job boards.
+4. Additional documented ATS feeds based on coverage gaps.
+5. LinkedIn only through an official/licensed integration or user-provided URLs.
+
+### Phase 4 — Better retrieval and RAG
 
 Goal: retrieve the smallest, most relevant set of user evidence and make its use visible and testable.
 
@@ -216,7 +269,7 @@ Initial release targets:
 - 0 unsupported numeric claims in the grounding test set.
 - P95 retrieval latency under 500 ms excluding initial evidence ingestion.
 
-### Phase 4 — Better tailoring and match quality
+### Phase 5 — Better tailoring and match quality
 
 Goal: make feedback specific, reproducible, and useful without overstating fit.
 
@@ -238,7 +291,7 @@ Acceptance criteria:
 - Match labels are deterministic from structured values and do not depend on prose wording.
 - Failed AI requests can be retried safely without duplicate records.
 
-### Phase 5 — Better UI and product workflow
+### Phase 6 — Better UI and product workflow
 
 Goal: make the product feel like one guided workflow rather than several large output cards.
 
@@ -281,7 +334,7 @@ Acceptance criteria:
 - The UI clearly communicates selected resume, source freshness, generation progress, save status, and export readiness.
 - Core flows pass keyboard-only and automated accessibility checks at mobile and desktop widths.
 
-### Phase 6 — Testing, observability, and operations
+### Phase 7 — Testing, observability, and operations
 
 Goal: make releases safe and AI behavior measurable in production.
 
@@ -308,25 +361,26 @@ Release gates:
 1. Phase 0 safety fixes and migrations.
 2. Phase 1 authentication plus complete ownership scoping.
 3. Phase 2 multiple resumes and evidence management.
-4. Phase 3 retrieval evaluation, tenant-safe hybrid search, citations, and grounding.
-5. Phase 4 structured matching, editable/versioned generation, and background jobs.
-6. Phase 5 guided UI redesign.
-7. Phase 6 runs throughout all phases and becomes a release gate before broader launch.
+4. Phase 3 fresh job discovery through public/authorized ATS connectors.
+5. Phase 4 retrieval evaluation, tenant-safe hybrid search, citations, and grounding.
+6. Phase 5 structured matching, editable/versioned generation, and background jobs.
+7. Phase 6 guided UI redesign.
+8. Phase 7 runs throughout all phases and becomes a release gate before broader launch.
 
 Authentication should not be postponed behind UI polish or RAG tuning. Retrieval work must happen after ownership fields exist so indexes, filters, evaluation fixtures, and service APIs are designed correctly once.
 
 ## Next implementation slice
 
-Begin Phase 3 with a measured retrieval baseline and an inspectable candidate pipeline:
+Begin Phase 3 with a narrow, testable public-ATS ingestion path:
 
-- [ ] Run and record the existing keyword, semantic, and hybrid evaluation metrics without changing retrieval behavior.
-- [ ] Inventory the current chunk schema, retrieval SQL, ownership predicates, embedding cache behavior, and prompt citation inputs.
-- [ ] Add retrieval metadata and content hashes needed for reproducible indexing without invalidating stable Phase 2 source IDs.
-- [ ] Add PostgreSQL lexical search and a pgvector ANN index, then inspect query plans with tenant filters applied before ranking.
-- [ ] Retrieve a wider candidate set, deduplicate and diversify it, and rerank to a smaller cited context set.
-- [ ] Extend offline evaluation and CI regression coverage before changing production defaults.
+- [ ] Record an ADR for connector compliance boundaries, freshness semantics, raw-payload retention, and background job execution.
+- [ ] Add saved job-search profiles and normalized discovered-job/source records with per-user state.
+- [ ] Implement the connector interface plus one Greenhouse adapter using public employer-hosted data.
+- [ ] Enforce the 14-day freshness rule, canonical source attribution, deterministic deduplication, and removed-job rechecks.
+- [ ] Add a minimal discovery feed with save, dismiss, and convert-to-application actions.
+- [ ] Add fixture-based connector contract tests and database tests for ownership, freshness, deduplication, and idempotent re-ingestion.
 
-Definition of done for this slice: the new pipeline beats the recorded hybrid baseline on held-out retrieval metrics, preserves strict user isolation, returns stable source citations, and stays within the Phase 3 latency target.
+Definition of done for this slice: one user-configured search can ingest and display fresh Greenhouse roles, never show a posting older than 14 days, safely re-run without duplicates, remain isolated from other users, and convert a result into a normal RolePilot application.
 
 ## Decisions to record before implementation
 
@@ -355,7 +409,7 @@ Create short architecture decision records for:
 ## Explicit non-goals for the next release
 
 - Automatic job application submission.
-- Scraping authenticated job boards or bypassing anti-bot controls.
+- Authenticated-session scraping, credential/cookie collection, access-control evasion, or anti-bot bypass. Job discovery itself is a Phase 3 goal through public, documented, licensed, or otherwise explicitly authorized sources.
 - Social/community features or public resume sharing.
 - Training a custom foundation model before retrieval and grounding are measured.
 - Complex team/organization tenancy; start with one private workspace per individual user.
