@@ -115,6 +115,11 @@ def upgrade() -> None:
         FROM resumes AS resume
         """
     )
+    # Existing production resumes cause the deferrable owner FK above to queue
+    # trigger checks for the backfilled rows. PostgreSQL will not ALTER this
+    # table while those trigger events are pending, so validate them before
+    # enabling RLS. Fresh empty databases do not expose this ordering issue.
+    op.execute("SET CONSTRAINTS ALL IMMEDIATE")
     op.execute('ALTER TABLE "resume_source_items" ENABLE ROW LEVEL SECURITY')
     op.execute(
         'CREATE POLICY "resume_source_items_owner_isolation" ON "resume_source_items" '

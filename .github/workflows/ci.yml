@@ -91,8 +91,43 @@ jobs:
         run: |
           echo "Automated checks in this workflow: 5 (frontend lint, frontend type check, frontend build, Alembic migration validation, backend pytest with coverage)"
 
-      - name: Validate Alembic upgrade, schema, and rollback
+      - name: Validate populated Phase 1 upgrade, schema, and rollback
         run: |
+          alembic upgrade 0004_resume_library
+          python - <<'PY'
+          import os
+          from sqlalchemy import create_engine, text
+
+          engine = create_engine(os.environ["DATABASE_URL"])
+          with engine.begin() as connection:
+              connection.execute(text("""
+                  INSERT INTO users (id, external_subject, email, name)
+                  VALUES (
+                    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+                    'auth0|migration-regression',
+                    'migration@example.com',
+                    'Migration Regression'
+                  );
+                  INSERT INTO resumes (
+                    user_id, label, file_name, extracted_text, summary, strengths,
+                    weaknesses, wording_issues, missing_metrics, suggested_improvements,
+                    is_default, is_archived
+                  ) VALUES (
+                    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+                    'Existing Resume',
+                    'existing.pdf',
+                    'Existing resume text',
+                    'Existing summary',
+                    ARRAY['Python'],
+                    ARRAY[]::varchar[],
+                    ARRAY[]::varchar[],
+                    ARRAY[]::varchar[],
+                    ARRAY[]::varchar[],
+                    true,
+                    false
+                  );
+              """))
+          PY
           alembic upgrade head
           alembic check
           alembic downgrade base
