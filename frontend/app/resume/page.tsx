@@ -179,6 +179,9 @@ export default function ResumePage() {
             <Link href="/applications" className="rp-nav-link">
               Dashboard
             </Link>
+            <Link href="/discover" className="rp-nav-link">
+              Discover Jobs
+            </Link>
             <Link href="/evidence" className="rp-nav-link">
               Evidence
             </Link>

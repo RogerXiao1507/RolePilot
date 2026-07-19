@@ -291,3 +291,89 @@ export type ResumeSourceItem = {
   created_at: string
   updated_at: string
 }
+
+export type JobRecency = "24h" | "7d" | "14d" | "30d" | "all"
+export type JobSort = "recommended" | "newest" | "most_relevant"
+export type DiscoveryActionState = "saved" | "dismissed" | "duplicate" | "converted"
+
+export type JobSearchInput = {
+  name: string
+  resume_id: number | null
+  target_titles: string[]
+  adjacent_titles: string[]
+  seniority_levels: string[]
+  employment_types: string[]
+  locations: string[]
+  workplace_types: string[]
+  salary_min: number | null
+  salary_max: number | null
+  salary_currency: string
+  industries: string[]
+  required_keywords: string[]
+  excluded_keywords: string[]
+  excluded_companies: string[]
+  recency: JobRecency
+  notification_frequency: "off" | "daily" | "weekly"
+  is_active: boolean
+}
+
+export type JobSearch = JobSearchInput & {
+  id: string
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export type JobSource = {
+  source_name: string
+  external_job_id: string
+  canonical_url: string
+  source_posted_at: string | null
+  source_updated_at: string | null
+  last_verified_at: string
+  verification_status: string
+}
+
+export type DiscoveryJob = {
+  id: string
+  company_name: string
+  title: string
+  location: string | null
+  workplace_type: string | null
+  employment_type: string | null
+  seniority_level: string | null
+  industry: string | null
+  salary_min: number | null
+  salary_max: number | null
+  salary_currency: string | null
+  description: string
+  source_posted_at: string | null
+  freshness_label: string
+  preference_match_score: number
+  resume_match_score: number | null
+  recommended_score: number
+  match_reasons: string[]
+  action_state: DiscoveryActionState | null
+  sources: JobSource[]
+}
+
+export type DiscoveryFeed = {
+  search_id: string
+  recency: JobRecency
+  sort: JobSort
+  items: DiscoveryJob[]
+}
+
+export type DiscoveryAction = {
+  discovered_job_id: string
+  state: DiscoveryActionState
+  application_id: number | null
+}
+
+export type DiscoveryCatalogStatus = {
+  configured_connector_count: number
+  configured_sources: string[]
+  active_job_count: number
+  active_source_count: number
+  last_verified_at: string | null
+}

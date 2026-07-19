@@ -15,9 +15,118 @@ import {
   ProjectEvidence,
   ProjectEvidenceInput,
   ResumeSourceItem,
+  DiscoveryAction,
+  DiscoveryCatalogStatus,
+  DiscoveryActionState,
+  DiscoveryFeed,
+  JobRecency,
+  JobSearch,
+  JobSearchInput,
+  JobSort,
 } from "@/lib/types";
 
 const API_BASE = "/api/backend";
+
+async function apiError(res: Response, fallback: string): Promise<Error> {
+  try {
+    const body = await res.json() as { detail?: string | Array<{ msg?: string }> }
+    if (typeof body.detail === "string") return new Error(body.detail)
+    if (Array.isArray(body.detail)) {
+      return new Error(body.detail.map((item) => item.msg).filter(Boolean).join(" ") || fallback)
+    }
+  } catch {
+    // Fall through to the user-safe message.
+  }
+  return new Error(fallback)
+}
+
+export async function getJobSearches(): Promise<JobSearch[]> {
+  const res = await fetch(`${API_BASE}/job-discovery/searches`, { cache: "no-store" })
+  if (!res.ok) throw await apiError(res, "Could not load saved searches.")
+  return res.json()
+}
+
+export async function getDiscoveryCatalogStatus(): Promise<DiscoveryCatalogStatus> {
+  const res = await fetch(`${API_BASE}/job-discovery/status`, { cache: "no-store" })
+  if (!res.ok) throw await apiError(res, "Could not load discovery catalog status.")
+  return res.json()
+}
+
+export async function createJobSearch(payload: JobSearchInput): Promise<JobSearch> {
+  const res = await fetch(`${API_BASE}/job-discovery/searches`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw await apiError(res, "Could not create the saved search.")
+  return res.json()
+}
+
+export async function updateJobSearch(
+  id: string,
+  payload: Partial<JobSearchInput>
+): Promise<JobSearch> {
+  const res = await fetch(`${API_BASE}/job-discovery/searches/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw await apiError(res, "Could not update the saved search.")
+  return res.json()
+}
+
+export async function deleteJobSearch(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/job-discovery/searches/${id}`, { method: "DELETE" })
+  if (!res.ok) throw await apiError(res, "Could not delete the saved search.")
+}
+
+export async function getDiscoveryFeed(params: {
+  searchId: string
+  recency: JobRecency
+  sort: JobSort
+}): Promise<DiscoveryFeed> {
+  const query = new URLSearchParams({
+    search_id: params.searchId,
+    recency: params.recency,
+    sort: params.sort,
+  })
+  const res = await fetch(`${API_BASE}/job-discovery/feed?${query}`, { cache: "no-store" })
+  if (!res.ok) throw await apiError(res, "Could not load discovered jobs.")
+  return res.json()
+}
+
+export async function setDiscoveryAction(
+  jobId: string,
+  state: Exclude<DiscoveryActionState, "converted">
+): Promise<DiscoveryAction> {
+  const res = await fetch(`${API_BASE}/job-discovery/jobs/${jobId}/action`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ state }),
+  })
+  if (!res.ok) throw await apiError(res, "Could not update that job.")
+  return res.json()
+}
+
+export async function clearDiscoveryAction(jobId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/job-discovery/jobs/${jobId}/action`, {
+    method: "DELETE",
+  })
+  if (!res.ok) throw await apiError(res, "Could not clear that job action.")
+}
+
+export async function convertDiscoveryJob(
+  jobId: string,
+  searchId: string
+): Promise<DiscoveryAction & { application_id: number }> {
+  const res = await fetch(`${API_BASE}/job-discovery/jobs/${jobId}/convert`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ search_id: searchId }),
+  })
+  if (!res.ok) throw await apiError(res, "Could not convert this job to an application.")
+  return res.json()
+}
 
 export async function getApplications(): Promise<Application[]> {
   const res = await fetch(`${API_BASE}/applications`, {

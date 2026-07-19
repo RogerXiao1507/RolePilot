@@ -4,8 +4,8 @@ Last updated: 2026-07-19
 
 ## Current scope
 
-This first Phase 3 slice adds the backend foundation for relevant job discovery
-without changing or removing manual application creation and URL parsing.
+This Phase 3 slice adds the backend foundation and an authenticated discovery
+workspace without changing or removing manual application creation and URL parsing.
 
 Implemented:
 
@@ -23,10 +23,14 @@ Implemented:
   Ashby, SmartRecruiters, and Personio employer-board implementations.
 - Active-posting rechecks, removal handling, exact normalized deduplication, a
   seven-day raw-payload retention window, and a default-off startup safety flag.
+- A `/discover` frontend for saved-search creation/editing, recency and sort
+  controls, match signals and reasons, source links, job actions, company hiding,
+  and conversion into the existing application workflow.
+- Authenticated catalog health showing active normalized jobs, active provenance
+  rows, and the most recent source verification time.
 
 Not yet implemented:
 
-- The discovery and saved-search frontend.
 - Scheduled background execution, connector retries/backoff, health metrics, and
   per-source rate-budget enforcement.
 - Broader fuzzy cross-source deduplication and measured relevance evaluation.
@@ -60,6 +64,7 @@ All endpoints require the existing authenticated API session.
 
 - `GET /job-discovery/searches`
 - `POST /job-discovery/searches`
+- `GET /job-discovery/status`
 - `GET /job-discovery/searches/{search_id}`
 - `PATCH /job-discovery/searches/{search_id}`
 - `DELETE /job-discovery/searches/{search_id}`
@@ -220,6 +225,13 @@ sync from the backend directory:
 ```bash
 python scripts/sync_job_sources.py
 ```
+
+The feeds above are public employer ATS feeds. They do not require a user account,
+job-board password, OAuth token, or vendor API key. The operator only supplies the
+public board/account identifiers in environment configuration. Run the command on
+a conservative schedule (for example, a Render Cron Job) using the same backend
+image and environment; the script returns a non-zero exit code when any configured
+connector fails so the scheduler can alert.
 
 Each connector is scoped by source plus board/account (and Lever region). Each sync
 upserts current jobs, records first/last seen times, marks source posts missing from

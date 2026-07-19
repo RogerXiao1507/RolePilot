@@ -224,3 +224,11 @@ class DiscoveryActionResponse(BaseModel):
 
 class ConvertToApplicationResponse(DiscoveryActionResponse):
     application_id: int
+
+
+class DiscoveryCatalogStatusResponse(BaseModel):
+    configured_connector_count: int
+    configured_sources: list[str]
+    active_job_count: int
+    active_source_count: int
+    last_verified_at: datetime | None

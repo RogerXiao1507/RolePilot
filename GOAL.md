@@ -187,12 +187,12 @@ Phase 3 backend foundation started on 2026-07-19:
 
 #### User preferences and discovery
 
-- [ ] Add a job-search profile with target titles, adjacent titles, seniority/experience level, employment type, locations, remote/hybrid preferences, salary range, industries, required keywords, and excluded keywords or companies.
-- [ ] Let users create multiple saved searches, choose their notification frequency, and save a recency preference: last 24 hours, last 7 days, last 14 days, last 30 days, or all active postings.
-- [ ] Show a discovery feed with source, company, location, workplace type, posting date, freshness, and a concise explanation of why the role matches the saved search.
-- [ ] Offer `Recommended`, `Newest`, and `Most relevant` sorting. Recommended should combine relevance and recency without imposing a hidden age cutoff; the other modes should make their primary ordering explicit.
-- [ ] Support save, dismiss, hide company, mark duplicate, and convert-to-application actions without losing the original source URL and metadata.
-- [ ] Keep manual URL parsing and manual application creation available when a source is unsupported.
+- [x] Add a job-search profile with target titles, adjacent titles, seniority/experience level, employment type, locations, remote/hybrid preferences, salary range, industries, required keywords, and excluded keywords or companies.
+- [x] Let users create multiple saved searches, choose their notification frequency, and save a recency preference: last 24 hours, last 7 days, last 14 days, last 30 days, or all active postings.
+- [x] Show a discovery feed with source, company, location, workplace type, posting date, freshness, and a concise explanation of why the role matches the saved search.
+- [x] Offer `Recommended`, `Newest`, and `Most relevant` sorting. Recommended should combine relevance and recency without imposing a hidden age cutoff; the other modes should make their primary ordering explicit.
+- [x] Support save, dismiss, hide company, mark duplicate, and convert-to-application actions without losing the original source URL and metadata.
+- [x] Keep manual URL parsing and manual application creation available when a source is unsupported.
 
 #### Source connectors and freshness
 

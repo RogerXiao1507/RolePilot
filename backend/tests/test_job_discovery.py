@@ -536,6 +536,12 @@ def test_saved_search_recency_actions_and_conversion(discovery_client):
         recent_id, old_id, unknown_id = recent.id, old.id, unknown.id
         db.commit()
 
+    status = discovery_client.get("/job-discovery/status")
+    assert status.status_code == 200, status.text
+    assert status.json()["active_job_count"] >= 3
+    assert status.json()["active_source_count"] >= 3
+    assert status.json()["last_verified_at"] is not None
+
     created = discovery_client.post(
         "/job-discovery/searches",
         json={

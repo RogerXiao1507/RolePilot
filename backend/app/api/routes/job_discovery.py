@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
@@ -16,6 +16,7 @@ from app.models.user import User
 from app.schemas.job_discovery import (
     ConvertToApplicationRequest,
     ConvertToApplicationResponse,
+    DiscoveryCatalogStatusResponse,
     DiscoveryActionRequest,
     DiscoveryActionResponse,
     DiscoveryFeedResponse,
@@ -26,9 +27,35 @@ from app.schemas.job_discovery import (
     JobSourceResponse,
 )
 from app.services.job_discovery_service import build_discovery_feed, freshness_label
+from app.services.job_connectors import configured_connectors
 
 
 router = APIRouter(prefix="/job-discovery", tags=["job-discovery"])
+
+
+@router.get("/status", response_model=DiscoveryCatalogStatusResponse)
+def discovery_catalog_status(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    del current_user
+    connectors = configured_connectors()
+    source_names = sorted({connector.source_name for connector in connectors})
+    return DiscoveryCatalogStatusResponse(
+        configured_connector_count=len(connectors),
+        configured_sources=source_names,
+        active_job_count=db.scalar(
+            select(func.count(DiscoveredJob.id)).where(
+                DiscoveredJob.verification_status == "active"
+            )
+        ) or 0,
+        active_source_count=db.scalar(
+            select(func.count(JobSourcePosting.id)).where(
+                JobSourcePosting.verification_status == "active"
+            )
+        ) or 0,
+        last_verified_at=db.scalar(select(func.max(JobSourcePosting.last_verified_at))),
+    )
 
 
 def _owned_search(db: Session, *, search_id: UUID, user_id) -> JobSearch:

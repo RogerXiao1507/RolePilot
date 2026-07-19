@@ -15,6 +15,9 @@ export default function NewApplicationPage() {
             <Link href="/applications" className="rp-nav-link">
               Back to Dashboard
             </Link>
+            <Link href="/discover" className="rp-nav-link">
+              Discover Jobs
+            </Link>
             <Link href="/resume" className="rp-nav-link">
               Resumes
             </Link>

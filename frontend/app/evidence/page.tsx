@@ -189,6 +189,7 @@ export default function EvidencePage() {
           </Link>
           <div className="rp-nav">
             <Link href="/applications" className="rp-nav-link">Dashboard</Link>
+            <Link href="/discover" className="rp-nav-link">Discover Jobs</Link>
             <Link href="/resume" className="rp-nav-link">Resumes</Link>
             <AccountMenu />
           </div>

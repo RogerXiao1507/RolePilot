@@ -375,6 +375,26 @@ textarea {
   padding: 24px;
 }
 
+.rp-search-option {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
+  text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.rp-search-option:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-muted);
+}
+
+.rp-search-option-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .rp-error {
   border: 1px solid rgba(180, 56, 45, 0.34);
   border-radius: 8px;

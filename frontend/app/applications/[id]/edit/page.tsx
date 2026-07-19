@@ -26,6 +26,9 @@ export default async function EditApplicationPage({ params }: PageProps) {
             <Link href="/applications" className="rp-nav-link">
               Dashboard
             </Link>
+            <Link href="/discover" className="rp-nav-link">
+              Discover Jobs
+            </Link>
             <Link href="/resume" className="rp-nav-link">
               Resumes
             </Link>
